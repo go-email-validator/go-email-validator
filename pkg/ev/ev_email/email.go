@@ -1,6 +1,9 @@
-package ev
+package ev_email
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type EmailAddressInterface interface {
 	GetUsername() string
@@ -24,4 +27,12 @@ func (e EmailAddress) GetDomain() string {
 
 func (e EmailAddress) String() string {
 	return e.GetUsername() + e.atSymbol + e.GetDomain()
+}
+
+func NewEmailAddress(username, domain string) EmailAddressInterface {
+	return EmailAddress{
+		strings.ToLower(username),
+		strings.ToLower(domain),
+		"@",
+	}
 }

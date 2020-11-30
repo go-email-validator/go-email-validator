@@ -1,30 +1,24 @@
 package ev
 
-type DisposableInterface interface {
-	disposable(domain string) bool
-}
+import (
+	"bitbucket.org/maranqz/email-validator/pkg/ev/disposable"
+	"bitbucket.org/maranqz/email-validator/pkg/ev/ev_email"
+)
 
-type SetDisposable struct {
-	set StringSet
-}
-
-func (s SetDisposable) disposable(domain string) bool {
-	_, ok := s.set[domain]
-	return ok
-}
+const DisposableValidatorName = "DisposableValidatorInterface"
 
 type DisposableValidatorInterface interface {
 	ValidatorInterface
 }
 
-func NewDisposableValidator(d DisposableInterface) ValidatorInterface {
+func NewDisposableValidator(d disposable.Interface) ValidatorInterface {
 	return DisposableValidator{d}
 }
 
 type DisposableValidator struct {
-	d DisposableInterface
+	d disposable.Interface
 }
 
-func (d DisposableValidator) Validate(email EmailAddressInterface) ValidationResultInterface {
-	return NewValidatorResult(d.d.disposable(email.GetDomain()), nil, nil)
+func (d DisposableValidator) Validate(email ev_email.EmailAddressInterface) ValidationResultInterface {
+	return NewValidatorResult(d.d.Disposable(email), nil, nil)
 }

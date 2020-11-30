@@ -1,7 +1,9 @@
 package ev
 
+import "bitbucket.org/maranqz/email-validator/pkg/ev/ev_email"
+
 type ValidatorInterface interface {
-	Validate(email EmailAddressInterface) ValidationResultInterface
+	Validate(email ev_email.EmailAddressInterface) ValidationResultInterface
 }
 
 type ValidationResultInterface interface {

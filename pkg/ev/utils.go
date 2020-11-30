@@ -6,16 +6,6 @@ import (
 	"reflect"
 )
 
-type Void struct{}
-
-type StringSet map[string]Void
-
-func GetVoid() Void {
-	var member Void
-
-	return member
-}
-
 func Async(f interface{}, args ...interface{}) <-chan []interface{} {
 	ch := make(chan []interface{})
 	go func() {
@@ -63,14 +53,6 @@ func GetString(i interface{}) (string, error) {
 	}
 
 	return "", fmt.Errorf("argument \"%s\" should be fmt.Stringer or string", i)
-}
-
-func getType(v interface{}) string {
-	if t := reflect.TypeOf(v); t.Kind() == reflect.Ptr {
-		return "*" + t.Elem().Name()
-	} else {
-		return t.Name()
-	}
 }
 
 func RangeLen(i interface{}) int {

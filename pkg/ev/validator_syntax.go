@@ -1,14 +1,25 @@
 package ev
 
 import (
+	"bitbucket.org/maranqz/email-validator/pkg/ev/ev_email"
 	"net/mail"
 )
 
+const SyntaxValidatorName = "SyntaxValidatorResultInterface"
+
+type SyntaxValidatorResultInterface interface {
+	ValidationResultInterface
+}
+
+type SyntaxValidatorInterface interface {
+	ValidatorInterface
+}
+
 type SyntaxValidator struct{}
 
-func (s SyntaxValidator) Validate(email EmailAddressInterface) ValidationResultInterface {
+func (s SyntaxValidator) Validate(email ev_email.EmailAddressInterface) ValidationResultInterface {
 	var err error
 	_, err = mail.ParseAddress(email.String())
 
-	return NewValidatorResult(err != nil, []error{err}, nil)
+	return NewValidatorResult(err == nil, []error{err}, nil)
 }
