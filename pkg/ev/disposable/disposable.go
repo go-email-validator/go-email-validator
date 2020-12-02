@@ -2,29 +2,20 @@ package disposable
 
 import (
 	"bitbucket.org/maranqz/email-validator/pkg/ev/ev_email"
+	"bitbucket.org/maranqz/email-validator/pkg/ev/utils"
 	mail_checker "github.com/FGRibreau/mailchecker/platform/go"
 )
-
-type Void struct{}
-
-func GetVoid() Void {
-	var member Void
-
-	return member
-}
-
-type StringSet map[string]Void
 
 type Interface interface {
 	Disposable(email ev_email.EmailAddressInterface) bool
 }
 
 type SetDisposable struct {
-	set StringSet
+	set utils.StringSet
 }
 
 func (s SetDisposable) Disposable(email ev_email.EmailAddressInterface) bool {
-	_, ok := s.set[email.GetDomain()]
+	_, ok := s.set[email.Domain()]
 	return ok
 }
 

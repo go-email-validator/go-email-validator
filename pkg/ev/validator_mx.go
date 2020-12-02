@@ -2,24 +2,23 @@ package ev
 
 import (
 	"bitbucket.org/maranqz/email-validator/pkg/ev/ev_email"
+	"bitbucket.org/maranqz/email-validator/pkg/ev/utils"
 	"net"
 )
 
 const MXValidatorName = "MXValidatorInterface"
 
-type MXs = []*net.MX
-
 type MXValidationResultInterface interface {
-	MX() MXs
+	MX() utils.MXs
 	ValidationResultInterface
 }
 
 type MXValidationResult struct {
-	mx MXs
+	mx utils.MXs
 	AValidationResult
 }
 
-func (v MXValidationResult) MX() MXs {
+func (v MXValidationResult) MX() utils.MXs {
 	return v.mx
 }
 
@@ -30,9 +29,9 @@ type MXValidatorInterface interface {
 type MXValidator struct{}
 
 func (v MXValidator) Validate(email ev_email.EmailAddressInterface) ValidationResultInterface {
-	var mxs MXs
+	var mxs utils.MXs
 	var err error
-	mxs, err = net.LookupMX(email.GetDomain())
+	mxs, err = net.LookupMX(email.Domain())
 
 	return MXValidationResult{
 		mxs,

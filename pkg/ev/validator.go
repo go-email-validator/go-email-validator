@@ -1,6 +1,9 @@
 package ev
 
-import "bitbucket.org/maranqz/email-validator/pkg/ev/ev_email"
+import (
+	"bitbucket.org/maranqz/email-validator/pkg/ev/ev_email"
+	"bitbucket.org/maranqz/email-validator/pkg/ev/utils"
+)
 
 type ValidatorInterface interface {
 	Validate(email ev_email.EmailAddressInterface) ValidationResultInterface
@@ -30,7 +33,7 @@ func (a AValidationResult) Errors() interface{} {
 }
 
 func (a AValidationResult) HasErrors() bool {
-	return RangeLen(a.Errors()) > 0
+	return utils.RangeLen(a.Errors()) > 0
 }
 
 func (a AValidationResult) Warnings() interface{} {
@@ -38,7 +41,7 @@ func (a AValidationResult) Warnings() interface{} {
 }
 
 func (a AValidationResult) HasWarnings() bool {
-	return RangeLen(a.Warnings()) > 0
+	return utils.RangeLen(a.Warnings()) > 0
 }
 
 type ValidationResult = AValidationResult

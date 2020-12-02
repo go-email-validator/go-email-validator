@@ -1,10 +1,23 @@
-package ev
+package utils
 
 import (
 	"fmt"
 	"go/types"
+	"net"
 	"reflect"
 )
+
+type MXs = []*net.MX
+
+type Void struct{}
+
+func GetVoid() Void {
+	var member Void
+
+	return member
+}
+
+type StringSet map[string]Void
 
 func Async(f interface{}, args ...interface{}) <-chan []interface{} {
 	ch := make(chan []interface{})

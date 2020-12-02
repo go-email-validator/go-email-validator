@@ -2,6 +2,8 @@ package ev
 
 import (
 	"bitbucket.org/maranqz/email-validator/pkg/ev/ev_email"
+	"bitbucket.org/maranqz/email-validator/pkg/ev/smtp_checker"
+	"bitbucket.org/maranqz/email-validator/pkg/ev/utils"
 	"context"
 	"fmt"
 	"github.com/smancke/mailck"
@@ -18,27 +20,8 @@ type SMTPValidatorInterface interface {
 }
 
 type SMTPValidator struct {
-	port      uint16
-	fromEmail ev_email.EmailAddressInterface
-	helloName string
+	checker smtp_checker.CheckerInterface
 	ADepValidator
-}
-
-func NewSMTPValidator(fromEmail ev_email.EmailAddressInterface, port *uint16) *SMTPValidator {
-	if fromEmail == nil {
-		fromEmail = ev_email.NewEmailAddress("user", "example.org")
-	}
-	if port == nil {
-		port = new(uint16)
-		*port = 25
-	}
-
-	return &SMTPValidator{
-		*port,
-		fromEmail,
-		"localhost",
-		ADepValidator{},
-	}
 }
 
 func (a *SMTPValidator) GetDeps() []string {
@@ -46,16 +29,19 @@ func (a *SMTPValidator) GetDeps() []string {
 }
 
 func (a *SMTPValidator) Validate(email ev_email.EmailAddressInterface) ValidationResultInterface {
-	var err error = nil
-	var result mailck.Result
+	var err smtp_checker.SMTPError = nil
+	var isValid = false
+	var errs = make([]smtp_checker.SMTPError, 0)
 	syntaxResult := (*a.results)[0].(SyntaxValidatorResultInterface)
 	mxResult := (*a.results)[1].(MXValidationResultInterface)
 
 	if syntaxResult.IsValid() && mxResult.IsValid() {
-		result, err = checkMailbox(mxResult.MX(), email.String(), a.fromEmail.String())
+		//FIX create builder of valid because it is very strict validation
+		isValid, err = a.checker.Validate(mxResult.MX(), email)
+		errs = append(errs, err)
 	}
 
-	return NewValidatorResult(err == nil && result.IsValid(), nil, nil)
+	return NewValidatorResult(isValid, errs, nil)
 }
 
 var noContext = context.Background()
@@ -67,7 +53,7 @@ func newDialer() net.Dialer {
 	return defaultDialer
 }
 
-func checkMailbox(mxList MXs, checkEmail, fromEmail string) (result mailck.Result, err error) {
+func checkMailbox(mxList utils.MXs, checkEmail, fromEmail string) (result mailck.Result, err error) {
 	if len(mxList) == 0 {
 		return mailck.InvalidDomain, nil
 	}
@@ -79,7 +65,7 @@ type checkRv struct {
 	err error
 }
 
-// get from https://github.com/FGRibreau/mailchecker/blob/master/platform/go/mail_checker.go
+// get from https://github.com/smancke/mailck/blob/master/check.go
 func checkMailboxMailck(ctx context.Context, fromEmail, checkEmail string, mxList []*net.MX, port int) (result mailck.Result, err error) {
 	// try to connect to one mx
 	var c *smtp.Client

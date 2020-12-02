@@ -6,7 +6,7 @@ import (
 )
 
 func BenchmarkSMTPValidator_Validate_MX(b *testing.B) {
-	email := ev_email.NewEmailAddress("ilia.sergunin", "gmail.com")
+	email := ev_email.NewEmail("go.email.validator", "gmail.com")
 
 	depValidator := DepValidator{
 		map[string]ValidatorInterface{
