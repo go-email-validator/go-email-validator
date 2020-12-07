@@ -6,37 +6,50 @@ import (
 )
 
 type ValidatorInterface interface {
-	Validate(email ev_email.EmailAddressInterface) ValidationResultInterface
+	GetDeps() []string
+	Validate(email ev_email.EmailAddressInterface, results ...ValidationResultInterface) ValidationResultInterface
+}
+
+type ChangeableValidationResultInterface interface {
+	SetErrors([]error)
+	SetWarnings([]error)
 }
 
 type ValidationResultInterface interface {
 	IsValid() bool
-	Errors() interface{}
+	Errors() []error
 	HasErrors() bool
-	Warnings() interface{}
+	Warnings() []error
 	HasWarnings() bool
 }
 
 // Abstract class for result of validation
 type AValidationResult struct {
 	isValid  bool
-	errors   interface{}
-	warnings interface{}
+	errors   []error
+	warnings []error
 }
 
 func (a AValidationResult) IsValid() bool {
 	return a.isValid
 }
 
-func (a AValidationResult) Errors() interface{} {
+func (a *AValidationResult) SetErrors(errors []error) {
+	a.isValid = len(errors) == 0
+	a.errors = errors
+}
+
+func (a AValidationResult) Errors() []error {
 	return a.errors
 }
 
 func (a AValidationResult) HasErrors() bool {
 	return utils.RangeLen(a.Errors()) > 0
 }
-
-func (a AValidationResult) Warnings() interface{} {
+func (a *AValidationResult) SetWarnings(warnings []error) {
+	a.warnings = warnings
+}
+func (a AValidationResult) Warnings() []error {
 	return a.warnings
 }
 
@@ -46,15 +59,15 @@ func (a AValidationResult) HasWarnings() bool {
 
 type ValidationResult = AValidationResult
 
-func NewValidatorResult( /*t reflect.Type,*/ isValid bool, errors interface{}, warnings interface{}) ValidationResultInterface {
-	/*var validatorResult ValidationResultInterface
-	if t == nil {
-		validatorResult = new(ValidationResult)
-	} else {
-		validatorResult = reflect.New(t).Interface().(ValidationResultInterface)
-	}
+func NewValidatorResult(isValid bool, errors []error, warnings []error) ValidationResultInterface {
+	return &ValidationResult{isValid, errors, warnings}
+}
 
-	return validatorResult*/
+var emptyStrings = make([]string, 0)
 
-	return ValidationResult{isValid, errors, warnings}
+type AValidatorWithoutDeps struct {
+}
+
+func (A AValidatorWithoutDeps) GetDeps() []string {
+	return emptyStrings
 }

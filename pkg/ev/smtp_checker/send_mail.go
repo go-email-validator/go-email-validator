@@ -18,6 +18,7 @@ const (
 	RCPTStage
 	DataStage
 	WriteStage
+	QuitStage
 	CloseStage
 )
 
@@ -32,6 +33,7 @@ type SendMailInterface interface {
 	RCPT(addr string) error
 	Data() (io.WriteCloser, error)
 	Write(w io.WriteCloser, msg []byte) error
+	Quit() error
 	Close() error
 }
 
@@ -139,7 +141,10 @@ func (c SendMail) Write(w io.WriteCloser, msg []byte) error {
 	return nil
 }
 
-func (c SendMail) Close() error {
-	// TODO may be need use c.client.Reset()
+func (c SendMail) Quit() error {
 	return c.client.Quit()
+}
+
+func (c SendMail) Close() error {
+	return c.client.Close()
 }

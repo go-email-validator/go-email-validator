@@ -2,48 +2,8 @@ package ev
 
 import (
 	"bitbucket.org/maranqz/email-validator/pkg/ev/ev_email"
-	"reflect"
 	"sync"
 )
-
-type DepValidatorInterface interface {
-	ValidatorInterface
-	// Use GetDepNames to get slice
-	GetDeps() []string
-	SetResults(results ...ValidationResultInterface) ValidatorInterface
-}
-
-type ADepValidator struct {
-	results *[]ValidationResultInterface
-}
-
-func (a *ADepValidator) GetDeps() []string {
-	panic("implement me")
-}
-
-func (a *ADepValidator) SetResults(results ...ValidationResultInterface) ValidatorInterface {
-	a.results = &results
-	return a
-}
-
-func (a ADepValidator) Validate(_ ev_email.EmailAddressInterface) ValidationResultInterface {
-	panic("implement me")
-}
-
-// dep - (*struct)(nil)
-func GetDepNames(deps ...interface{}) []string {
-	var result = make([]string, len(deps))
-
-	for i, dep := range deps {
-		result[i] = GetDepName(dep)
-	}
-
-	return result
-}
-
-func GetDepName(dep interface{}) string {
-	return reflect.TypeOf(dep).Elem().Name()
-}
 
 func NewDepValidator(deps map[string]ValidatorInterface) DepValidator {
 	return DepValidator{deps}
@@ -53,9 +13,9 @@ type DepValidator struct {
 	deps map[string]ValidatorInterface
 }
 
-func (d *DepValidator) Validate(email ev_email.EmailAddressInterface) ValidationResultInterface {
+func (d *DepValidator) Validate(email ev_email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
 	var waiters, waitersMutex = make(map[string][]*sync.WaitGroup), sync.RWMutex{}
-	var validationResults, validationResultsMutex = make(map[string]ValidationResultInterface), sync.RWMutex{}
+	var validationResultsByName, validationResultsMutex = make(map[string]ValidationResultInterface), sync.RWMutex{}
 	var isValid = true
 	var starter, finisher = sync.WaitGroup{}, sync.WaitGroup{}
 	starter.Add(1)
@@ -65,11 +25,10 @@ func (d *DepValidator) Validate(email ev_email.EmailAddressInterface) Validation
 		var depWaiter *sync.WaitGroup
 		var depWaiters []*sync.WaitGroup
 		var deps []string
+		var ok bool
 
-		v, ok := validator.(DepValidatorInterface)
-		if ok {
-			deps = v.GetDeps()
-
+		deps = validator.GetDeps()
+		if len(deps) > 0 {
 			depWaiter = &sync.WaitGroup{}
 			depWaiter.Add(len(deps))
 
@@ -77,29 +36,29 @@ func (d *DepValidator) Validate(email ev_email.EmailAddressInterface) Validation
 				if depWaiters, ok = waiters[dep]; !ok {
 					depWaiters = make([]*sync.WaitGroup, 0)
 				}
-
 				waiters[dep] = append(depWaiters, depWaiter)
 			}
 		}
 
 		go func(key string, validator ValidatorInterface, depWaiter *sync.WaitGroup) {
-			// add recover
+			var results []ValidationResultInterface
+
+			// TODO add recover
 			starter.Wait()
 			if depWaiter != nil {
 				depWaiter.Wait()
 
-				var results = make([]ValidationResultInterface, len(deps))
+				results = make([]ValidationResultInterface, len(deps))
 				validationResultsMutex.RLock()
 				for i, dep := range deps {
-					results[i] = validationResults[dep]
+					results[i] = validationResultsByName[dep]
 				}
 				validationResultsMutex.RUnlock()
-				validator.(DepValidatorInterface).SetResults(results...)
 			}
 
-			var result = validator.Validate(email)
+			var result = validator.Validate(email, results...)
 			validationResultsMutex.Lock()
-			validationResults[key] = result
+			validationResultsByName[key] = result
 			isValid = isValid && result.IsValid()
 			validationResultsMutex.Unlock()
 
@@ -116,5 +75,79 @@ func (d *DepValidator) Validate(email ev_email.EmailAddressInterface) Validation
 	starter.Done()
 	finisher.Wait()
 
-	return NewValidatorResult(isValid, nil, nil)
+	var validationResults = make([]ValidationResultInterface, len(validationResultsByName))
+	for _, validationResult := range validationResultsByName {
+		validationResults = append(validationResults, validationResult)
+	}
+
+	return NewDepValidatorResult(isValid, validationResults)
+}
+
+func NewDepValidatorResult(isValid bool, results []ValidationResultInterface) ValidationResultInterface {
+	return DepValidatorResult{
+		isValid,
+		results,
+	}
+}
+
+type DepValidatorResultInterface interface {
+	ValidationResultInterface
+	GetResults() []ValidationResultInterface
+}
+
+type DepValidatorResult struct {
+	isValid bool
+	results []ValidationResultInterface
+}
+
+func (d DepValidatorResult) GetResults() []ValidationResultInterface {
+	return d.results
+}
+
+func (d DepValidatorResult) IsValid() bool {
+	return d.isValid
+}
+
+func (d DepValidatorResult) Errors() []error {
+	var errors = make([]error, 0)
+
+	for _, result := range d.GetResults() {
+		for _, err := range result.Errors() {
+			errors = append(errors, err)
+		}
+	}
+
+	return errors
+}
+
+func (d DepValidatorResult) HasErrors() bool {
+	for _, result := range d.GetResults() {
+		if result.HasErrors() {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (d DepValidatorResult) Warnings() []error {
+	var warnings = make([]error, 0)
+
+	for _, result := range d.GetResults() {
+		for _, warning := range result.Warnings() {
+			warnings = append(warnings, warning)
+		}
+	}
+
+	return warnings
+}
+
+func (d DepValidatorResult) HasWarnings() bool {
+	for _, result := range d.GetResults() {
+		if result.HasWarnings() {
+			return true
+		}
+	}
+
+	return false
 }

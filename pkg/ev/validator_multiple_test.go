@@ -6,17 +6,22 @@ import (
 	"testing"
 )
 
-type mockValidator struct {
-	result bool
+func NewMockValidator(result bool) mockValidator {
+	return mockValidator{result: result}
 }
 
-func (m mockValidator) Validate(_ email.EmailAddressInterface) ValidationResultInterface {
+type mockValidator struct {
+	result bool
+	AValidatorWithoutDeps
+}
+
+func (m mockValidator) Validate(_ email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
 	return NewValidatorResult(m.result, nil, nil)
 }
 
 var validEmail email.EmailAddressInterface = email.EmailAddress{}
-var validMockValidator ValidatorInterface = mockValidator{true}
-var inValidMockValidator ValidatorInterface = mockValidator{false}
+var validMockValidator ValidatorInterface = mockValidator{result: true}
+var inValidMockValidator ValidatorInterface = mockValidator{result: false}
 
 func TestMultipleValidatorInValid(t *testing.T) {
 	var v ValidatorInterface = NewMultipleValidator(validMockValidator, inValidMockValidator)

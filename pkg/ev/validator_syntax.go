@@ -5,19 +5,17 @@ import (
 	"net/mail"
 )
 
-const SyntaxValidatorName = "SyntaxValidatorResultInterface"
+const SyntaxValidatorName = "SyntaxValidator"
 
 type SyntaxValidatorResultInterface interface {
 	ValidationResultInterface
 }
 
-type SyntaxValidatorInterface interface {
-	ValidatorInterface
+type SyntaxValidator struct {
+	AValidatorWithoutDeps
 }
 
-type SyntaxValidator struct{}
-
-func (s SyntaxValidator) Validate(email ev_email.EmailAddressInterface) ValidationResultInterface {
+func (s SyntaxValidator) Validate(email ev_email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
 	var err error
 	_, err = mail.ParseAddress(email.String())
 

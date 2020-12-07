@@ -6,7 +6,7 @@ import (
 	"net"
 )
 
-const MXValidatorName = "MXValidatorInterface"
+const MXValidatorName = "MXValidator"
 
 type MXValidationResultInterface interface {
 	MX() utils.MXs
@@ -15,26 +15,23 @@ type MXValidationResultInterface interface {
 
 type MXValidationResult struct {
 	mx utils.MXs
-	AValidationResult
+	*AValidationResult
 }
 
 func (v MXValidationResult) MX() utils.MXs {
 	return v.mx
 }
 
-type MXValidatorInterface interface {
-	ValidatorInterface
-}
+type MXValidator struct{ AValidatorWithoutDeps }
 
-type MXValidator struct{}
-
-func (v MXValidator) Validate(email ev_email.EmailAddressInterface) ValidationResultInterface {
+func (v MXValidator) Validate(email ev_email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
 	var mxs utils.MXs
 	var err error
 	mxs, err = net.LookupMX(email.Domain())
 
+	// TODO fix []error{err}
 	return MXValidationResult{
 		mxs,
-		NewValidatorResult(err == nil, []error{err}, nil).(ValidationResult),
+		NewValidatorResult(err == nil, []error{err}, nil).(*AValidationResult),
 	}
 }
