@@ -5,8 +5,16 @@ import (
 	"bitbucket.org/maranqz/email-validator/pkg/ev/utils"
 )
 
+type ValidatorName string
+
+const OtherValidator ValidatorName = "other"
+
+func (v ValidatorName) String() string {
+	return string(v)
+}
+
 type ValidatorInterface interface {
-	GetDeps() []string
+	GetDeps() []ValidatorName
 	Validate(email ev_email.EmailAddressInterface, results ...ValidationResultInterface) ValidationResultInterface
 }
 
@@ -21,13 +29,17 @@ type ValidationResultInterface interface {
 	HasErrors() bool
 	Warnings() []error
 	HasWarnings() bool
+	ValidatorName() ValidatorName
 }
+
+var emptyErrors = make([]error, 0)
 
 // Abstract class for result of validation
 type AValidationResult struct {
 	isValid  bool
 	errors   []error
 	warnings []error
+	name     ValidatorName
 }
 
 func (a AValidationResult) IsValid() bool {
@@ -57,17 +69,25 @@ func (a AValidationResult) HasWarnings() bool {
 	return utils.RangeLen(a.Warnings()) > 0
 }
 
-type ValidationResult = AValidationResult
-
-func NewValidatorResult(isValid bool, errors []error, warnings []error) ValidationResultInterface {
-	return &ValidationResult{isValid, errors, warnings}
+func (a AValidationResult) ValidatorName() ValidatorName {
+	return a.name
 }
 
-var emptyStrings = make([]string, 0)
+type ValidationResult = AValidationResult
+
+func NewValidatorResult(isValid bool, errors []error, warnings []error, name ValidatorName) ValidationResultInterface {
+	if name == "" {
+		name = OtherValidator
+	}
+
+	return &ValidationResult{isValid, errors, warnings, OtherValidator}
+}
+
+var emptyDeps = make([]ValidatorName, 0)
 
 type AValidatorWithoutDeps struct {
 }
 
-func (A AValidatorWithoutDeps) GetDeps() []string {
-	return emptyStrings
+func (A AValidatorWithoutDeps) GetDeps() []ValidatorName {
+	return emptyDeps
 }

@@ -10,11 +10,11 @@ import (
 type testSleep struct {
 	sleep time.Duration
 	mockValidator
-	deps    []string
+	deps    []ValidatorName
 	results *[]ValidationResultInterface
 }
 
-func (t testSleep) GetDeps() []string {
+func (t testSleep) GetDeps() []ValidatorName {
 	return t.deps
 }
 
@@ -29,34 +29,30 @@ func (t testSleep) Validate(_ ev_email.EmailAddressInterface, _ ...ValidationRes
 		}
 	}
 
-	return NewValidatorResult(isValid && t.result, nil, nil)
-}
-
-func getEmptyDeps() []string {
-	return []string{}
+	return NewValidatorResult(isValid && t.result, nil, nil, OtherValidator)
 }
 
 func TestDepValidator_Validate_Independent(t *testing.T) {
 	email := getValidEmail()
-	strings := getEmptyDeps()
+	strings := emptyDeps
 
 	depValidator := DepValidator{
-		map[string]ValidatorInterface{
+		map[ValidatorName]ValidatorInterface{
 			"test1": &testSleep{
 				0,
-				NewMockValidator(true),
+				newMockValidator(true),
 				strings,
 				nil,
 			},
 			"test2": &testSleep{
 				0,
-				NewMockValidator(true),
+				newMockValidator(true),
 				strings,
 				nil,
 			},
 			"test3": &testSleep{
 				0,
-				NewMockValidator(false),
+				newMockValidator(false),
 				strings,
 				nil,
 			},
@@ -69,26 +65,26 @@ func TestDepValidator_Validate_Independent(t *testing.T) {
 
 func TestDepValidator_Validate_Dependent(t *testing.T) {
 	email := getValidEmail()
-	strings := getEmptyDeps()
+	strings := emptyDeps
 
 	depValidator := DepValidator{
-		map[string]ValidatorInterface{
+		map[ValidatorName]ValidatorInterface{
 			"test1": &testSleep{
 				100 * time.Millisecond,
-				NewMockValidator(true),
+				newMockValidator(true),
 				strings,
 				nil,
 			},
 			"test2": &testSleep{
 				100 * time.Millisecond,
-				NewMockValidator(true),
+				newMockValidator(true),
 				strings,
 				nil,
 			},
 			"test3": &testSleep{
 				100 * time.Millisecond,
-				NewMockValidator(true),
-				[]string{"test1", "test2"},
+				newMockValidator(true),
+				[]ValidatorName{"test1", "test2"},
 				nil,
 			},
 		},

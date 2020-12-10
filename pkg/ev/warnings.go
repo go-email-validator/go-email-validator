@@ -22,7 +22,7 @@ type WarningsDecorator struct {
 	isWarning IsWarning
 }
 
-func (w WarningsDecorator) GetDeps() []string {
+func (w WarningsDecorator) GetDeps() []ValidatorName {
 	return w.validator.GetDeps()
 }
 

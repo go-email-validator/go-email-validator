@@ -86,7 +86,7 @@ const (
 type ClientGetter func(addr string) (*smtp.Client, error)
 
 type CheckerInterface interface {
-	Validate(mxs utils.MXs, email ev_email.EmailAddressInterface) SMTPError
+	Validate(mxs utils.MXs, email ev_email.EmailAddressInterface) []error
 }
 
 func SimpleClientGetter(addr string) (*smtp.Client, error) {
@@ -100,9 +100,10 @@ type Checker struct {
 	FromEmail ev_email.EmailAddressInterface
 }
 
-func (c Checker) Validate(mxs utils.MXs, email ev_email.EmailAddressInterface) SMTPError {
+func (c Checker) Validate(mxs utils.MXs, email ev_email.EmailAddressInterface) (errs []error) {
 	var client *smtp.Client
 	var err error
+	errs = make([]error, 0)
 	var host string
 
 	for _, mx := range mxs {
@@ -116,25 +117,25 @@ func (c Checker) Validate(mxs utils.MXs, email ev_email.EmailAddressInterface) S
 			err = errors.New("smtp: connection was not created")
 		}
 
-		return NewSmtpError(ConnectionStage, err)
+		errs = append(errs, NewSmtpError(ConnectionStage, err))
+		return
 	}
 	c.SendMail.SetClient(client)
 	defer c.SendMail.Close()
 
 	if err = c.SendMail.Hello(); err != nil {
-		return NewSmtpError(HelloStage, err)
+		errs = append(errs, NewSmtpError(HelloStage, err))
+		return
 	}
 	if err = c.SendMail.Auth(c.Auth); err != nil {
-		return NewSmtpError(AuthStage, err)
+		errs = append(errs, NewSmtpError(AuthStage, err))
+		return
 	}
 
 	err = c.SendMail.Mail(c.FromEmail.String())
 	if err != nil {
-		return NewSmtpError(MailStage, err)
-	}
-
-	if err = c.SendMail.RCPT(email.String()); err != nil {
-		return NewSmtpError(RCPTStage, err)
+		errs = append(errs, NewSmtpError(MailStage, err))
+		return
 	}
 
 	rEmail, err := randomEmail(email.Domain())
@@ -142,12 +143,16 @@ func (c Checker) Validate(mxs utils.MXs, email ev_email.EmailAddressInterface) S
 		panic(err)
 	}
 	if err = c.SendMail.RCPT(rEmail.String()); err != nil {
-		return NewSmtpError(RandomRCPTStage, err)
+		errs = append(errs, NewSmtpError(RandomRCPTStage, err))
+
+		if err = c.SendMail.RCPT(email.String()); err != nil {
+			errs = append(errs, NewSmtpError(RCPTStage, err))
+		}
 	}
 
 	if err = c.SendMail.Quit(); err != nil {
-		return NewSmtpError(QuitStage, err)
+		errs = append(errs, NewSmtpError(QuitStage, err))
 	}
 
-	return nil
+	return
 }

@@ -5,7 +5,7 @@ import (
 	"bitbucket.org/maranqz/email-validator/pkg/ev/ev_email"
 )
 
-const DisposableValidatorName = "DisposableValidator"
+const DisposableValidatorName ValidatorName = "DisposableValidator"
 
 func NewDisposableValidator(d disposable.Interface) ValidatorInterface {
 	return DisposableValidator{d: d}
@@ -17,5 +17,5 @@ type DisposableValidator struct {
 }
 
 func (d DisposableValidator) Validate(email ev_email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
-	return NewValidatorResult(d.d.Disposable(email), nil, nil)
+	return NewValidatorResult(d.d.Disposable(email), nil, nil, DisposableValidatorName)
 }

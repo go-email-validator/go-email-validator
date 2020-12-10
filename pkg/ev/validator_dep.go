@@ -5,17 +5,19 @@ import (
 	"sync"
 )
 
-func NewDepValidator(deps map[string]ValidatorInterface) DepValidator {
+const DepValidatorName ValidatorName = "DepValidator"
+
+func NewDepValidator(deps map[ValidatorName]ValidatorInterface) DepValidator {
 	return DepValidator{deps}
 }
 
 type DepValidator struct {
-	deps map[string]ValidatorInterface
+	deps map[ValidatorName]ValidatorInterface
 }
 
 func (d *DepValidator) Validate(email ev_email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
-	var waiters, waitersMutex = make(map[string][]*sync.WaitGroup), sync.RWMutex{}
-	var validationResultsByName, validationResultsMutex = make(map[string]ValidationResultInterface), sync.RWMutex{}
+	var waiters, waitersMutex = make(map[ValidatorName][]*sync.WaitGroup), sync.RWMutex{}
+	var validationResultsByName, validationResultsMutex = make(map[ValidatorName]ValidationResultInterface), sync.RWMutex{}
 	var isValid = true
 	var starter, finisher = sync.WaitGroup{}, sync.WaitGroup{}
 	starter.Add(1)
@@ -24,7 +26,7 @@ func (d *DepValidator) Validate(email ev_email.EmailAddressInterface, _ ...Valid
 	for key, validator := range d.deps {
 		var depWaiter *sync.WaitGroup
 		var depWaiters []*sync.WaitGroup
-		var deps []string
+		var deps []ValidatorName
 		var ok bool
 
 		deps = validator.GetDeps()
@@ -40,7 +42,7 @@ func (d *DepValidator) Validate(email ev_email.EmailAddressInterface, _ ...Valid
 			}
 		}
 
-		go func(key string, validator ValidatorInterface, depWaiter *sync.WaitGroup) {
+		go func(key ValidatorName, validator ValidatorInterface, depWaiter *sync.WaitGroup) {
 			var results []ValidationResultInterface
 
 			// TODO add recover
@@ -75,15 +77,12 @@ func (d *DepValidator) Validate(email ev_email.EmailAddressInterface, _ ...Valid
 	starter.Done()
 	finisher.Wait()
 
-	var validationResults = make([]ValidationResultInterface, len(validationResultsByName))
-	for _, validationResult := range validationResultsByName {
-		validationResults = append(validationResults, validationResult)
-	}
-
-	return NewDepValidatorResult(isValid, validationResults)
+	return NewDepValidatorResult(isValid, validationResultsByName)
 }
 
-func NewDepValidatorResult(isValid bool, results []ValidationResultInterface) ValidationResultInterface {
+type DepResult map[ValidatorName]ValidationResultInterface
+
+func NewDepValidatorResult(isValid bool, results DepResult) ValidationResultInterface {
 	return DepValidatorResult{
 		isValid,
 		results,
@@ -92,15 +91,15 @@ func NewDepValidatorResult(isValid bool, results []ValidationResultInterface) Va
 
 type DepValidatorResultInterface interface {
 	ValidationResultInterface
-	GetResults() []ValidationResultInterface
+	GetResults() DepResult
 }
 
 type DepValidatorResult struct {
 	isValid bool
-	results []ValidationResultInterface
+	results DepResult
 }
 
-func (d DepValidatorResult) GetResults() []ValidationResultInterface {
+func (d DepValidatorResult) GetResults() DepResult {
 	return d.results
 }
 
@@ -150,4 +149,8 @@ func (d DepValidatorResult) HasWarnings() bool {
 	}
 
 	return false
+}
+
+func (d DepValidatorResult) ValidatorName() ValidatorName {
+	return DepValidatorName
 }

@@ -5,7 +5,7 @@ import (
 	"bitbucket.org/maranqz/email-validator/pkg/ev/role"
 )
 
-const RoleValidatorName = "RoleValidator"
+const RoleValidatorName ValidatorName = "RoleValidator"
 
 func NewRoleValidator(r role.Interface) ValidatorInterface {
 	return RoleValidator{r: r}
@@ -16,6 +16,6 @@ type RoleValidator struct {
 	AValidatorWithoutDeps
 }
 
-func (r RoleValidator) Validate(email ev_email.EmailAddressInterface, results ...ValidationResultInterface) ValidationResultInterface {
-	return NewValidatorResult(r.r.HasRole(email), nil, nil)
+func (r RoleValidator) Validate(email ev_email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
+	return NewValidatorResult(r.r.HasRole(email), nil, nil, RoleValidatorName)
 }

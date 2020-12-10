@@ -2,7 +2,7 @@ package ev
 
 import "bitbucket.org/maranqz/email-validator/pkg/ev/ev_email"
 
-const MultipleValidatorName = "MultipleValidator"
+const MultipleValidatorName ValidatorName = "MultipleValidator"
 
 type MultipleValidator struct {
 	validators []ValidatorInterface
@@ -22,7 +22,7 @@ func (m MultipleValidator) Validate(email ev_email.EmailAddressInterface, _ ...V
 		}
 	}
 
-	return NewValidatorResult(isValid, nil, nil)
+	return NewValidatorResult(isValid, nil, nil, "")
 }
 
 func NewMultipleValidator(validators ...ValidatorInterface) MultipleValidator {

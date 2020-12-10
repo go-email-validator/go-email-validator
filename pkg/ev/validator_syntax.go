@@ -5,7 +5,7 @@ import (
 	"net/mail"
 )
 
-const SyntaxValidatorName = "SyntaxValidator"
+const SyntaxValidatorName ValidatorName = "SyntaxValidator"
 
 type SyntaxValidatorResultInterface interface {
 	ValidationResultInterface
@@ -19,5 +19,5 @@ func (s SyntaxValidator) Validate(email ev_email.EmailAddressInterface, _ ...Val
 	var err error
 	_, err = mail.ParseAddress(email.String())
 
-	return NewValidatorResult(err == nil, []error{err}, nil)
+	return NewValidatorResult(err == nil, []error{err}, nil, SyntaxValidatorName)
 }

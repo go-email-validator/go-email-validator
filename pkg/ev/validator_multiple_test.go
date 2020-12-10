@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func NewMockValidator(result bool) mockValidator {
+func newMockValidator(result bool) mockValidator {
 	return mockValidator{result: result}
 }
 
@@ -16,7 +16,7 @@ type mockValidator struct {
 }
 
 func (m mockValidator) Validate(_ email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
-	return NewValidatorResult(m.result, nil, nil)
+	return NewValidatorResult(m.result, nil, nil, OtherValidator)
 }
 
 var validEmail email.EmailAddressInterface = email.EmailAddress{}

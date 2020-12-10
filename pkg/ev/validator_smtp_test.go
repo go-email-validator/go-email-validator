@@ -24,7 +24,7 @@ func newSMTPValidator() *SMTPValidator {
 
 func getSmtpValidator_Validate() DepValidator {
 	return DepValidator{
-		map[string]ValidatorInterface{
+		map[ValidatorName]ValidatorInterface{
 			SyntaxValidatorName: &SyntaxValidator{},
 			MXValidatorName:     &MXValidator{},
 			SMTPValidatorName: NewWarningsDecorator(

@@ -6,7 +6,7 @@ import (
 	"net"
 )
 
-const MXValidatorName = "MXValidator"
+const MXValidatorName ValidatorName = "MXValidator"
 
 type MXValidationResultInterface interface {
 	MX() utils.MXs
@@ -32,6 +32,6 @@ func (v MXValidator) Validate(email ev_email.EmailAddressInterface, _ ...Validat
 	// TODO fix []error{err}
 	return MXValidationResult{
 		mxs,
-		NewValidatorResult(err == nil, []error{err}, nil).(*AValidationResult),
+		NewValidatorResult(err == nil, []error{err}, nil, MXValidatorName).(*AValidationResult),
 	}
 }
