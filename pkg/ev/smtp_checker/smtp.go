@@ -1,10 +1,10 @@
 package smtp_checker
 
 import (
-	"bitbucket.org/maranqz/email-validator/pkg/ev/ev_email"
-	"bitbucket.org/maranqz/email-validator/pkg/ev/utils"
 	"errors"
 	"fmt"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 	"github.com/sethvargo/go-password/password"
 	"net/smtp"
 )

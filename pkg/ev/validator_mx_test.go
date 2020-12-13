@@ -1,7 +1,7 @@
 package ev
 
 import (
-	"bitbucket.org/maranqz/email-validator/pkg/ev/ev_email"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
 	"testing"
 )
 

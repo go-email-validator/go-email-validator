@@ -1,8 +1,8 @@
 package ev
 
 import (
-	"bitbucket.org/maranqz/email-validator/pkg/ev/disposable"
-	"bitbucket.org/maranqz/email-validator/pkg/ev/ev_email"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/disposable"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
 )
 
 const DisposableValidatorName ValidatorName = "DisposableValidator"

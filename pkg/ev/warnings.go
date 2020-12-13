@@ -1,8 +1,8 @@
 package ev
 
 import (
-	"bitbucket.org/maranqz/email-validator/pkg/ev/ev_email"
 	"github.com/emirpasic/gods/sets"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
 )
 
 func NewWarningsDecorator(validator ValidatorInterface, isWarning IsWarning) ValidatorInterface {

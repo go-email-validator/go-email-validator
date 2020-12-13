@@ -1,8 +1,8 @@
 package role
 
 import (
-	"bitbucket.org/maranqz/email-validator/pkg/ev/ev_email"
-	"bitbucket.org/maranqz/email-validator/pkg/ev/utils"
+	"github.com/emirpasic/gods/sets"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
 )
 
 type Interface interface {
@@ -10,10 +10,9 @@ type Interface interface {
 }
 
 type SetRole struct {
-	set utils.StringSet
+	set sets.Set
 }
 
 func (s SetRole) HasRole(email ev_email.EmailAddressInterface) bool {
-	_, ok := s.set[email.Username()]
-	return ok
+	return s.set.Contains(email.Username())
 }
