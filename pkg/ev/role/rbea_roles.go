@@ -2,7 +2,21 @@ package role
 
 import "github.com/emirpasic/gods/sets/hashset"
 
-var RBEARoles = []string{
+func RBEARoles() []string {
+	return rbeaRoles
+}
+
+func NewRBEASetRole() SetRole {
+	RBEARoles := RBEARoles()
+	roles := make([]interface{}, len(RBEARoles))
+	for i, role := range RBEARoles {
+		roles[i] = role
+	}
+
+	return SetRole{hashset.New(roles...)}
+}
+
+var rbeaRoles = []string{
 	"123",
 	"2015",
 	"2016",
@@ -946,13 +960,4 @@ var RBEARoles = []string{
 	"www",
 	"zakaz",
 	"zentrale",
-}
-
-func NewRBEASetRole() SetRole {
-	roles := make([]interface{}, len(RBEARoles))
-	for i, role := range RBEARoles {
-		roles[i] = role
-	}
-
-	return SetRole{hashset.New(roles...)}
 }

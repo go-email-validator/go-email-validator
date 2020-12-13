@@ -11,8 +11,7 @@ import (
 /**
 test monicaramirezrestrepo@hotmail.com
 */
-
-func newSMTPValidator() *SMTPValidator {
+func NewSMTPValidator() *SMTPValidator {
 	return &SMTPValidator{
 		smtp_checker.Checker{
 			GetConn:   smtp_checker.SimpleClientGetter,
@@ -28,7 +27,7 @@ func getSmtpValidator_Validate() DepValidator {
 			SyntaxValidatorName: &SyntaxValidator{},
 			MXValidatorName:     &MXValidator{},
 			SMTPValidatorName: NewWarningsDecorator(
-				ValidatorInterface(newSMTPValidator()),
+				ValidatorInterface(NewSMTPValidator()),
 				NewIsWarning(hashset.New(smtp_checker.RandomRCPTStage), func(warningMap WarningSet) IsWarning {
 					return func(err error) bool {
 						return warningMap.Contains(err.(smtp_checker.SMTPError).Stage())

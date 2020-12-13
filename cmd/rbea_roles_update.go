@@ -14,15 +14,8 @@ const (
 	RBEARolePath = "pkg/ev/role/rbea_roles.go"
 )
 
-func main() {
-	argsWithoutProg := os.Args[1:]
-
-	var roleUrl = RoleUrl
-	if len(argsWithoutProg) > 0 {
-		roleUrl = argsWithoutProg[0]
-	}
-
-	rolesResp, err := http.Get(roleUrl)
+func rbeaRolesUpdate(url, path string) {
+	rolesResp, err := http.Get(url)
 	errPanic(err)
 	defer rolesResp.Body.Close()
 
@@ -34,35 +27,26 @@ func main() {
 	err = json.Unmarshal(rolesBytes, &roles)
 	errPanic(err)
 
-	f, err := os.Create(RBEARolePath)
+	f, err := os.Create(path)
 	errPanic(err)
-
 	defer f.Close()
 
-	f.WriteString(generateCode(roles))
-
-	println(roles)
-	println(err)
+	f.WriteString(generateRoleCode(roles))
 }
 
-func generateCode(roles []string) string {
+func generateRoleCode(roles []string) string {
 	strBuilder := strings.Builder{}
 	strBuilder.WriteString(
 		`package role
 
 import "github.com/emirpasic/gods/sets/hashset"
 
-var RBEARoles = []string{
-`)
-	for _, role := range roles {
-		strBuilder.WriteString("\t\"")
-		strBuilder.WriteString(role)
-		strBuilder.WriteString("\",\n")
-	}
-	strBuilder.WriteString("}\n")
+func RBEARoles() []string {
+	return rbeaRoles
+}
 
-	strBuilder.WriteString(`
 func NewRBEASetRole() SetRole {
+	RBEARoles := RBEARoles()
 	roles := make([]interface{}, len(RBEARoles))
 	for i, role := range RBEARoles {
 		roles[i] = role
@@ -72,11 +56,16 @@ func NewRBEASetRole() SetRole {
 }
 `)
 
-	return strBuilder.String()
-}
-
-func errPanic(err error) {
-	if err != nil {
-		panic(err)
+	strBuilder.WriteString(
+		`
+var rbeaRoles = []string{
+`)
+	for _, role := range roles {
+		strBuilder.WriteString("\t\"")
+		strBuilder.WriteString(role)
+		strBuilder.WriteString("\",\n")
 	}
+	strBuilder.WriteString("}\n")
+
+	return strBuilder.String()
 }

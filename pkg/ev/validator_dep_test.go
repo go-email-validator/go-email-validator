@@ -4,6 +4,7 @@ import (
 	"github.com/emirpasic/gods/sets/hashset"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/disposable"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/free"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/role"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/smtp_checker"
 	"github.com/stretchr/testify/assert"
@@ -103,12 +104,19 @@ func TestDepValidator_Validate_Full(t *testing.T) {
 
 	depValidator := DepValidator{
 		map[ValidatorName]ValidatorInterface{
+			FreeValidatorName:       NewFreeValidator(free.NewWillWhiteSetFree()),
 			RoleValidatorName:       NewRoleValidator(role.NewRBEASetRole()),
 			DisposableValidatorName: NewDisposableValidator(disposable.MailCheckerDisposable{}),
 			SyntaxValidatorName:     &SyntaxValidator{},
 			MXValidatorName:         &MXValidator{},
 			SMTPValidatorName: NewWarningsDecorator(
-				ValidatorInterface(newSMTPValidator()),
+				SMTPValidator{
+					Checker: smtp_checker.Checker{
+						GetConn:   smtp_checker.SimpleClientGetter,
+						SendMail:  smtp_checker.NewSendMail(),
+						FromEmail: ev_email.EmailFromString(smtp_checker.DefaultEmail),
+					},
+				},
 				NewIsWarning(hashset.New(smtp_checker.RandomRCPTStage), func(warningMap WarningSet) IsWarning {
 					return func(err error) bool {
 						return warningMap.Contains(err.(smtp_checker.SMTPError).Stage())
