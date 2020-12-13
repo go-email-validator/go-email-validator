@@ -18,6 +18,7 @@ func (s SetDisposable) Disposable(email ev_email.EmailAddressInterface) bool {
 	return s.set.Contains(email.Domain())
 }
 
+// List is used for searching blacklisted email domain
 type MailCheckerDisposable struct{}
 
 func (m MailCheckerDisposable) Disposable(email ev_email.EmailAddressInterface) bool {

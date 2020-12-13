@@ -1,7 +1,11 @@
 package ev
 
 import (
+	"github.com/emirpasic/gods/sets/hashset"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/disposable"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/role"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/smtp_checker"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -87,6 +91,30 @@ func TestDepValidator_Validate_Dependent(t *testing.T) {
 				[]ValidatorName{"test1", "test2"},
 				nil,
 			},
+		},
+	}
+
+	v := depValidator.Validate(email)
+	assert.True(t, v.IsValid())
+}
+
+func TestDepValidator_Validate_Full(t *testing.T) {
+	email := ev_email.NewEmail("go.email.validator", "gmail.com")
+
+	depValidator := DepValidator{
+		map[ValidatorName]ValidatorInterface{
+			RoleValidatorName:       NewRoleValidator(role.NewRBEASetRole()),
+			DisposableValidatorName: NewDisposableValidator(disposable.MailCheckerDisposable{}),
+			SyntaxValidatorName:     &SyntaxValidator{},
+			MXValidatorName:         &MXValidator{},
+			SMTPValidatorName: NewWarningsDecorator(
+				ValidatorInterface(newSMTPValidator()),
+				NewIsWarning(hashset.New(smtp_checker.RandomRCPTStage), func(warningMap WarningSet) IsWarning {
+					return func(err error) bool {
+						return warningMap.Contains(err.(smtp_checker.SMTPError).Stage())
+					}
+				}),
+			),
 		},
 	}
 

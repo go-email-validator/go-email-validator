@@ -17,5 +17,5 @@ type DisposableValidator struct {
 }
 
 func (d DisposableValidator) Validate(email ev_email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
-	return NewValidatorResult(d.d.Disposable(email), nil, nil, DisposableValidatorName)
+	return NewValidatorResult(!d.d.Disposable(email), nil, nil, DisposableValidatorName)
 }

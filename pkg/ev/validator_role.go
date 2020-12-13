@@ -17,5 +17,5 @@ type RoleValidator struct {
 }
 
 func (r RoleValidator) Validate(email ev_email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
-	return NewValidatorResult(r.r.HasRole(email), nil, nil, RoleValidatorName)
+	return NewValidatorResult(!r.r.HasRole(email), nil, nil, RoleValidatorName)
 }
