@@ -7,6 +7,10 @@ import (
 
 const DisposableValidatorName ValidatorName = "DisposableValidator"
 
+type DisposableError struct {
+	error
+}
+
 func NewDisposableValidator(d disposable.Interface) ValidatorInterface {
 	return DisposableValidator{d: d}
 }
@@ -17,5 +21,11 @@ type DisposableValidator struct {
 }
 
 func (d DisposableValidator) Validate(email ev_email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
-	return NewValidatorResult(!d.d.Disposable(email), nil, nil, DisposableValidatorName)
+	var errs = make([]error, 0)
+	var isDisposable = d.d.Disposable(email)
+	if isDisposable {
+		errs = append(errs, DisposableError{})
+	}
+
+	return NewValidatorResult(!isDisposable, errs, nil, DisposableValidatorName)
 }

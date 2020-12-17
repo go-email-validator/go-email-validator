@@ -4,7 +4,6 @@ import (
 	"github.com/emirpasic/gods/sets/hashset"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/disposable"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
-	"github.com/go-email-validator/go-email-validator/pkg/ev/free"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/role"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/smtp_checker"
 	"github.com/stretchr/testify/assert"
@@ -42,7 +41,7 @@ func TestDepValidator_Validate_Independent(t *testing.T) {
 	strings := emptyDeps
 
 	depValidator := DepValidator{
-		map[ValidatorName]ValidatorInterface{
+		deps: map[ValidatorName]ValidatorInterface{
 			"test1": &testSleep{
 				0,
 				newMockValidator(true),
@@ -73,7 +72,7 @@ func TestDepValidator_Validate_Dependent(t *testing.T) {
 	strings := emptyDeps
 
 	depValidator := DepValidator{
-		map[ValidatorName]ValidatorInterface{
+		deps: map[ValidatorName]ValidatorInterface{
 			"test1": &testSleep{
 				100 * time.Millisecond,
 				newMockValidator(true),
@@ -100,11 +99,11 @@ func TestDepValidator_Validate_Dependent(t *testing.T) {
 }
 
 func TestDepValidator_Validate_Full(t *testing.T) {
-	email := ev_email.NewEmail("go.email.validator", "gmail.com")
+	email := ev_email.EmailFromString(validEmailString)
 
 	depValidator := DepValidator{
-		map[ValidatorName]ValidatorInterface{
-			FreeValidatorName:       NewFreeValidator(free.NewWillWhiteSetFree()),
+		deps: map[ValidatorName]ValidatorInterface{
+			//FreeValidatorName:       NewFreeValidator(free.NewWillWhiteSetFree()),
 			RoleValidatorName:       NewRoleValidator(role.NewRBEASetRole()),
 			DisposableValidatorName: NewDisposableValidator(disposable.MailCheckerDisposable{}),
 			SyntaxValidatorName:     &SyntaxValidator{},

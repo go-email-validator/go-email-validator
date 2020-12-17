@@ -23,7 +23,7 @@ func NewSMTPValidator() *SMTPValidator {
 
 func getSmtpValidator_Validate() DepValidator {
 	return DepValidator{
-		map[ValidatorName]ValidatorInterface{
+		deps: map[ValidatorName]ValidatorInterface{
 			SyntaxValidatorName: &SyntaxValidator{},
 			MXValidatorName:     &MXValidator{},
 			SMTPValidatorName: NewWarningsDecorator(
@@ -39,7 +39,7 @@ func getSmtpValidator_Validate() DepValidator {
 }
 
 func BenchmarkSMTPValidator_Validate(b *testing.B) {
-	email := ev_email.NewEmail("go.email.validator", "gmail.com")
+	email := ev_email.EmailFromString(validEmailString)
 	depValidator := getSmtpValidator_Validate()
 
 	b.ResetTimer()
@@ -49,7 +49,7 @@ func BenchmarkSMTPValidator_Validate(b *testing.B) {
 }
 
 func TestSMTPValidator_Validate_WithoutMock(t *testing.T) {
-	email := ev_email.NewEmail("go.email.validator", "gmail.com")
+	email := ev_email.EmailFromString(validEmailString)
 	depValidator := getSmtpValidator_Validate()
 
 	v := depValidator.Validate(email)

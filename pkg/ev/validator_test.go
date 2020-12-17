@@ -20,3 +20,5 @@ func (m mockValidator) Validate(_ email.EmailAddressInterface, _ ...ValidationRe
 var validEmail email.EmailAddressInterface = email.EmailAddress{}
 var validMockValidator ValidatorInterface = mockValidator{result: true}
 var inValidMockValidator ValidatorInterface = mockValidator{result: false}
+
+const validEmailString = "go.email.validator@gmail.com"

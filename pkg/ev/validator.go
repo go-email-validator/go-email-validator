@@ -80,13 +80,12 @@ func NewValidatorResult(isValid bool, errors []error, warnings []error, name Val
 		name = OtherValidator
 	}
 
-	return &ValidationResult{isValid, errors, warnings, OtherValidator}
+	return &ValidationResult{isValid, errors, warnings, name}
 }
 
 var emptyDeps = make([]ValidatorName, 0)
 
-type AValidatorWithoutDeps struct {
-}
+type AValidatorWithoutDeps struct{}
 
 func (A AValidatorWithoutDeps) GetDeps() []ValidatorName {
 	return emptyDeps

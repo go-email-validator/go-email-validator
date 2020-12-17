@@ -7,6 +7,10 @@ import (
 
 const RoleValidatorName ValidatorName = "RoleValidator"
 
+type RoleError struct {
+	error
+}
+
 func NewRoleValidator(r role.Interface) ValidatorInterface {
 	return RoleValidator{r: r}
 }
@@ -17,5 +21,11 @@ type RoleValidator struct {
 }
 
 func (r RoleValidator) Validate(email ev_email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
-	return NewValidatorResult(!r.r.HasRole(email), nil, nil, RoleValidatorName)
+	var errs = make([]error, 0)
+	var hasRole = r.r.HasRole(email)
+	if hasRole {
+		errs = append(errs, RoleError{})
+	}
+
+	return NewValidatorResult(!hasRole, errs, nil, RoleValidatorName)
 }

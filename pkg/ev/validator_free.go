@@ -7,6 +7,14 @@ import (
 
 const FreeValidatorName ValidatorName = "FreeValidator"
 
+type FreeError struct {
+	error
+}
+
+func FreeDefaultValidator() ValidatorInterface {
+	return NewFreeValidator(free.NewWillWhiteSetFree())
+}
+
 func NewFreeValidator(f free.Interface) ValidatorInterface {
 	return FreeValidator{f: f}
 }
@@ -17,5 +25,11 @@ type FreeValidator struct {
 }
 
 func (r FreeValidator) Validate(email ev_email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
-	return NewValidatorResult(r.f.IsFree(email), nil, nil, FreeValidatorName)
+	var errs = make([]error, 0)
+	var isFree = r.f.IsFree(email)
+	if isFree {
+		errs = append(errs, FreeError{})
+	}
+
+	return NewValidatorResult(!isFree, errs, nil, FreeValidatorName)
 }
