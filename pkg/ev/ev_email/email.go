@@ -15,20 +15,27 @@ type EmailAddressInterface interface {
 	fmt.Stringer
 }
 
-type EmailAddress struct {
+func NewEmailAddress(username, domain string) EmailAddressInterface {
+	return emailAddress{
+		strings.ToLower(username),
+		strings.ToLower(domain),
+	}
+}
+
+type emailAddress struct {
 	username string
 	domain   string
 }
 
-func (e EmailAddress) Username() string {
+func (e emailAddress) Username() string {
 	return e.username
 }
 
-func (e EmailAddress) Domain() string {
+func (e emailAddress) Domain() string {
 	return e.domain
 }
 
-func (e EmailAddress) String() string {
+func (e emailAddress) String() string {
 	return e.Username() + AT + e.Domain()
 }
 
@@ -38,12 +45,5 @@ func SeparatedEmail(email string) (string, string) {
 }
 
 func EmailFromString(email string) EmailAddressInterface {
-	return NewEmail(SeparatedEmail(email))
-}
-
-func NewEmail(username, domain string) EmailAddressInterface {
-	return EmailAddress{
-		strings.ToLower(username),
-		strings.ToLower(domain),
-	}
+	return NewEmailAddress(SeparatedEmail(email))
 }

@@ -36,13 +36,13 @@ func Errs(err error) []error {
 }
 
 func NewError(text string) error {
-	return Error{text}
+	return Err{text}
 }
 
-type Error struct {
+type Err struct {
 	s string
 }
 
-func (e Error) Error() string {
+func (e Err) Error() string {
 	return e.s
 }

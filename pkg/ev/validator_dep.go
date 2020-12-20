@@ -5,20 +5,20 @@ import (
 	"sync"
 )
 
-const DepValidatorName ValidatorName = "DepValidator"
+const DepValidatorName ValidatorName = "depValidator"
 
 type ValidatorMap map[ValidatorName]ValidatorInterface
 
-func NewDepValidator(deps ValidatorMap) DepValidator {
-	return DepValidator{deps: deps}
+func NewDepValidator(deps ValidatorMap) ValidatorInterface {
+	return depValidator{deps: deps}
 }
 
-type DepValidator struct {
+type depValidator struct {
 	AValidatorWithoutDeps
 	deps ValidatorMap
 }
 
-func (d DepValidator) Validate(email ev_email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
+func (d depValidator) Validate(email ev_email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
 	var waiters, waitersMutex = make(map[ValidatorName][]*sync.WaitGroup), sync.RWMutex{}
 	var validationResultsByName, validationResultsMutex = make(map[ValidatorName]ValidationResultInterface), sync.RWMutex{}
 	var isValid = true

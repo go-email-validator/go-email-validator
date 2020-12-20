@@ -9,7 +9,7 @@ import (
 const MXValidatorName ValidatorName = "MXValidator"
 
 type EmptyMXsError struct {
-	utils.Error
+	utils.Err
 }
 
 type MXValidationResultInterface interface {
@@ -26,6 +26,10 @@ func (v MXValidationResult) MX() utils.MXs {
 	return v.mx
 }
 
+func NewMXValidator() ValidatorInterface {
+	return MXValidator{}
+}
+
 type MXValidator struct{ AValidatorWithoutDeps }
 
 func (v MXValidator) Validate(email ev_email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
@@ -34,7 +38,7 @@ func (v MXValidator) Validate(email ev_email.EmailAddressInterface, _ ...Validat
 	mxs, err = net.LookupMX(email.Domain())
 
 	hasMXs := len(mxs) > 0
-	if hasMXs {
+	if !hasMXs {
 		err = EmptyMXsError{}
 	}
 

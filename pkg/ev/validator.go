@@ -34,7 +34,7 @@ type ValidationResultInterface interface {
 
 var emptyErrors = make([]error, 0)
 
-// Abstract class for result of validation
+// Abstract class for expected of validation
 type AValidationResult struct {
 	isValid  bool
 	errors   []error
@@ -87,6 +87,6 @@ var emptyDeps = make([]ValidatorName, 0)
 
 type AValidatorWithoutDeps struct{}
 
-func (A AValidatorWithoutDeps) GetDeps() []ValidatorName {
+func (_ AValidatorWithoutDeps) GetDeps() []ValidatorName {
 	return emptyDeps
 }

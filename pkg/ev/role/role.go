@@ -9,10 +9,14 @@ type Interface interface {
 	HasRole(email ev_email.EmailAddressInterface) bool
 }
 
-type SetRole struct {
+func NewSetRole(set sets.Set) Interface {
+	return setRole{set}
+}
+
+type setRole struct {
 	set sets.Set
 }
 
-func (s SetRole) HasRole(email ev_email.EmailAddressInterface) bool {
+func (s setRole) HasRole(email ev_email.EmailAddressInterface) bool {
 	return s.set.Contains(email.Username())
 }

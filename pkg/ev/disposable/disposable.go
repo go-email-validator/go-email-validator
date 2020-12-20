@@ -10,17 +10,33 @@ type Interface interface {
 	Disposable(email ev_email.EmailAddressInterface) bool
 }
 
-type SetDisposable struct {
+func NewSetDisposable(s sets.Set) Interface {
+	return setDisposable{s}
+}
+
+type setDisposable struct {
 	set sets.Set
 }
 
-func (s SetDisposable) Disposable(email ev_email.EmailAddressInterface) bool {
+func (s setDisposable) Disposable(email ev_email.EmailAddressInterface) bool {
 	return s.set.Contains(email.Domain())
 }
 
-// List is used for searching blacklisted email domain
-type MailCheckerDisposable struct{}
+type FuncChecker func(email ev_email.EmailAddressInterface) bool
 
-func (_ MailCheckerDisposable) Disposable(email ev_email.EmailAddressInterface) bool {
+func NewFuncDisposable(f FuncChecker) Interface {
+	return funcDisposable{f}
+}
+
+type funcDisposable struct {
+	funcChecker FuncChecker
+}
+
+func (f funcDisposable) Disposable(email ev_email.EmailAddressInterface) bool {
+	return f.funcChecker(email)
+}
+
+// List is used for searching blacklisted email domain
+func MailChecker(email ev_email.EmailAddressInterface) bool {
 	return mail_checker.IsBlacklisted(email.String())
 }

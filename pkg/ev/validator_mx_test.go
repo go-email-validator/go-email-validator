@@ -8,12 +8,12 @@ import (
 func BenchmarkSMTPValidator_Validate_MX(b *testing.B) {
 	email := ev_email.EmailFromString(validEmailString)
 
-	depValidator := DepValidator{
-		deps: map[ValidatorName]ValidatorInterface{
-			SyntaxValidatorName: &SyntaxValidator{},
-			MXValidatorName:     &MXValidator{},
+	depValidator := NewDepValidator(
+		map[ValidatorName]ValidatorInterface{
+			SyntaxValidatorName: NewMXValidator(),
+			MXValidatorName:     NewSyntaxValidator(),
 		},
-	}
+	)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {

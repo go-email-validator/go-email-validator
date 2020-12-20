@@ -9,10 +9,14 @@ type Interface interface {
 	Contains(email ev_email.EmailAddressInterface) bool
 }
 
-type SetDomain struct {
+func NewSetDomain(set sets.Set) Interface {
+	return setDomain{set}
+}
+
+type setDomain struct {
 	set sets.Set
 }
 
-func (s SetDomain) Contains(email ev_email.EmailAddressInterface) bool {
+func (s setDomain) Contains(email ev_email.EmailAddressInterface) bool {
 	return s.set.Contains(email.Domain())
 }

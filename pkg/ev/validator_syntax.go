@@ -6,7 +6,7 @@ import (
 	"net/mail"
 )
 
-const SyntaxValidatorName ValidatorName = "SyntaxValidator"
+const SyntaxValidatorName ValidatorName = "syntaxValidator"
 
 type SyntaxError struct {
 	error
@@ -16,11 +16,15 @@ type SyntaxValidatorResultInterface interface {
 	ValidationResultInterface
 }
 
-type SyntaxValidator struct {
+func NewSyntaxValidator() ValidatorInterface {
+	return syntaxValidator{}
+}
+
+type syntaxValidator struct {
 	AValidatorWithoutDeps
 }
 
-func (s SyntaxValidator) Validate(email ev_email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
+func (_ syntaxValidator) Validate(email ev_email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
 	_, err := mail.ParseAddress(email.String())
 
 	return NewValidatorResult(err == nil, utils.Errs(&SyntaxError{err}), nil, SyntaxValidatorName)

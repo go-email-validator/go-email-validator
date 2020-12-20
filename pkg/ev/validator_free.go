@@ -9,7 +9,7 @@ import (
 const FreeValidatorName ValidatorName = "FreeValidator"
 
 type FreeError struct {
-	utils.Error
+	utils.Err
 }
 
 func FreeDefaultValidator() ValidatorInterface {
@@ -17,15 +17,15 @@ func FreeDefaultValidator() ValidatorInterface {
 }
 
 func NewFreeValidator(f free.Interface) ValidatorInterface {
-	return FreeValidator{f: f}
+	return freeValidator{f: f}
 }
 
-type FreeValidator struct {
+type freeValidator struct {
 	f free.Interface
 	AValidatorWithoutDeps
 }
 
-func (r FreeValidator) Validate(email ev_email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
+func (r freeValidator) Validate(email ev_email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
 	var err error
 	var isFree = r.f.IsFree(email)
 	if isFree {

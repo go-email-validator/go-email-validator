@@ -9,7 +9,7 @@ import (
 const RoleValidatorName ValidatorName = "RoleValidator"
 
 type RoleError struct {
-	utils.Error
+	utils.Err
 }
 
 func NewRoleValidator(r role.Interface) ValidatorInterface {

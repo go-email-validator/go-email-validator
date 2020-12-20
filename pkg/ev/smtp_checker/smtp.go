@@ -76,7 +76,7 @@ func randomEmail(domain string) (ev_email.EmailAddressInterface, error) {
 		return nil, err
 	}
 
-	return ev_email.NewEmail(username, domain), nil
+	return ev_email.NewEmailAddress(username, domain), nil
 }
 
 const (

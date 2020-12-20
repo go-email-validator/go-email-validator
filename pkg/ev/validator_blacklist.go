@@ -9,7 +9,7 @@ import (
 const BlackListValidatorName ValidatorName = "BlackList"
 
 type BlackListError struct {
-	utils.Error
+	utils.Err
 }
 
 type BlackListValidator struct {

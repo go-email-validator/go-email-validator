@@ -28,13 +28,12 @@ func (w WarningsDecorator) GetDeps() []ValidatorName {
 
 func (w WarningsDecorator) Validate(email ev_email.EmailAddressInterface, results ...ValidationResultInterface) ValidationResultInterface {
 	result := w.validator.Validate(email, results...)
-
 	changeableResult, ok := result.(ChangeableValidationResultInterface)
 	if !ok {
 		return result
 	}
-	var errors, warnings []error
 
+	var errors, warnings []error
 	for _, err := range result.Errors() {
 		if w.isWarning(err) {
 			warnings = append(warnings, err)

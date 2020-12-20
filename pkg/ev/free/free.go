@@ -9,10 +9,14 @@ type Interface interface {
 	IsFree(email ev_email.EmailAddressInterface) bool
 }
 
-type SetFree struct {
+func NewSetFree(set sets.Set) Interface {
+	return setFree{set}
+}
+
+type setFree struct {
 	set sets.Set
 }
 
-func (s SetFree) IsFree(email ev_email.EmailAddressInterface) bool {
+func (s setFree) IsFree(email ev_email.EmailAddressInterface) bool {
 	return s.set.Contains(email.Domain())
 }

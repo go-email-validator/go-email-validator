@@ -14,19 +14,18 @@ import (
 type testSleep struct {
 	sleep time.Duration
 	mockValidator
-	deps    []ValidatorName
-	results *[]ValidationResultInterface
+	deps []ValidatorName
 }
 
 func (t testSleep) GetDeps() []ValidatorName {
 	return t.deps
 }
 
-func (t testSleep) Validate(_ ev_email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
+func (t testSleep) Validate(_ ev_email.EmailAddressInterface, results ...ValidationResultInterface) ValidationResultInterface {
 	time.Sleep(t.sleep)
 
 	var isValid = true
-	for _, result := range *t.results {
+	for _, result := range results {
 		if !result.IsValid() {
 			isValid = false
 			break
@@ -37,62 +36,55 @@ func (t testSleep) Validate(_ ev_email.EmailAddressInterface, _ ...ValidationRes
 }
 
 func TestDepValidator_Validate_Independent(t *testing.T) {
-	email := getValidEmail()
+	email := GetValidTestEmail()
 	strings := emptyDeps
 
-	depValidator := DepValidator{
-		deps: map[ValidatorName]ValidatorInterface{
+	depValidator := NewDepValidator(
+		map[ValidatorName]ValidatorInterface{
 			"test1": &testSleep{
 				0,
 				newMockValidator(true),
 				strings,
-				nil,
 			},
 			"test2": &testSleep{
 				0,
 				newMockValidator(true),
 				strings,
-				nil,
 			},
 			"test3": &testSleep{
 				0,
 				newMockValidator(false),
 				strings,
-				nil,
 			},
 		},
-	}
+	)
 
 	v := depValidator.Validate(email)
 	assert.False(t, v.IsValid())
 }
 
 func TestDepValidator_Validate_Dependent(t *testing.T) {
-	email := getValidEmail()
+	email := GetValidTestEmail()
 	strings := emptyDeps
 
-	depValidator := DepValidator{
-		deps: map[ValidatorName]ValidatorInterface{
-			"test1": &testSleep{
-				100 * time.Millisecond,
-				newMockValidator(true),
-				strings,
-				nil,
-			},
-			"test2": &testSleep{
-				100 * time.Millisecond,
-				newMockValidator(true),
-				strings,
-				nil,
-			},
-			"test3": &testSleep{
-				100 * time.Millisecond,
-				newMockValidator(true),
-				[]ValidatorName{"test1", "test2"},
-				nil,
-			},
+	depValidator := NewDepValidator(map[ValidatorName]ValidatorInterface{
+		"test1": &testSleep{
+			100 * time.Millisecond,
+			newMockValidator(true),
+			strings,
 		},
-	}
+		"test2": &testSleep{
+			100 * time.Millisecond,
+			newMockValidator(true),
+			strings,
+		},
+		"test3": &testSleep{
+			100 * time.Millisecond,
+			newMockValidator(true),
+			[]ValidatorName{"test1", "test2"},
+		},
+	},
+	)
 
 	v := depValidator.Validate(email)
 	assert.True(t, v.IsValid())
@@ -101,29 +93,26 @@ func TestDepValidator_Validate_Dependent(t *testing.T) {
 func TestDepValidator_Validate_Full(t *testing.T) {
 	email := ev_email.EmailFromString(validEmailString)
 
-	depValidator := DepValidator{
-		deps: map[ValidatorName]ValidatorInterface{
-			//FreeValidatorName:       NewFreeValidator(free.NewWillWhiteSetFree()),
-			RoleValidatorName:       NewRoleValidator(role.NewRBEASetRole()),
-			DisposableValidatorName: NewDisposableValidator(disposable.MailCheckerDisposable{}),
-			SyntaxValidatorName:     &SyntaxValidator{},
-			MXValidatorName:         &MXValidator{},
-			SMTPValidatorName: NewWarningsDecorator(
-				SMTPValidator{
-					Checker: smtp_checker.Checker{
-						GetConn:   smtp_checker.SimpleClientGetter,
-						SendMail:  smtp_checker.NewSendMail(),
-						FromEmail: ev_email.EmailFromString(smtp_checker.DefaultEmail),
-					},
-				},
-				NewIsWarning(hashset.New(smtp_checker.RandomRCPTStage), func(warningMap WarningSet) IsWarning {
-					return func(err error) bool {
-						return warningMap.Contains(err.(smtp_checker.SMTPError).Stage())
-					}
-				}),
-			),
-		},
-	}
+	depValidator := NewDepValidator(map[ValidatorName]ValidatorInterface{
+		//FreeValidatorName:     FreeDefaultValidator(),
+		RoleValidatorName:       NewRoleValidator(role.NewRBEASetRole()),
+		DisposableValidatorName: NewDisposableValidator(disposable.NewFuncDisposable(disposable.MailChecker)),
+		SyntaxValidatorName:     NewSyntaxValidator(),
+		MXValidatorName:         NewMXValidator(),
+		SMTPValidatorName: NewWarningsDecorator(
+			NewSMTPValidator(smtp_checker.Checker{
+				GetConn:   smtp_checker.SimpleClientGetter,
+				SendMail:  smtp_checker.NewSendMail(),
+				FromEmail: ev_email.EmailFromString(smtp_checker.DefaultEmail),
+			}),
+			NewIsWarning(hashset.New(smtp_checker.RandomRCPTStage), func(warningMap WarningSet) IsWarning {
+				return func(err error) bool {
+					return warningMap.Contains(err.(smtp_checker.SMTPError).Stage())
+				}
+			}),
+		),
+	},
+	)
 
 	v := depValidator.Validate(email)
 	assert.True(t, v.IsValid())

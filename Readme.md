@@ -17,19 +17,19 @@ import (
 func main() {
 	depValidator := ev.NewDepValidator(
 		map[ev.ValidatorName]ev.ValidatorInterface{
-			ev.FreeValidatorName:       ev.NewFreeValidator(free.NewWillWhiteSetFree()),
+			//ev.FreeValidatorName:       ev.FreeDefaultValidator(),
 			ev.RoleValidatorName:       ev.NewRoleValidator(role.NewRBEASetRole()),
-			ev.DisposableValidatorName: ev.NewDisposableValidator(disposable.MailCheckerDisposable{}),
-			ev.SyntaxValidatorName:     &ev.SyntaxValidator{},
-			ev.MXValidatorName:         &ev.MXValidator{},
+			ev.DisposableValidatorName: ev.NewDisposableValidator(disposable.NewFuncDisposable(disposable.MailChecker)),
+			ev.SyntaxValidatorName:     ev.NewSyntaxValidator(),
+			ev.MXValidatorName:         ev.NewMXValidator(),
 			ev.SMTPValidatorName: ev.NewWarningsDecorator(
-				ev.SMTPValidator{
-					Checker: smtp_checker.Checker{
+				ev.NewSMTPValidator(
+					smtp_checker.Checker{
 						GetConn:   smtp_checker.SimpleClientGetter,
 						SendMail:  smtp_checker.NewSendMail(),
 						FromEmail: ev_email.EmailFromString(smtp_checker.DefaultEmail),
 					},
-				},
+                ),
 				ev.NewIsWarning(hashset.New(smtp_checker.RandomRCPTStage), func(warningMap ev.WarningSet) ev.IsWarning {
 					return func(err error) bool {
 						return warningMap.Contains(err.(smtp_checker.SMTPError).Stage())
@@ -47,6 +47,8 @@ func main() {
 	fmt.Print(v)
 }
 ```
+
+Use func New...(...) instead of public struct.
 
 ## TODO
 

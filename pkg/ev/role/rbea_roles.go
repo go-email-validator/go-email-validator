@@ -1,19 +1,22 @@
 package role
 
-import "github.com/emirpasic/gods/sets/hashset"
+import (
+	"github.com/emirpasic/gods/sets/hashset"
+	"strings"
+)
 
 func RBEARoles() []string {
 	return rbeaRoles
 }
 
-func NewRBEASetRole() SetRole {
+func NewRBEASetRole() Interface {
 	RBEARoles := RBEARoles()
 	roles := make([]interface{}, len(RBEARoles))
 	for i, role := range RBEARoles {
-		roles[i] = role
+		roles[i] = strings.ToLower(role)
 	}
 
-	return SetRole{hashset.New(roles...)}
+	return NewSetRole(hashset.New(roles...))
 }
 
 var rbeaRoles = []string{

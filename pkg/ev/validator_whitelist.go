@@ -9,7 +9,7 @@ import (
 const WhiteListValidatorName ValidatorName = "WhiteList"
 
 type WhiteListError struct {
-	utils.Error
+	utils.Err
 }
 
 type WhiteListValidator struct {

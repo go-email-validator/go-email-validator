@@ -9,19 +9,19 @@ import (
 const DisposableValidatorName ValidatorName = "DisposableValidator"
 
 type DisposableError struct {
-	utils.Error
+	utils.Err
 }
 
 func NewDisposableValidator(d disposable.Interface) ValidatorInterface {
-	return DisposableValidator{d: d}
+	return disposableValidator{d: d}
 }
 
-type DisposableValidator struct {
+type disposableValidator struct {
 	d disposable.Interface
 	AValidatorWithoutDeps
 }
 
-func (d DisposableValidator) Validate(email ev_email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
+func (d disposableValidator) Validate(email ev_email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
 	var err error
 	var isDisposable = d.d.Disposable(email)
 	if isDisposable {

@@ -12,10 +12,9 @@ type DefaultValidatorFactory func() ValidatorInterface
 
 func GetDefaultFactories() *ValidatorMap {
 	return &ValidatorMap{
-		DisposableValidatorName: NewDisposableValidator(disposable.MailCheckerDisposable{}),
-		//FreeValidatorName:       FreeDefaultValidator(),
-		RoleValidatorName: NewRoleValidator(role.NewRBEASetRole()),
-		MXValidatorName:   &MXValidator{},
+		DisposableValidatorName: NewDisposableValidator(disposable.NewFuncDisposable(disposable.MailChecker)),
+		RoleValidatorName:       NewRoleValidator(role.NewRBEASetRole()),
+		MXValidatorName:         NewMXValidator(),
 		SMTPValidatorName: NewWarningsDecorator(
 			SMTPValidator{
 				Checker: smtp_checker.Checker{
@@ -30,7 +29,7 @@ func GetDefaultFactories() *ValidatorMap {
 				}
 			}),
 		),
-		SyntaxValidatorName: &SyntaxValidator{},
+		SyntaxValidatorName: NewSyntaxValidator(),
 	}
 }
 
@@ -62,6 +61,6 @@ func (d DepBuilder) Delete(name ValidatorName) {
 	}
 }
 
-func (d DepBuilder) Build() DepValidator {
+func (d DepBuilder) Build() ValidatorInterface {
 	return NewDepValidator(d.validators)
 }

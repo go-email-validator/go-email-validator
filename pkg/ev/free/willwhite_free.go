@@ -1,19 +1,22 @@
 package free
 
-import "github.com/emirpasic/gods/sets/hashset"
+import (
+	"github.com/emirpasic/gods/sets/hashset"
+	"strings"
+)
 
 func WillWhiteFree() []string {
 	return willWhiteFree
 }
 
-func NewWillWhiteSetFree() SetFree {
+func NewWillWhiteSetFree() Interface {
 	WillWhiteFree := WillWhiteFree()
 	freeEmails := make([]interface{}, len(WillWhiteFree))
 	for i, freeEmail := range WillWhiteFree {
-		freeEmails[i] = freeEmail
+		freeEmails[i] = strings.ToLower(freeEmail)
 	}
 
-	return SetFree{hashset.New(freeEmails...)}
+	return setFree{hashset.New(freeEmails...)}
 }
 
 var willWhiteFree = []string{
