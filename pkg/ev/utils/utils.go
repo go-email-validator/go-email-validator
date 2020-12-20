@@ -26,3 +26,23 @@ func RangeLen(i interface{}) int {
 func abstractFunc() interface{} {
 	panic("implement me")
 }
+
+func Errs(err error) []error {
+	if err == nil {
+		return nil
+	}
+
+	return []error{err}
+}
+
+func NewError(text string) error {
+	return Error{text}
+}
+
+type Error struct {
+	s string
+}
+
+func (e Error) Error() string {
+	return e.s
+}

@@ -2,10 +2,15 @@ package ev
 
 import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 	"net/mail"
 )
 
 const SyntaxValidatorName ValidatorName = "SyntaxValidator"
+
+type SyntaxError struct {
+	error
+}
 
 type SyntaxValidatorResultInterface interface {
 	ValidationResultInterface
@@ -16,8 +21,7 @@ type SyntaxValidator struct {
 }
 
 func (s SyntaxValidator) Validate(email ev_email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
-	var err error
-	_, err = mail.ParseAddress(email.String())
+	_, err := mail.ParseAddress(email.String())
 
-	return NewValidatorResult(err == nil, []error{err}, nil, SyntaxValidatorName)
+	return NewValidatorResult(err == nil, utils.Errs(&SyntaxError{err}), nil, SyntaxValidatorName)
 }

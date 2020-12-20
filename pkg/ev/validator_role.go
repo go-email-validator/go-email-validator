@@ -3,12 +3,13 @@ package ev
 import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/role"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 )
 
 const RoleValidatorName ValidatorName = "RoleValidator"
 
 type RoleError struct {
-	error
+	utils.Error
 }
 
 func NewRoleValidator(r role.Interface) ValidatorInterface {
@@ -21,11 +22,11 @@ type RoleValidator struct {
 }
 
 func (r RoleValidator) Validate(email ev_email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
-	var errs = make([]error, 0)
+	var err error
 	var hasRole = r.r.HasRole(email)
 	if hasRole {
-		errs = append(errs, RoleError{})
+		err = RoleError{}
 	}
 
-	return NewValidatorResult(!hasRole, errs, nil, RoleValidatorName)
+	return NewValidatorResult(!hasRole, utils.Errs(err), nil, RoleValidatorName)
 }

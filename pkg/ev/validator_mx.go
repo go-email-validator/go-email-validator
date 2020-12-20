@@ -8,6 +8,10 @@ import (
 
 const MXValidatorName ValidatorName = "MXValidator"
 
+type EmptyMXsError struct {
+	utils.Error
+}
+
 type MXValidationResultInterface interface {
 	MX() utils.MXs
 	ValidationResultInterface
@@ -29,9 +33,13 @@ func (v MXValidator) Validate(email ev_email.EmailAddressInterface, _ ...Validat
 	var err error
 	mxs, err = net.LookupMX(email.Domain())
 
-	// TODO fix []error{err}
+	hasMXs := len(mxs) > 0
+	if hasMXs {
+		err = EmptyMXsError{}
+	}
+
 	return MXValidationResult{
 		mxs,
-		NewValidatorResult(err == nil, []error{err}, nil, MXValidatorName).(*AValidationResult),
+		NewValidatorResult(err == nil, utils.Errs(err), nil, MXValidatorName).(*AValidationResult),
 	}
 }

@@ -3,12 +3,13 @@ package ev
 import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/free"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 )
 
 const FreeValidatorName ValidatorName = "FreeValidator"
 
 type FreeError struct {
-	error
+	utils.Error
 }
 
 func FreeDefaultValidator() ValidatorInterface {
@@ -25,11 +26,11 @@ type FreeValidator struct {
 }
 
 func (r FreeValidator) Validate(email ev_email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
-	var errs = make([]error, 0)
+	var err error
 	var isFree = r.f.IsFree(email)
 	if isFree {
-		errs = append(errs, FreeError{})
+		err = FreeError{}
 	}
 
-	return NewValidatorResult(!isFree, errs, nil, FreeValidatorName)
+	return NewValidatorResult(!isFree, utils.Errs(err), nil, FreeValidatorName)
 }

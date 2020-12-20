@@ -32,6 +32,7 @@ type ASMTPError struct {
 func (a ASMTPError) Stage() SendMailStage {
 	return a.stage
 }
+
 func (a ASMTPError) Err() error {
 	return a.err
 }

@@ -3,12 +3,13 @@ package ev
 import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/disposable"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 )
 
 const DisposableValidatorName ValidatorName = "DisposableValidator"
 
 type DisposableError struct {
-	error
+	utils.Error
 }
 
 func NewDisposableValidator(d disposable.Interface) ValidatorInterface {
@@ -21,11 +22,11 @@ type DisposableValidator struct {
 }
 
 func (d DisposableValidator) Validate(email ev_email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
-	var errs = make([]error, 0)
+	var err error
 	var isDisposable = d.d.Disposable(email)
 	if isDisposable {
-		errs = append(errs, DisposableError{})
+		err = DisposableError{}
 	}
 
-	return NewValidatorResult(!isDisposable, errs, nil, DisposableValidatorName)
+	return NewValidatorResult(!isDisposable, utils.Errs(err), nil, DisposableValidatorName)
 }
