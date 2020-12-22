@@ -13,17 +13,17 @@ func (v ValidatorName) String() string {
 	return string(v)
 }
 
-type ValidatorInterface interface {
+type Validator interface {
 	GetDeps() []ValidatorName
-	Validate(email ev_email.EmailAddressInterface, results ...ValidationResultInterface) ValidationResultInterface
+	Validate(email ev_email.EmailAddress, results ...ValidationResult) ValidationResult
 }
 
-type ChangeableValidationResultInterface interface {
+type ChangeableValidationResult interface {
 	SetErrors([]error)
 	SetWarnings([]error)
 }
 
-type ValidationResultInterface interface {
+type ValidationResult interface {
 	IsValid() bool
 	Errors() []error
 	HasErrors() bool
@@ -73,14 +73,14 @@ func (a AValidationResult) ValidatorName() ValidatorName {
 	return a.name
 }
 
-type ValidationResult = AValidationResult
+type validationResult = AValidationResult
 
-func NewValidatorResult(isValid bool, errors []error, warnings []error, name ValidatorName) ValidationResultInterface {
+func NewValidatorResult(isValid bool, errors []error, warnings []error, name ValidatorName) ValidationResult {
 	if name == "" {
 		name = OtherValidator
 	}
 
-	return &ValidationResult{isValid, errors, warnings, name}
+	return &validationResult{isValid, errors, warnings, name}
 }
 
 var emptyDeps = make([]ValidatorName, 0)

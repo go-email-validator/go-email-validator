@@ -7,24 +7,24 @@ import (
 
 const SMTPValidatorName ValidatorName = "SMTPValidator"
 
-func NewSMTPValidator(Checker smtp_checker.CheckerInterface) ValidatorInterface {
-	return SMTPValidator{Checker}
+func NewSMTPValidator(Checker smtp_checker.CheckerInterface) Validator {
+	return smtpValidator{Checker}
 }
 
-type SMTPValidator struct {
-	Checker smtp_checker.CheckerInterface
+type smtpValidator struct {
+	checker smtp_checker.CheckerInterface
 }
 
-func (a SMTPValidator) GetDeps() []ValidatorName {
+func (s smtpValidator) GetDeps() []ValidatorName {
 	return []ValidatorName{SyntaxValidatorName, MXValidatorName}
 }
 
-func (a SMTPValidator) Validate(email ev_email.EmailAddressInterface, results ...ValidationResultInterface) ValidationResultInterface {
+func (s smtpValidator) Validate(email ev_email.EmailAddress, results ...ValidationResult) ValidationResult {
 	syntaxResult := results[0].(SyntaxValidatorResultInterface)
 	mxResult := results[1].(MXValidationResultInterface)
 
 	if syntaxResult.IsValid() && mxResult.IsValid() {
-		err := a.Checker.Validate(mxResult.MX(), email)
+		err := s.checker.Validate(mxResult.MX(), email)
 
 		if err != nil {
 			return NewValidatorResult(false, err, nil, SMTPValidatorName)

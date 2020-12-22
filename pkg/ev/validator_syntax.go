@@ -13,10 +13,10 @@ type SyntaxError struct {
 }
 
 type SyntaxValidatorResultInterface interface {
-	ValidationResultInterface
+	ValidationResult
 }
 
-func NewSyntaxValidator() ValidatorInterface {
+func NewSyntaxValidator() Validator {
 	return syntaxValidator{}
 }
 
@@ -24,7 +24,7 @@ type syntaxValidator struct {
 	AValidatorWithoutDeps
 }
 
-func (_ syntaxValidator) Validate(email ev_email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
+func (_ syntaxValidator) Validate(email ev_email.EmailAddress, _ ...ValidationResult) ValidationResult {
 	_, err := mail.ParseAddress(email.String())
 
 	return NewValidatorResult(err == nil, utils.Errs(&SyntaxError{err}), nil, SyntaxValidatorName)

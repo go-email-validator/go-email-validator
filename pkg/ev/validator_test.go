@@ -8,8 +8,8 @@ import (
 )
 
 var emptyEmail = email.NewEmailAddress("", "")
-var validMockValidator ValidatorInterface = mockValidator{result: true}
-var inValidMockValidator ValidatorInterface = mockValidator{result: false}
+var validMockValidator Validator = mockValidator{result: true}
+var inValidMockValidator Validator = mockValidator{result: false}
 
 const validEmailString = "go.email.validator@gmail.com"
 
@@ -42,7 +42,7 @@ type mockValidator struct {
 	AValidatorWithoutDeps
 }
 
-func (m mockValidator) Validate(_ email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
+func (m mockValidator) Validate(_ email.EmailAddress, _ ...ValidationResult) ValidationResult {
 	var err error
 	if !m.result {
 		err = newMockError()
@@ -54,7 +54,7 @@ func (m mockValidator) Validate(_ email.EmailAddressInterface, _ ...ValidationRe
 func TestMockValidator(t *testing.T) {
 	cases := []struct {
 		validator mockValidator
-		expected  ValidationResultInterface
+		expected  ValidationResult
 	}{
 		{
 			validator: newMockValidator(true),
@@ -66,7 +66,7 @@ func TestMockValidator(t *testing.T) {
 		},
 	}
 
-	var emptyEmail email.EmailAddressInterface
+	var emptyEmail email.EmailAddress
 	for _, c := range cases {
 		actual := c.validator.Validate(emptyEmail)
 		assert.Equal(t, c.expected, actual)

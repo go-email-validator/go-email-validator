@@ -9,13 +9,13 @@ const (
 	AT = "@"
 )
 
-type EmailAddressInterface interface {
+type EmailAddress interface {
 	Username() string
 	Domain() string
 	fmt.Stringer
 }
 
-func NewEmailAddress(username, domain string) EmailAddressInterface {
+func NewEmailAddress(username, domain string) EmailAddress {
 	return emailAddress{
 		strings.ToLower(username),
 		strings.ToLower(domain),
@@ -44,6 +44,6 @@ func SeparatedEmail(email string) (string, string) {
 	return email[:pos], email[pos+1:]
 }
 
-func EmailFromString(email string) EmailAddressInterface {
+func EmailFromString(email string) EmailAddress {
 	return NewEmailAddress(SeparatedEmail(email))
 }

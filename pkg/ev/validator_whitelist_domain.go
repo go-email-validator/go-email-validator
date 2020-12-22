@@ -12,12 +12,16 @@ type WhiteListError struct {
 	utils.Err
 }
 
-type WhiteListValidator struct {
+func NewWhiteListValidator(d contains.Interface) Validator {
+	return whiteListValidator{d: d}
+}
+
+type whiteListValidator struct {
 	d contains.Interface
 	AValidatorWithoutDeps
 }
 
-func (w WhiteListValidator) Validate(email ev_email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
+func (w whiteListValidator) Validate(email ev_email.EmailAddress, _ ...ValidationResult) ValidationResult {
 	var err error
 	var isContains = w.d.Contains(email.Domain())
 	if isContains {

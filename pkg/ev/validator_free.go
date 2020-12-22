@@ -13,11 +13,11 @@ type FreeError struct {
 	utils.Err
 }
 
-func FreeDefaultValidator() ValidatorInterface {
+func FreeDefaultValidator() Validator {
 	return NewFreeValidator(free.NewWillWhiteSetFree())
 }
 
-func NewFreeValidator(f contains.Interface) ValidatorInterface {
+func NewFreeValidator(f contains.Interface) Validator {
 	return freeValidator{f: f}
 }
 
@@ -26,7 +26,7 @@ type freeValidator struct {
 	AValidatorWithoutDeps
 }
 
-func (r freeValidator) Validate(email ev_email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
+func (r freeValidator) Validate(email ev_email.EmailAddress, _ ...ValidationResult) ValidationResult {
 	var err error
 	var isFree = r.f.Contains(email)
 	if isFree {

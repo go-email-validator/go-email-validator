@@ -5,7 +5,7 @@ import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
 )
 
-func NewWarningsDecorator(validator ValidatorInterface, isWarning IsWarning) ValidatorInterface {
+func NewWarningsDecorator(validator Validator, isWarning IsWarning) Validator {
 	return WarningsDecorator{validator, isWarning}
 }
 
@@ -18,7 +18,7 @@ func NewIsWarning(warningMap WarningSet, isWarning func(warningMap WarningSet) I
 }
 
 type WarningsDecorator struct {
-	validator ValidatorInterface
+	validator Validator
 	isWarning IsWarning
 }
 
@@ -26,9 +26,9 @@ func (w WarningsDecorator) GetDeps() []ValidatorName {
 	return w.validator.GetDeps()
 }
 
-func (w WarningsDecorator) Validate(email ev_email.EmailAddressInterface, results ...ValidationResultInterface) ValidationResultInterface {
+func (w WarningsDecorator) Validate(email ev_email.EmailAddress, results ...ValidationResult) ValidationResult {
 	result := w.validator.Validate(email, results...)
-	changeableResult, ok := result.(ChangeableValidationResultInterface)
+	changeableResult, ok := result.(ChangeableValidationResult)
 	if !ok {
 		return result
 	}
@@ -45,5 +45,5 @@ func (w WarningsDecorator) Validate(email ev_email.EmailAddressInterface, result
 	changeableResult.SetErrors(errors)
 	changeableResult.SetWarnings(warnings)
 
-	return changeableResult.(ValidationResultInterface)
+	return changeableResult.(ValidationResult)
 }

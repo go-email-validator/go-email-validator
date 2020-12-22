@@ -12,14 +12,14 @@ func TestDisposableValidator_Validate(t *testing.T) {
 		d contains.Interface
 	}
 	type args struct {
-		email ev_email.EmailAddressInterface
-		in1   []ValidationResultInterface
+		email ev_email.EmailAddress
+		in1   []ValidationResult
 	}
 	tests := []struct {
 		name   string
 		fields fields
 		args   args
-		want   ValidationResultInterface
+		want   ValidationResult
 	}{
 		{
 			name: "valid",

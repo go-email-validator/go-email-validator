@@ -9,7 +9,7 @@ import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/smtp_checker"
 )
 
-type DefaultValidatorFactory func() ValidatorInterface
+type DefaultValidatorFactory func() Validator
 
 func GetDefaultFactories() *ValidatorMap {
 	return &ValidatorMap{
@@ -17,8 +17,8 @@ func GetDefaultFactories() *ValidatorMap {
 		RoleValidatorName:       NewRoleValidator(role.NewRBEASetRole()),
 		MXValidatorName:         NewMXValidator(),
 		SMTPValidatorName: NewWarningsDecorator(
-			SMTPValidator{
-				Checker: smtp_checker.Checker{
+			smtpValidator{
+				checker: smtp_checker.Checker{
 					GetConn:   smtp_checker.SimpleClientGetter,
 					SendMail:  smtp_checker.NewSendMail(),
 					FromEmail: ev_email.EmailFromString(smtp_checker.DefaultEmail),
@@ -34,34 +34,38 @@ func GetDefaultFactories() *ValidatorMap {
 	}
 }
 
-func NewDepBuilder(validators *ValidatorMap) DepBuilder {
+func NewDepBuilder(validators *ValidatorMap) *DepBuilder {
 	if validators == nil {
 		validators = GetDefaultFactories()
 	}
 
-	return DepBuilder{validators: *validators}
+	return &DepBuilder{validators: *validators}
 }
 
 type DepBuilder struct {
 	validators ValidatorMap
 }
 
-func (d DepBuilder) Set(name ValidatorName, validator ValidatorInterface) {
+func (d *DepBuilder) Set(name ValidatorName, validator Validator) *DepBuilder {
 	d.validators[name] = validator
+
+	return d
 }
 
-func (d DepBuilder) Has(name ValidatorName) bool {
+func (d *DepBuilder) Has(name ValidatorName) bool {
 	_, has := d.validators[name]
 
 	return has
 }
 
-func (d DepBuilder) Delete(name ValidatorName) {
+func (d *DepBuilder) Delete(name ValidatorName) *DepBuilder {
 	if d.Has(name) {
 		delete(d.validators, name)
 	}
+
+	return d
 }
 
-func (d DepBuilder) Build() ValidatorInterface {
+func (d *DepBuilder) Build() Validator {
 	return NewDepValidator(d.validators)
 }

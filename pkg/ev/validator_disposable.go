@@ -12,7 +12,7 @@ type DisposableError struct {
 	utils.Err
 }
 
-func NewDisposableValidator(d contains.Interface) ValidatorInterface {
+func NewDisposableValidator(d contains.Interface) Validator {
 	return disposableValidator{d: d}
 }
 
@@ -21,7 +21,7 @@ type disposableValidator struct {
 	AValidatorWithoutDeps
 }
 
-func (d disposableValidator) Validate(email ev_email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
+func (d disposableValidator) Validate(email ev_email.EmailAddress, _ ...ValidationResult) ValidationResult {
 	var err error
 	var isDisposable = d.d.Contains(email.Domain())
 	if isDisposable {

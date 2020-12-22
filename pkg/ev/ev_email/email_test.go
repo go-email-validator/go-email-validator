@@ -20,7 +20,7 @@ func defaultEmailInputString() string {
 	return defaultUsernameInput + AT + defaultDomainInput
 }
 
-func defaultEmail() EmailAddressInterface {
+func defaultEmail() EmailAddress {
 	return NewEmailAddress(defaultUsername, defaultDomain)
 }
 
@@ -37,7 +37,7 @@ func emptyEmailString() string {
 	return emptyUsername + AT + emptyDomain
 }
 
-func emptyEmail() EmailAddressInterface {
+func emptyEmail() EmailAddress {
 	return NewEmailAddress(emptyUsername, emptyDomain)
 }
 
@@ -137,7 +137,7 @@ func TestEmailFromString(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want EmailAddressInterface
+		want EmailAddress
 	}{
 		{
 			name: "email",

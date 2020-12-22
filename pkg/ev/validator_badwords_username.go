@@ -12,12 +12,16 @@ type BanWordsUsernameError struct {
 	utils.Err
 }
 
-type BanWordsUsernameValidator struct {
+func NewBanWordsUsername(inStrings contains.InStrings) Validator {
+	return banWordsUsernameValidator{d: inStrings}
+}
+
+type banWordsUsernameValidator struct {
 	d contains.InStrings
 	AValidatorWithoutDeps
 }
 
-func (w BanWordsUsernameValidator) Validate(email ev_email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
+func (w banWordsUsernameValidator) Validate(email ev_email.EmailAddress, _ ...ValidationResult) ValidationResult {
 	var err error
 	var isContains = w.d.Contains(email.Username())
 	if isContains {

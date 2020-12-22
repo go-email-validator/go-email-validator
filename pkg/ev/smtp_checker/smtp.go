@@ -66,7 +66,7 @@ func (a ASMTPErrorNested) Error() string {
 	return a.n.Error()
 }
 
-func randomEmail(domain string) (ev_email.EmailAddressInterface, error) {
+func randomEmail(domain string) (ev_email.EmailAddress, error) {
 	input := new(password.GeneratorInput)
 	input.LowerLetters = password.LowerLetters + password.Digits
 
@@ -87,7 +87,7 @@ const (
 type ClientGetter func(addr string) (*smtp.Client, error)
 
 type CheckerInterface interface {
-	Validate(mxs utils.MXs, email ev_email.EmailAddressInterface) []error
+	Validate(mxs utils.MXs, email ev_email.EmailAddress) []error
 }
 
 func SimpleClientGetter(addr string) (*smtp.Client, error) {
@@ -98,10 +98,10 @@ type Checker struct {
 	GetConn   ClientGetter
 	Auth      smtp.Auth
 	SendMail  SendMailInterface
-	FromEmail ev_email.EmailAddressInterface
+	FromEmail ev_email.EmailAddress
 }
 
-func (c Checker) Validate(mxs utils.MXs, email ev_email.EmailAddressInterface) (errs []error) {
+func (c Checker) Validate(mxs utils.MXs, email ev_email.EmailAddress) (errs []error) {
 	var client *smtp.Client
 	var err error
 	errs = make([]error, 0)

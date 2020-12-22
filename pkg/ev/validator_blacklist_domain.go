@@ -12,12 +12,16 @@ type BlackListDomainsError struct {
 	utils.Err
 }
 
-type BlackListValidator struct {
+func NewBlackListValidator(d contains.Interface) Validator {
+	return blackListValidator{d: d}
+}
+
+type blackListValidator struct {
 	d contains.Interface
 	AValidatorWithoutDeps
 }
 
-func (w BlackListValidator) Validate(email ev_email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
+func (w blackListValidator) Validate(email ev_email.EmailAddress, _ ...ValidationResult) ValidationResult {
 	var err error
 	var isContains = w.d.Contains(email.Domain())
 	if isContains {

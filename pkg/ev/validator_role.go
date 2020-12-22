@@ -12,16 +12,16 @@ type RoleError struct {
 	utils.Err
 }
 
-func NewRoleValidator(r contains.Interface) ValidatorInterface {
-	return RoleValidator{r: r}
+func NewRoleValidator(r contains.Interface) Validator {
+	return roleValidator{r: r}
 }
 
-type RoleValidator struct {
+type roleValidator struct {
 	r contains.Interface
 	AValidatorWithoutDeps
 }
 
-func (r RoleValidator) Validate(email ev_email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
+func (r roleValidator) Validate(email ev_email.EmailAddress, _ ...ValidationResult) ValidationResult {
 	var err error
 	var hasRole = r.r.Contains(email.Username())
 	if hasRole {

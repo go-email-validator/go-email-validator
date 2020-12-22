@@ -9,7 +9,7 @@ func BenchmarkSMTPValidator_Validate_MX(b *testing.B) {
 	email := ev_email.EmailFromString(validEmailString)
 
 	depValidator := NewDepValidator(
-		map[ValidatorName]ValidatorInterface{
+		map[ValidatorName]Validator{
 			SyntaxValidatorName: NewMXValidator(),
 			MXValidatorName:     NewSyntaxValidator(),
 		},

@@ -22,7 +22,7 @@ func (t testSleep) GetDeps() []ValidatorName {
 	return t.deps
 }
 
-func (t testSleep) Validate(_ ev_email.EmailAddressInterface, results ...ValidationResultInterface) ValidationResultInterface {
+func (t testSleep) Validate(_ ev_email.EmailAddress, results ...ValidationResult) ValidationResult {
 	time.Sleep(t.sleep)
 
 	var isValid = true
@@ -41,7 +41,7 @@ func TestDepValidator_Validate_Independent(t *testing.T) {
 	strings := emptyDeps
 
 	depValidator := NewDepValidator(
-		map[ValidatorName]ValidatorInterface{
+		map[ValidatorName]Validator{
 			"test1": &testSleep{
 				0,
 				newMockValidator(true),
@@ -68,7 +68,7 @@ func TestDepValidator_Validate_Dependent(t *testing.T) {
 	email := GetValidTestEmail()
 	strings := emptyDeps
 
-	depValidator := NewDepValidator(map[ValidatorName]ValidatorInterface{
+	depValidator := NewDepValidator(map[ValidatorName]Validator{
 		"test1": &testSleep{
 			100 * time.Millisecond,
 			newMockValidator(true),
@@ -94,7 +94,7 @@ func TestDepValidator_Validate_Dependent(t *testing.T) {
 func TestDepValidator_Validate_Full(t *testing.T) {
 	email := ev_email.EmailFromString(validEmailString)
 
-	depValidator := NewDepValidator(map[ValidatorName]ValidatorInterface{
+	depValidator := NewDepValidator(map[ValidatorName]Validator{
 		//FreeValidatorName:     FreeDefaultValidator(),
 		RoleValidatorName:       NewRoleValidator(role.NewRBEASetRole()),
 		DisposableValidatorName: NewDisposableValidator(contains.NewFunc(disposable.MailChecker)),

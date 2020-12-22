@@ -7,6 +7,6 @@ const (
 	validDomain   = "gmail.com"
 )
 
-func GetValidTestEmail() ev_email.EmailAddressInterface {
+func GetValidTestEmail() ev_email.EmailAddress {
 	return ev_email.NewEmailAddress(validUsername, validDomain)
 }

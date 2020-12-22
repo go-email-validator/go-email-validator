@@ -9,8 +9,8 @@ import (
 )
 
 //test monicaramirezrestrepo@hotmail.com
-func newSMTPValidator() *SMTPValidator {
-	return &SMTPValidator{
+func newSMTPValidator() *smtpValidator {
+	return &smtpValidator{
 		smtp_checker.Checker{
 			GetConn:   smtp_checker.SimpleClientGetter,
 			SendMail:  smtp_checker.NewSendMail(),
@@ -19,13 +19,13 @@ func newSMTPValidator() *SMTPValidator {
 	}
 }
 
-func getSmtpValidator_Validate() ValidatorInterface {
+func getSmtpValidator_Validate() Validator {
 	return NewDepValidator(
-		map[ValidatorName]ValidatorInterface{
+		map[ValidatorName]Validator{
 			SyntaxValidatorName: NewSyntaxValidator(),
 			MXValidatorName:     NewMXValidator(),
 			SMTPValidatorName: NewWarningsDecorator(
-				ValidatorInterface(newSMTPValidator()),
+				Validator(newSMTPValidator()),
 				NewIsWarning(hashset.New(smtp_checker.RandomRCPTStage), func(warningMap WarningSet) IsWarning {
 					return func(err error) bool {
 						return warningMap.Contains(err.(smtp_checker.SMTPError).Stage())

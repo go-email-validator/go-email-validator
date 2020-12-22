@@ -7,9 +7,9 @@ import (
 
 const DepValidatorName ValidatorName = "depValidator"
 
-type ValidatorMap map[ValidatorName]ValidatorInterface
+type ValidatorMap map[ValidatorName]Validator
 
-func NewDepValidator(deps ValidatorMap) ValidatorInterface {
+func NewDepValidator(deps ValidatorMap) Validator {
 	return depValidator{deps: deps}
 }
 
@@ -18,9 +18,9 @@ type depValidator struct {
 	deps ValidatorMap
 }
 
-func (d depValidator) Validate(email ev_email.EmailAddressInterface, _ ...ValidationResultInterface) ValidationResultInterface {
+func (d depValidator) Validate(email ev_email.EmailAddress, _ ...ValidationResult) ValidationResult {
 	var waiters, waitersMutex = make(map[ValidatorName][]*sync.WaitGroup), sync.RWMutex{}
-	var validationResultsByName, validationResultsMutex = make(map[ValidatorName]ValidationResultInterface), sync.RWMutex{}
+	var validationResultsByName, validationResultsMutex = make(map[ValidatorName]ValidationResult), sync.RWMutex{}
 	var isValid = true
 	var starter, finisher = sync.WaitGroup{}, sync.WaitGroup{}
 	starter.Add(1)
@@ -45,15 +45,15 @@ func (d depValidator) Validate(email ev_email.EmailAddressInterface, _ ...Valida
 			}
 		}
 
-		go func(key ValidatorName, validator ValidatorInterface, depWaiter *sync.WaitGroup) {
-			var results []ValidationResultInterface
+		go func(key ValidatorName, validator Validator, depWaiter *sync.WaitGroup) {
+			var results []ValidationResult
 
 			// TODO add recover
 			starter.Wait()
 			if depWaiter != nil {
 				depWaiter.Wait()
 
-				results = make([]ValidationResultInterface, len(deps))
+				results = make([]ValidationResult, len(deps))
 				validationResultsMutex.RLock()
 				for i, dep := range deps {
 					results[i] = validationResultsByName[dep]
@@ -83,34 +83,34 @@ func (d depValidator) Validate(email ev_email.EmailAddressInterface, _ ...Valida
 	return NewDepValidatorResult(isValid, validationResultsByName)
 }
 
-type DepResult map[ValidatorName]ValidationResultInterface
+type DepResult map[ValidatorName]ValidationResult
 
-func NewDepValidatorResult(isValid bool, results DepResult) ValidationResultInterface {
-	return DepValidationResult{
+type DepValidationResult interface {
+	ValidationResult
+	GetResults() DepResult
+}
+
+func NewDepValidatorResult(isValid bool, results DepResult) ValidationResult {
+	return depValidationResult{
 		isValid,
 		results,
 	}
 }
 
-type DepValidationResultInterface interface {
-	ValidationResultInterface
-	GetResults() DepResult
-}
-
-type DepValidationResult struct {
+type depValidationResult struct {
 	isValid bool
 	results DepResult
 }
 
-func (d DepValidationResult) GetResults() DepResult {
+func (d depValidationResult) GetResults() DepResult {
 	return d.results
 }
 
-func (d DepValidationResult) IsValid() bool {
+func (d depValidationResult) IsValid() bool {
 	return d.isValid
 }
 
-func (d DepValidationResult) Errors() []error {
+func (d depValidationResult) Errors() []error {
 	var errors = make([]error, 0)
 
 	for _, result := range d.GetResults() {
@@ -122,7 +122,7 @@ func (d DepValidationResult) Errors() []error {
 	return errors
 }
 
-func (d DepValidationResult) HasErrors() bool {
+func (d depValidationResult) HasErrors() bool {
 	for _, result := range d.GetResults() {
 		if result.HasErrors() {
 			return true
@@ -132,7 +132,7 @@ func (d DepValidationResult) HasErrors() bool {
 	return false
 }
 
-func (d DepValidationResult) Warnings() []error {
+func (d depValidationResult) Warnings() []error {
 	var warnings = make([]error, 0)
 
 	for _, result := range d.GetResults() {
@@ -144,7 +144,7 @@ func (d DepValidationResult) Warnings() []error {
 	return warnings
 }
 
-func (d DepValidationResult) HasWarnings() bool {
+func (d depValidationResult) HasWarnings() bool {
 	for _, result := range d.GetResults() {
 		if result.HasWarnings() {
 			return true
@@ -154,6 +154,6 @@ func (d DepValidationResult) HasWarnings() bool {
 	return false
 }
 
-func (d DepValidationResult) ValidatorName() ValidatorName {
+func (d depValidationResult) ValidatorName() ValidatorName {
 	return DepValidatorName
 }
