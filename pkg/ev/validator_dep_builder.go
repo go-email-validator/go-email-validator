@@ -58,9 +58,11 @@ func (d *DepBuilder) Has(name ValidatorName) bool {
 	return has
 }
 
-func (d *DepBuilder) Delete(name ValidatorName) *DepBuilder {
-	if d.Has(name) {
-		delete(d.validators, name)
+func (d *DepBuilder) Delete(names ...ValidatorName) *DepBuilder {
+	for _, name := range names {
+		if d.Has(name) {
+			delete(d.validators, name)
+		}
 	}
 
 	return d

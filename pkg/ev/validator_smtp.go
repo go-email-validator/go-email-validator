@@ -21,7 +21,7 @@ func (s smtpValidator) GetDeps() []ValidatorName {
 
 func (s smtpValidator) Validate(email ev_email.EmailAddress, results ...ValidationResult) ValidationResult {
 	syntaxResult := results[0].(SyntaxValidatorResultInterface)
-	mxResult := results[1].(MXValidationResultInterface)
+	mxResult := results[1].(MXValidationResult)
 
 	if syntaxResult.IsValid() && mxResult.IsValid() {
 		err := s.checker.Validate(mxResult.MX(), email)

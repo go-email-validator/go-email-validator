@@ -12,17 +12,21 @@ type EmptyMXsError struct {
 	utils.Err
 }
 
-type MXValidationResultInterface interface {
+type MXValidationResult interface {
 	MX() utils.MXs
 	ValidationResult
 }
 
-type MXValidationResult struct {
+func NewMXValidationResult(mx utils.MXs, result *AValidationResult) MXValidationResult {
+	return mxValidationResult{mx, result}
+}
+
+type mxValidationResult struct {
 	mx utils.MXs
 	*AValidationResult
 }
 
-func (v MXValidationResult) MX() utils.MXs {
+func (v mxValidationResult) MX() utils.MXs {
 	return v.mx
 }
 
@@ -42,8 +46,8 @@ func (v mxValidator) Validate(email ev_email.EmailAddress, _ ...ValidationResult
 		err = EmptyMXsError{}
 	}
 
-	return MXValidationResult{
+	return NewMXValidationResult(
 		mxs,
 		NewValidatorResult(err == nil, utils.Errs(err), nil, MXValidatorName).(*AValidationResult),
-	}
+	)
 }
