@@ -13,6 +13,18 @@ var inValidMockValidator ValidatorInterface = mockValidator{result: false}
 
 const validEmailString = "go.email.validator@gmail.com"
 
+func newMockContains(value interface{}) mockContains {
+	return mockContains{value}
+}
+
+type mockContains struct {
+	value interface{}
+}
+
+func (m mockContains) Contains(value interface{}) bool {
+	return m.value == value
+}
+
 func newMockError() error {
 	return mockError{}
 }

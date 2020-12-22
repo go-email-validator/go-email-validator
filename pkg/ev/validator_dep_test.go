@@ -2,6 +2,7 @@ package ev
 
 import (
 	"github.com/emirpasic/gods/sets/hashset"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/contains"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/disposable"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/role"
@@ -96,7 +97,7 @@ func TestDepValidator_Validate_Full(t *testing.T) {
 	depValidator := NewDepValidator(map[ValidatorName]ValidatorInterface{
 		//FreeValidatorName:     FreeDefaultValidator(),
 		RoleValidatorName:       NewRoleValidator(role.NewRBEASetRole()),
-		DisposableValidatorName: NewDisposableValidator(disposable.NewFuncDisposable(disposable.MailChecker)),
+		DisposableValidatorName: NewDisposableValidator(contains.NewFunc(disposable.MailChecker)),
 		SyntaxValidatorName:     NewSyntaxValidator(),
 		MXValidatorName:         NewMXValidator(),
 		SMTPValidatorName: NewWarningsDecorator(

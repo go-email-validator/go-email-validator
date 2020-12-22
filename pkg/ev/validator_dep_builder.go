@@ -2,6 +2,7 @@ package ev
 
 import (
 	"github.com/emirpasic/gods/sets/hashset"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/contains"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/disposable"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/role"
@@ -12,7 +13,7 @@ type DefaultValidatorFactory func() ValidatorInterface
 
 func GetDefaultFactories() *ValidatorMap {
 	return &ValidatorMap{
-		DisposableValidatorName: NewDisposableValidator(disposable.NewFuncDisposable(disposable.MailChecker)),
+		DisposableValidatorName: NewDisposableValidator(contains.NewFunc(disposable.MailChecker)),
 		RoleValidatorName:       NewRoleValidator(role.NewRBEASetRole()),
 		MXValidatorName:         NewMXValidator(),
 		SMTPValidatorName: NewWarningsDecorator(

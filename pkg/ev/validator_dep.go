@@ -86,31 +86,31 @@ func (d depValidator) Validate(email ev_email.EmailAddressInterface, _ ...Valida
 type DepResult map[ValidatorName]ValidationResultInterface
 
 func NewDepValidatorResult(isValid bool, results DepResult) ValidationResultInterface {
-	return DepValidatorResult{
+	return DepValidationResult{
 		isValid,
 		results,
 	}
 }
 
-type DepValidatorResultInterface interface {
+type DepValidationResultInterface interface {
 	ValidationResultInterface
 	GetResults() DepResult
 }
 
-type DepValidatorResult struct {
+type DepValidationResult struct {
 	isValid bool
 	results DepResult
 }
 
-func (d DepValidatorResult) GetResults() DepResult {
+func (d DepValidationResult) GetResults() DepResult {
 	return d.results
 }
 
-func (d DepValidatorResult) IsValid() bool {
+func (d DepValidationResult) IsValid() bool {
 	return d.isValid
 }
 
-func (d DepValidatorResult) Errors() []error {
+func (d DepValidationResult) Errors() []error {
 	var errors = make([]error, 0)
 
 	for _, result := range d.GetResults() {
@@ -122,7 +122,7 @@ func (d DepValidatorResult) Errors() []error {
 	return errors
 }
 
-func (d DepValidatorResult) HasErrors() bool {
+func (d DepValidationResult) HasErrors() bool {
 	for _, result := range d.GetResults() {
 		if result.HasErrors() {
 			return true
@@ -132,7 +132,7 @@ func (d DepValidatorResult) HasErrors() bool {
 	return false
 }
 
-func (d DepValidatorResult) Warnings() []error {
+func (d DepValidationResult) Warnings() []error {
 	var warnings = make([]error, 0)
 
 	for _, result := range d.GetResults() {
@@ -144,7 +144,7 @@ func (d DepValidatorResult) Warnings() []error {
 	return warnings
 }
 
-func (d DepValidatorResult) HasWarnings() bool {
+func (d DepValidationResult) HasWarnings() bool {
 	for _, result := range d.GetResults() {
 		if result.HasWarnings() {
 			return true
@@ -154,6 +154,6 @@ func (d DepValidatorResult) HasWarnings() bool {
 	return false
 }
 
-func (d DepValidatorResult) ValidatorName() ValidatorName {
+func (d DepValidationResult) ValidatorName() ValidatorName {
 	return DepValidatorName
 }

@@ -2,6 +2,7 @@ package free
 
 import (
 	"github.com/emirpasic/gods/sets/hashset"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/contains"
 	"strings"
 )
 
@@ -9,14 +10,14 @@ func WillWhiteFree() []string {
 	return willWhiteFree
 }
 
-func NewWillWhiteSetFree() Interface {
+func NewWillWhiteSetFree() contains.Interface {
 	WillWhiteFree := WillWhiteFree()
 	freeEmails := make([]interface{}, len(WillWhiteFree))
 	for i, freeEmail := range WillWhiteFree {
 		freeEmails[i] = strings.ToLower(freeEmail)
 	}
 
-	return setFree{hashset.New(freeEmails...)}
+	return contains.NewSet(hashset.New(freeEmails...))
 }
 
 var willWhiteFree = []string{

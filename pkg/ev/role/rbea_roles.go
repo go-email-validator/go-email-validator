@@ -2,6 +2,7 @@ package role
 
 import (
 	"github.com/emirpasic/gods/sets/hashset"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/contains"
 	"strings"
 )
 
@@ -9,14 +10,14 @@ func RBEARoles() []string {
 	return rbeaRoles
 }
 
-func NewRBEASetRole() Interface {
+func NewRBEASetRole() contains.Interface {
 	RBEARoles := RBEARoles()
 	roles := make([]interface{}, len(RBEARoles))
 	for i, role := range RBEARoles {
 		roles[i] = strings.ToLower(role)
 	}
 
-	return NewSetRole(hashset.New(roles...))
+	return contains.NewSet(hashset.New(roles...))
 }
 
 var rbeaRoles = []string{

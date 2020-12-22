@@ -1,27 +1,15 @@
 package ev
 
 import (
-	"github.com/go-email-validator/go-email-validator/pkg/ev/disposable"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/contains"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
 	"reflect"
 	"testing"
 )
 
-type mockDisposable struct {
-	result bool
-}
-
-func (m mockDisposable) Disposable(_ ev_email.EmailAddressInterface) bool {
-	return m.result
-}
-
-func getMockDisposable(result bool) mockDisposable {
-	return mockDisposable{result}
-}
-
 func TestDisposableValidator_Validate(t *testing.T) {
 	type fields struct {
-		d disposable.Interface
+		d contains.Interface
 	}
 	type args struct {
 		email ev_email.EmailAddressInterface
@@ -36,7 +24,7 @@ func TestDisposableValidator_Validate(t *testing.T) {
 		{
 			name: "valid",
 			fields: fields{
-				d: getMockDisposable(false),
+				d: newMockContains(nil),
 			},
 			args: args{email: GetValidTestEmail()},
 			want: NewValidatorResult(true, nil, nil, DisposableValidatorName),
@@ -44,7 +32,7 @@ func TestDisposableValidator_Validate(t *testing.T) {
 		{
 			name: "invalid",
 			fields: fields{
-				d: getMockDisposable(true),
+				d: newMockContains(validDomain),
 			},
 			args: args{email: GetValidTestEmail()},
 			want: NewValidatorResult(false, []error{DisposableError{}}, nil, DisposableValidatorName),
