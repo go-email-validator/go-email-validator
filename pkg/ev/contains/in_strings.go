@@ -31,10 +31,15 @@ type inStrings struct {
 
 func (is inStrings) Contains(value string) bool {
 	var maxLen = len(value)
+	var jEnd int
 
 	for i := 0; i < maxLen; i++ {
 		key := ""
-		for j := i; j < is.maxLen; j++ {
+		jEnd = i + is.maxLen
+		if jEnd > maxLen {
+			jEnd = maxLen
+		}
+		for j := i; j < jEnd; j++ {
 			key = key + string(value[j])
 			if is.contains.Contains(key) {
 				return true

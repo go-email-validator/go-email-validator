@@ -8,12 +8,12 @@ import (
 
 const (
 	firstValue   = "first"
-	secondValue  = "second"
+	longValue    = "very_long_value_which_we_can_find_in_email"
 	missingValue = "missing"
 )
 
-var twoStrings = []string{firstValue, secondValue}
-var twoStringsInterface = []interface{}{firstValue, secondValue}
+var twoStrings = []string{firstValue, longValue}
+var twoStringsInterface = []interface{}{firstValue, longValue}
 var setTwoStrings = NewSet(hashset.New(twoStringsInterface...))
 
 func TestNewInStringsFromArray(t *testing.T) {
@@ -58,10 +58,10 @@ func Test_inStrings_Contains(t *testing.T) {
 		want   bool
 	}{
 		{
-			name: "has " + firstValue,
+			name: "has equvalent of " + firstValue,
 			fields: fields{
 				contains: setTwoStrings,
-				maxLen:   6,
+				maxLen:   len(longValue),
 			},
 			args: args{
 				value: firstValue,
@@ -69,13 +69,35 @@ func Test_inStrings_Contains(t *testing.T) {
 			want: true,
 		},
 		{
-			name: "has " + secondValue,
+			name: "has " + firstValue,
 			fields: fields{
 				contains: setTwoStrings,
-				maxLen:   6,
+				maxLen:   len(longValue),
 			},
 			args: args{
-				value: secondValue,
+				value: missingValue + firstValue + missingValue,
+			},
+			want: true,
+		},
+		{
+			name: "has " + longValue + "in start",
+			fields: fields{
+				contains: setTwoStrings,
+				maxLen:   len(longValue),
+			},
+			args: args{
+				value: longValue + missingValue,
+			},
+			want: true,
+		},
+		{
+			name: "has " + longValue + "in end",
+			fields: fields{
+				contains: setTwoStrings,
+				maxLen:   len(longValue),
+			},
+			args: args{
+				value: missingValue + longValue,
 			},
 			want: true,
 		},
@@ -83,7 +105,7 @@ func Test_inStrings_Contains(t *testing.T) {
 			name: "missing of " + missingValue,
 			fields: fields{
 				contains: setTwoStrings,
-				maxLen:   6,
+				maxLen:   len(longValue),
 			},
 			args: args{
 				value: missingValue,
