@@ -24,10 +24,11 @@ func (s smtpValidator) Validate(email ev_email.EmailAddress, results ...Validati
 	mxResult := results[1].(MXValidationResult)
 	var errs []error
 
-	isDepsValid := syntaxResult.IsValid() && mxResult.IsValid()
-	if isDepsValid {
+	if syntaxResult.IsValid() && mxResult.IsValid() {
 		errs = s.checker.Validate(mxResult.MX(), email)
+	} else {
+		errs = append(errs, DepsError{})
 	}
 
-	return NewValidatorResult(isDepsValid && len(errs) == 0, errs, nil, SMTPValidatorName)
+	return NewValidatorResult(len(errs) == 0, errs, nil, SMTPValidatorName)
 }

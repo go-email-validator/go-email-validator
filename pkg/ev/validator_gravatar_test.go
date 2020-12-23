@@ -32,7 +32,7 @@ func Test_gravatarValidator_Validate(t *testing.T) {
 				email:   ev_email.EmailFromString(""),
 				results: []ValidationResult{syntaxGetError()},
 			},
-			want: gravatarGetError(),
+			want: gravatarGetError(DepsError{}),
 		},
 		{
 			name: "invalid in gravatar",
@@ -40,7 +40,7 @@ func Test_gravatarValidator_Validate(t *testing.T) {
 				email:   ev_email.EmailFromString("some.none.exist@with.non.exist.domain"),
 				results: []ValidationResult{NewValidValidatorResult(SyntaxValidatorName)},
 			},
-			want: gravatarGetError(),
+			want: gravatarGetError(GravatarError{}),
 		},
 	}
 	for _, tt := range tests {

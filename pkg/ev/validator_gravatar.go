@@ -34,20 +34,20 @@ func (_ gravatarValidator) GetDeps() []ValidatorName {
 func (w gravatarValidator) Validate(email ev_email.EmailAddress, results ...ValidationResult) ValidationResult {
 	syntaxResult := results[0].(SyntaxValidatorResultInterface)
 	if !syntaxResult.IsValid() {
-		return gravatarGetError()
+		return gravatarGetError(DepsError{})
 	}
 
 	w.h.Reset()
 	w.h.Write([]byte(email.String()))
 	resp, err := http.Head(fmt.Sprintf(GravatarUrl, w.h.Sum(nil)))
 	if err != nil || resp.StatusCode != 200 {
-		return gravatarGetError()
+		return gravatarGetError(GravatarError{})
 	}
 	defer resp.Body.Close()
 
 	return NewValidValidatorResult(GravatarValidatorName)
 }
 
-func gravatarGetError() ValidationResult {
-	return NewValidatorResult(false, utils.Errs(GravatarError{}), nil, GravatarValidatorName)
+func gravatarGetError(err error) ValidationResult {
+	return NewValidatorResult(false, utils.Errs(err), nil, GravatarValidatorName)
 }

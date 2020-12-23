@@ -26,7 +26,11 @@ func GetDefaultFactories() *ValidatorMap {
 			},
 			NewIsWarning(hashset.New(smtp_checker.RandomRCPTStage), func(warningMap WarningSet) IsWarning {
 				return func(err error) bool {
-					return warningMap.Contains(err.(smtp_checker.SMTPError).Stage())
+					errSmtp, ok := err.(smtp_checker.SMTPError)
+					if !ok {
+						return false
+					}
+					return warningMap.Contains(errSmtp.Stage())
 				}
 			}),
 		),

@@ -2,12 +2,17 @@ package ev
 
 import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 	"sync"
 )
 
 const DepValidatorName ValidatorName = "depValidator"
 
 type ValidatorMap map[ValidatorName]Validator
+
+type DepsError struct {
+	utils.Err
+}
 
 func NewDepValidator(deps ValidatorMap) Validator {
 	return depValidator{deps: deps}
