@@ -52,10 +52,14 @@ func (d *DepBuilder) Set(name ValidatorName, validator Validator) *DepBuilder {
 	return d
 }
 
-func (d *DepBuilder) Has(name ValidatorName) bool {
-	_, has := d.validators[name]
+func (d *DepBuilder) Has(names ...ValidatorName) bool {
+	for _, name := range names {
+		if _, has := d.validators[name]; !has {
+			return false
+		}
+	}
 
-	return has
+	return true
 }
 
 func (d *DepBuilder) Delete(names ...ValidatorName) *DepBuilder {

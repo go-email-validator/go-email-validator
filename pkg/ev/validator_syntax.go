@@ -27,5 +27,12 @@ type syntaxValidator struct {
 func (_ syntaxValidator) Validate(email ev_email.EmailAddress, _ ...ValidationResult) ValidationResult {
 	_, err := mail.ParseAddress(email.String())
 
-	return NewValidatorResult(err == nil, utils.Errs(&SyntaxError{err}), nil, SyntaxValidatorName)
+	if err == nil {
+		return NewValidValidatorResult(SyntaxValidatorName)
+	}
+	return syntaxGetError()
+}
+
+func syntaxGetError() ValidationResult {
+	return NewValidatorResult(false, utils.Errs(SyntaxError{}), nil, SyntaxValidatorName)
 }

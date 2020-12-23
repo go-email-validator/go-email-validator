@@ -75,6 +75,10 @@ func (a AValidationResult) ValidatorName() ValidatorName {
 
 type validationResult = AValidationResult
 
+func NewValidValidatorResult(name ValidatorName) ValidationResult {
+	return NewValidatorResult(true, nil, nil, name)
+}
+
 func NewValidatorResult(isValid bool, errors []error, warnings []error, name ValidatorName) ValidationResult {
 	if name == "" {
 		name = OtherValidator
