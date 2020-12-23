@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/emirpasic/gods/sets/hashset"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -12,6 +13,12 @@ import (
 const (
 	RoleUrl      = "https://raw.githubusercontent.com/mixmaxhq/role-based-email-addresses/master/index.js"
 	RBEARolePath = "pkg/ev/role/rbea_roles.go"
+)
+
+var excludes = hashset.New(
+	"asd",
+	"asdasd",
+	"asdf",
 )
 
 func rbeaRolesUpdate(url, path string) {
@@ -61,6 +68,10 @@ func NewRBEASetRole() SetRole {
 var rbeaRoles = []string{
 `)
 	for _, role := range roles {
+		if excludes.Contains(role) {
+			continue
+		}
+
 		strBuilder.WriteString("\t\"")
 		strBuilder.WriteString(role)
 		strBuilder.WriteString("\",\n")
