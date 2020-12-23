@@ -28,7 +28,7 @@ type freeValidator struct {
 
 func (r freeValidator) Validate(email ev_email.EmailAddress, _ ...ValidationResult) ValidationResult {
 	var err error
-	var isFree = r.f.Contains(email)
+	var isFree = r.f.Contains(email.Domain())
 	if isFree {
 		err = FreeError{}
 	}
