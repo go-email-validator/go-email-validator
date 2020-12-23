@@ -22,14 +22,12 @@ func (s smtpValidator) GetDeps() []ValidatorName {
 func (s smtpValidator) Validate(email ev_email.EmailAddress, results ...ValidationResult) ValidationResult {
 	syntaxResult := results[0].(SyntaxValidatorResultInterface)
 	mxResult := results[1].(MXValidationResult)
+	var errs []error
 
-	if syntaxResult.IsValid() && mxResult.IsValid() {
-		err := s.checker.Validate(mxResult.MX(), email)
-
-		if err != nil {
-			return NewValidatorResult(false, err, nil, SMTPValidatorName)
-		}
+	isDepsValid := syntaxResult.IsValid() && mxResult.IsValid()
+	if isDepsValid {
+		errs = s.checker.Validate(mxResult.MX(), email)
 	}
 
-	return NewValidatorResult(true, nil, nil, SMTPValidatorName)
+	return NewValidatorResult(isDepsValid && len(errs) == 0, errs, nil, SMTPValidatorName)
 }
