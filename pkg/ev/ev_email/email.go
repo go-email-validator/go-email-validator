@@ -42,7 +42,7 @@ func (e emailAddress) String() string {
 func SeparatedEmail(email string) (string, string) {
 	pos := strings.Index(email, "@")
 
-	if pos == -1 && len(email) < 3 {
+	if pos == -1 || len(email) < 3 {
 		return email, ""
 	}
 
