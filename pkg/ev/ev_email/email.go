@@ -43,7 +43,7 @@ func SeparatedEmail(email string) (string, string) {
 	pos := strings.Index(email, "@")
 
 	if pos == -1 || len(email) < 3 {
-		return email, ""
+		return "", ""
 	}
 
 	return email[:pos], email[pos+1:]

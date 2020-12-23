@@ -31,7 +31,7 @@ func TestNewInStringsFromArray(t *testing.T) {
 			args: args{
 				elements: twoStrings,
 			},
-			want: inStrings{setTwoStrings, 6},
+			want: inStrings{setTwoStrings, len(longValue)},
 		},
 	}
 	for _, tt := range tests {
