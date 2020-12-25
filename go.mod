@@ -7,4 +7,6 @@ require (
 	github.com/emirpasic/gods v1.12.0
 	github.com/sethvargo/go-password v0.2.0
 	github.com/stretchr/testify v1.6.1
+	golang.org/x/net v0.0.0-20201224014010-6772e930b67b
+	h12.io/socks v1.0.2
 )

@@ -10,61 +10,10 @@ import (
 )
 
 const (
-	SMTPErrorHelloAfter = "smtp_checker: Hello called after other methods"
-	SMTPErrorCrLR       = "smtp_checker: A line must not contain CR or LF"
-
 	DefaultEmail = "user@example.org"
 
 	DefaultSMTPPort = 25
 )
-
-type SMTPError interface {
-	error
-	Stage() SendMailStage
-	Err() error
-}
-
-type ASMTPError struct {
-	stage SendMailStage
-	err   error
-}
-
-func (a ASMTPError) Stage() SendMailStage {
-	return a.stage
-}
-
-func (a ASMTPError) Err() error {
-	return a.err
-}
-
-func (a ASMTPError) Error() string {
-	return fmt.Sprintf("%v happend on stage \"%v\"", a.Err().Error(), a.Stage())
-}
-
-func NewSmtpError(stage SendMailStage, err error) SMTPError {
-	return DefaultSmtpError{ASMTPError{stage, err}}
-}
-
-type DefaultSmtpError struct {
-	ASMTPError
-}
-
-type SMTPErrorNested interface {
-	SMTPError
-	GetNested() SMTPError
-}
-
-type ASMTPErrorNested struct {
-	n SMTPError
-}
-
-func (a ASMTPErrorNested) GetNested() SMTPError {
-	return a.n
-}
-
-func (a ASMTPErrorNested) Error() string {
-	return a.n.Error()
-}
 
 func randomEmail(domain string) (ev_email.EmailAddress, error) {
 	input := new(password.GeneratorInput)
@@ -84,20 +33,21 @@ const (
 	ConnectionStage = RandomRCPTStage + 1
 )
 
-type ClientGetter func(addr string) (*smtp.Client, error)
+// Direct DialFunc smtp.Dial
+type DialFunc func(addr string) (*smtp.Client, error)
 
 type CheckerInterface interface {
 	Validate(mxs utils.MXs, email ev_email.EmailAddress) []error
 }
 
-func SimpleClientGetter(addr string) (*smtp.Client, error) {
-	return smtp.Dial(addr)
-}
-
+/*
+Some SMTP server send additional message and we should read it
+2.1.5 for OK message
+*/
 type Checker struct {
-	GetConn   ClientGetter
+	DialFunc  DialFunc // use for get connection to smtp server
 	Auth      smtp.Auth
-	SendMail  SendMailInterface
+	SendMail  SendMail
 	FromEmail ev_email.EmailAddress
 }
 
@@ -109,13 +59,13 @@ func (c Checker) Validate(mxs utils.MXs, email ev_email.EmailAddress) (errs []er
 
 	for _, mx := range mxs {
 		host = fmt.Sprintf("%v:%v", mx.Host, DefaultSMTPPort)
-		if client, err = c.GetConn(host); err == nil {
+		if client, err = c.DialFunc(host); err == nil {
 			break
 		}
 	}
 	if client == nil {
 		if err != nil {
-			err = errors.New("smtp: connection was not created")
+			err = errors.New(fmt.Sprintf("smtp: connection was not created \n %s", err))
 		}
 
 		errs = append(errs, NewSmtpError(ConnectionStage, err))

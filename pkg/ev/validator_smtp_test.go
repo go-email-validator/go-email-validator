@@ -5,6 +5,7 @@ import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/smtp_checker"
 	"github.com/stretchr/testify/assert"
+	"net/smtp"
 	"testing"
 )
 
@@ -12,7 +13,7 @@ import (
 func newSMTPValidator() *smtpValidator {
 	return &smtpValidator{
 		smtp_checker.Checker{
-			GetConn:   smtp_checker.SimpleClientGetter,
+			DialFunc:  smtp.Dial,
 			SendMail:  smtp_checker.NewSendMail(),
 			FromEmail: ev_email.EmailFromString(smtp_checker.DefaultEmail),
 		},

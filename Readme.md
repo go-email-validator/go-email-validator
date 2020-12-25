@@ -109,6 +109,7 @@ Use function New...(...) to create structure instead of public.
 ## TODO
 
 * Tests
+* SMTP working with other ports
 * Copy features from [truemail](https://github.com/truemail-rb/truemail)
     * [Extend MX](https://truemail-rb.org/truemail-gem/#/validations-layers?id=mx-validation)
       , [rfc5321 section 5](https://tools.ietf.org/html/rfc5321#section-5)

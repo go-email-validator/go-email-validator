@@ -8,6 +8,7 @@ import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/role"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/smtp_checker"
 	"github.com/stretchr/testify/assert"
+	"net/smtp"
 	"testing"
 	"time"
 )
@@ -102,7 +103,7 @@ func TestDepValidator_Validate_Full(t *testing.T) {
 		MXValidatorName:         NewMXValidator(),
 		SMTPValidatorName: NewWarningsDecorator(
 			NewSMTPValidator(smtp_checker.Checker{
-				GetConn:   smtp_checker.SimpleClientGetter,
+				DialFunc:  smtp.Dial,
 				SendMail:  smtp_checker.NewSendMail(),
 				FromEmail: ev_email.EmailFromString(smtp_checker.DefaultEmail),
 			}),

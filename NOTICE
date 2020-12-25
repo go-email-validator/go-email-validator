@@ -1,5 +1,6 @@
-https://github.com/emirpasic/gods
-https://github.com/sethvargo/go-password
-https://github.com/stretchr/testify
-https://github.com/FGRibreau/mailchecker
-https://github.com/mixmaxhq/role-based-email-addresses
+github.com/FGRibreau/mailchecker/v4
+github.com/emirpasic/gods
+github.com/sethvargo/go-password
+github.com/stretchr/testify
+golang.org/x/net
+h12.io/socks

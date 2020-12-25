@@ -3,6 +3,7 @@ package contains
 import (
 	"github.com/emirpasic/gods/sets"
 	"github.com/emirpasic/gods/sets/hashset"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/test_utils"
 	"testing"
 )
 
@@ -10,6 +11,10 @@ const defaultValue = "defaultValue"
 
 func getFuncChecker(valueToCheck interface{}) FuncChecker {
 	return func(val interface{}) bool { return val == valueToCheck }
+}
+
+func TestMain(m *testing.M) {
+	test_utils.TestMain(m)
 }
 
 func Test_funcContains_Contains(t *testing.T) {

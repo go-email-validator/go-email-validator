@@ -7,6 +7,7 @@ import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/role"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/smtp_checker"
+	"net/smtp"
 )
 
 type DefaultValidatorFactory func() Validator
@@ -19,7 +20,7 @@ func GetDefaultFactories() *ValidatorMap {
 		SMTPValidatorName: NewWarningsDecorator(
 			smtpValidator{
 				checker: smtp_checker.Checker{
-					GetConn:   smtp_checker.SimpleClientGetter,
+					DialFunc:  smtp.Dial,
 					SendMail:  smtp_checker.NewSendMail(),
 					FromEmail: ev_email.EmailFromString(smtp_checker.DefaultEmail),
 				},

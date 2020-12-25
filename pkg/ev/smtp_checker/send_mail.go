@@ -22,8 +22,7 @@ const (
 	CloseStage
 )
 
-// smtp_checker.SendMail
-type SendMailInterface interface {
+type SendMail interface {
 	SetClient(interface{})
 	Client() interface{}
 	Hello() error
@@ -39,24 +38,24 @@ type SendMailInterface interface {
 
 var testHookStartTLS func(*tls.Config)
 
-func NewSendMail() SendMailInterface {
-	return &SendMail{}
+func NewSendMail() SendMail {
+	return &sendMail{}
 }
 
-type SendMail struct {
+type sendMail struct {
 	client    *smtp.Client
 	TLSConfig *tls.Config
 }
 
-func (c *SendMail) SetClient(client interface{}) {
+func (c *sendMail) SetClient(client interface{}) {
 	c.client = client.(*smtp.Client)
 }
 
-func (c *SendMail) Client() interface{} {
+func (c *sendMail) Client() interface{} {
 	return c.client
 }
 
-func (c *SendMail) Hello() error {
+func (c *sendMail) Hello() error {
 	var err error
 	if err = c.client.Hello("localhost"); err != nil && err.Error() != SMTPErrorHelloAfter {
 		return err
@@ -64,7 +63,7 @@ func (c *SendMail) Hello() error {
 	return nil
 }
 
-func (c *SendMail) Auth(a smtp.Auth) error {
+func (c *sendMail) Auth(a smtp.Auth) error {
 	var err error
 
 	if ok, _ := c.client.Extension("STARTTLS"); ok && c.TLSConfig != nil {
@@ -87,7 +86,7 @@ func (c *SendMail) Auth(a smtp.Auth) error {
 	return nil
 }
 
-func (c *SendMail) Mail(from string) error {
+func (c *sendMail) Mail(from string) error {
 	var err error
 
 	if err = c.client.Mail(from); err != nil {
@@ -96,7 +95,7 @@ func (c *SendMail) Mail(from string) error {
 	return nil
 }
 
-func (c *SendMail) RCPTs(addr []string) error {
+func (c *sendMail) RCPTs(addr []string) error {
 	var err error
 
 	for _, addr := range addr {
@@ -107,7 +106,7 @@ func (c *SendMail) RCPTs(addr []string) error {
 	return nil
 }
 
-func (c *SendMail) RCPT(addr string) error {
+func (c *sendMail) RCPT(addr string) error {
 	var err error
 
 	if err = c.client.Rcpt(addr); err != nil {
@@ -116,7 +115,7 @@ func (c *SendMail) RCPT(addr string) error {
 	return nil
 }
 
-func (c *SendMail) Data() (io.WriteCloser, error) {
+func (c *sendMail) Data() (io.WriteCloser, error) {
 	var err error
 
 	w, err := c.client.Data()
@@ -126,7 +125,7 @@ func (c *SendMail) Data() (io.WriteCloser, error) {
 	return w, nil
 }
 
-func (_ *SendMail) Write(w io.WriteCloser, msg []byte) error {
+func (_ *sendMail) Write(w io.WriteCloser, msg []byte) error {
 	var err error
 
 	_, err = w.Write(msg)
@@ -141,10 +140,10 @@ func (_ *SendMail) Write(w io.WriteCloser, msg []byte) error {
 	return nil
 }
 
-func (c *SendMail) Quit() error {
+func (c *sendMail) Quit() error {
 	return c.client.Quit()
 }
 
-func (c *SendMail) Close() error {
+func (c *sendMail) Close() error {
 	return c.client.Close()
 }

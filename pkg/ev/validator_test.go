@@ -2,6 +2,7 @@ package ev
 
 import (
 	email "github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/test_utils"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -49,6 +50,10 @@ func (m mockValidator) Validate(_ email.EmailAddress, _ ...ValidationResult) Val
 	}
 
 	return NewValidatorResult(m.result, utils.Errs(err), nil, OtherValidator)
+}
+
+func TestMain(m *testing.M) {
+	test_utils.TestMain(m)
 }
 
 func TestMockValidator(t *testing.T) {

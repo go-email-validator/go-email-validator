@@ -1,6 +1,7 @@
 package ev_email
 
 import (
+	"github.com/go-email-validator/go-email-validator/pkg/ev/test_utils"
 	"reflect"
 	"testing"
 )
@@ -47,6 +48,10 @@ type fields struct {
 }
 
 func emptyFields() fields { return fields{username: emptyUsername, domain: emptyDomain} }
+
+func TestMain(m *testing.M) {
+	test_utils.TestMain(m)
+}
 
 func TestEmailAddress_Domain(t *testing.T) {
 
