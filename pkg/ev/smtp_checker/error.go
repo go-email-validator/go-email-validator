@@ -1,6 +1,9 @@
 package smtp_checker
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 const (
 	SMTPErrorHelloAfter = "smtp_checker: Hello called after other methods"
@@ -10,7 +13,7 @@ const (
 type SMTPError interface {
 	error
 	Stage() SendMailStage
-	Err() error
+	Unwrap() error
 }
 
 type ASMTPError struct {
@@ -22,12 +25,12 @@ func (a ASMTPError) Stage() SendMailStage {
 	return a.stage
 }
 
-func (a ASMTPError) Err() error {
+func (a ASMTPError) Unwrap() error {
 	return a.err
 }
 
 func (a ASMTPError) Error() string {
-	return fmt.Sprintf("%v happend on stage \"%v\"", a.Err().Error(), a.Stage())
+	return fmt.Sprintf("%v happend on stage \"%v\"", errors.Unwrap(a).Error(), a.Stage())
 }
 
 func NewSmtpError(stage SendMailStage, err error) SMTPError {

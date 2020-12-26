@@ -19,11 +19,11 @@ func GetDefaultFactories() *ValidatorMap {
 		MXValidatorName:         NewMXValidator(),
 		SMTPValidatorName: NewWarningsDecorator(
 			smtpValidator{
-				checker: smtp_checker.Checker{
+				checker: smtp_checker.NewChecker(smtp_checker.CheckerDTO{
 					DialFunc:  smtp.Dial,
 					SendMail:  smtp_checker.NewSendMail(),
 					FromEmail: ev_email.EmailFromString(smtp_checker.DefaultEmail),
-				},
+				}),
 			},
 			NewIsWarning(hashset.New(smtp_checker.RandomRCPTStage), func(warningMap WarningSet) IsWarning {
 				return func(err error) bool {

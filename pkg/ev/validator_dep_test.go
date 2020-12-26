@@ -102,11 +102,11 @@ func TestDepValidator_Validate_Full(t *testing.T) {
 		SyntaxValidatorName:     NewSyntaxValidator(),
 		MXValidatorName:         NewMXValidator(),
 		SMTPValidatorName: NewWarningsDecorator(
-			NewSMTPValidator(smtp_checker.Checker{
+			NewSMTPValidator(smtp_checker.NewChecker(smtp_checker.CheckerDTO{
 				DialFunc:  smtp.Dial,
 				SendMail:  smtp_checker.NewSendMail(),
 				FromEmail: ev_email.EmailFromString(smtp_checker.DefaultEmail),
-			}),
+			})),
 			NewIsWarning(hashset.New(smtp_checker.RandomRCPTStage), func(warningMap WarningSet) IsWarning {
 				return func(err error) bool {
 					return warningMap.Contains(err.(smtp_checker.SMTPError).Stage())

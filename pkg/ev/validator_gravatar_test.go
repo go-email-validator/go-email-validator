@@ -6,6 +6,8 @@ import (
 	"testing"
 )
 
+const GravatarExistEmail = "beau@dentedreality.com.au"
+
 // TODO mocking Gravatar
 func Test_gravatarValidator_Validate(t *testing.T) {
 	type args struct {
@@ -21,7 +23,7 @@ func Test_gravatarValidator_Validate(t *testing.T) {
 		{
 			name: "valid",
 			args: args{
-				email:   ev_email.EmailFromString("beau@dentedreality.com.au"),
+				email:   ev_email.EmailFromString(GravatarExistEmail),
 				results: []ValidationResult{NewValidValidatorResult(SyntaxValidatorName)},
 			},
 			want: NewValidValidatorResult(GravatarValidatorName),

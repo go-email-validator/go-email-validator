@@ -4,7 +4,7 @@ import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/test_utils"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
-	"github.com/go-email-validator/go-email-validator/pkg/proxy"
+	"github.com/go-email-validator/go-email-validator/pkg/proxy_list"
 	"github.com/stretchr/testify/assert"
 	"net"
 	"net/smtp"
@@ -33,16 +33,16 @@ func TestChecker_Validate(t *testing.T) {
 	emailString := "y-numata@senko.ed.jp"
 	emailString = "asd@tradepro.net"
 
-	proxyList, _ := proxy.NewProxyListFromStrings(
-		proxy.ProxyListDTO{
+	proxyList, _ := proxy_list.NewProxyListFromStrings(
+		proxy_list.ProxyListDTO{
 			Addresses: []string{
 				"socks5://127.0.0.1:9151", // invalid
 				"socks5://127.0.0.1:9150", // valid
 			},
-			RandomAddress: proxy.CreateCircleAddress(0),
+			AddressGetter: proxy_list.CreateCircleAddress(0),
 		},
 	)
-	prxyGetter := proxy.NewSMTPDialer(proxy.NewProxyDialer(proxyList), "")
+	prxyGetter := proxy_list.NewSMTPDialer(proxy_list.NewProxyDialer(proxyList), "")
 	emailFrom := ev_email.EmailFromString(DefaultEmail)
 	emailTest := ev_email.EmailFromString(emailString)
 	mxs, err := net.LookupMX(emailTest.Domain())
@@ -73,11 +73,11 @@ func TestChecker_Validate(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := Checker{
-				DialFunc:  tt.fields.GetConn,
+			c := checker{
+				dialFunc:  tt.fields.GetConn,
 				Auth:      tt.fields.Auth,
-				SendMail:  tt.fields.SendMail,
-				FromEmail: tt.fields.FromEmail,
+				sendMail:  tt.fields.SendMail,
+				fromEmail: tt.fields.FromEmail,
 			}
 			gotErrs := c.Validate(tt.args.mxs, tt.args.email)
 			if !reflect.DeepEqual(gotErrs, tt.wantErrs) {

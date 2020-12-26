@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
+	"github.com/go-email-validator/go-email-validator/pkg/log"
 	"github.com/sethvargo/go-password/password"
+	"net"
 	"net/smtp"
 )
 
 const (
-	DefaultEmail = "user@example.org"
-
+	DefaultEmail    = "user@example.org"
 	DefaultSMTPPort = 25
 )
 
@@ -36,31 +37,50 @@ const (
 // Direct DialFunc smtp.Dial
 type DialFunc func(addr string) (*smtp.Client, error)
 
-type CheckerInterface interface {
+type Checker interface {
 	Validate(mxs utils.MXs, email ev_email.EmailAddress) []error
+}
+
+type CheckerDTO struct {
+	DialFunc  DialFunc
+	SendMail  SendMail
+	FromEmail ev_email.EmailAddress
+}
+
+func NewChecker(dto CheckerDTO) Checker {
+	return checker{
+		dialFunc:  dto.DialFunc,
+		Auth:      nil,
+		sendMail:  dto.SendMail,
+		fromEmail: dto.FromEmail,
+	}
 }
 
 /*
 Some SMTP server send additional message and we should read it
 2.1.5 for OK message
 */
-type Checker struct {
-	DialFunc  DialFunc // use for get connection to smtp server
+type checker struct {
+	dialFunc  DialFunc // use for get connection to smtp server
 	Auth      smtp.Auth
-	SendMail  SendMail
-	FromEmail ev_email.EmailAddress
+	sendMail  SendMail
+	fromEmail ev_email.EmailAddress
 }
 
-func (c Checker) Validate(mxs utils.MXs, email ev_email.EmailAddress) (errs []error) {
+func (c checker) Validate(mxs utils.MXs, email ev_email.EmailAddress) (errs []error) {
 	var client *smtp.Client
 	var err error
 	errs = make([]error, 0)
 	var host string
+	var e *net.OpError
 
 	for _, mx := range mxs {
 		host = fmt.Sprintf("%v:%v", mx.Host, DefaultSMTPPort)
-		if client, err = c.DialFunc(host); err == nil {
+		if client, err = c.dialFunc(host); err == nil {
 			break
+		}
+		if !errors.As(err, &e) {
+			log.Logger().Error(err)
 		}
 	}
 	if client == nil {
@@ -71,19 +91,19 @@ func (c Checker) Validate(mxs utils.MXs, email ev_email.EmailAddress) (errs []er
 		errs = append(errs, NewSmtpError(ConnectionStage, err))
 		return
 	}
-	c.SendMail.SetClient(client)
-	defer c.SendMail.Close()
+	c.sendMail.SetClient(client)
+	defer c.sendMail.Close()
 
-	if err = c.SendMail.Hello(); err != nil {
+	if err = c.sendMail.Hello(); err != nil {
 		errs = append(errs, NewSmtpError(HelloStage, err))
 		return
 	}
-	if err = c.SendMail.Auth(c.Auth); err != nil {
+	if err = c.sendMail.Auth(c.Auth); err != nil {
 		errs = append(errs, NewSmtpError(AuthStage, err))
 		return
 	}
 
-	err = c.SendMail.Mail(c.FromEmail.String())
+	err = c.sendMail.Mail(c.fromEmail.String())
 	if err != nil {
 		errs = append(errs, NewSmtpError(MailStage, err))
 		return
@@ -93,15 +113,15 @@ func (c Checker) Validate(mxs utils.MXs, email ev_email.EmailAddress) (errs []er
 	if err != nil {
 		panic(err)
 	}
-	if err = c.SendMail.RCPT(rEmail.String()); err != nil {
+	if err = c.sendMail.RCPT(rEmail.String()); err != nil {
 		errs = append(errs, NewSmtpError(RandomRCPTStage, err))
 
-		if err = c.SendMail.RCPT(email.String()); err != nil {
+		if err = c.sendMail.RCPT(email.String()); err != nil {
 			errs = append(errs, NewSmtpError(RCPTStage, err))
 		}
 	}
 
-	if err = c.SendMail.Quit(); err != nil {
+	if err = c.sendMail.Quit(); err != nil {
 		errs = append(errs, NewSmtpError(QuitStage, err))
 	}
 

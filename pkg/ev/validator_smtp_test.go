@@ -12,11 +12,11 @@ import (
 //test monicaramirezrestrepo@hotmail.com
 func newSMTPValidator() *smtpValidator {
 	return &smtpValidator{
-		smtp_checker.Checker{
+		checker: smtp_checker.NewChecker(smtp_checker.CheckerDTO{
 			DialFunc:  smtp.Dial,
 			SendMail:  smtp_checker.NewSendMail(),
 			FromEmail: ev_email.EmailFromString(smtp_checker.DefaultEmail),
-		},
+		}),
 	}
 }
 

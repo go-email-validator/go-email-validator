@@ -7,12 +7,12 @@ import (
 
 const SMTPValidatorName ValidatorName = "SMTPValidator"
 
-func NewSMTPValidator(Checker smtp_checker.CheckerInterface) Validator {
+func NewSMTPValidator(Checker smtp_checker.Checker) Validator {
 	return smtpValidator{Checker}
 }
 
 type smtpValidator struct {
-	checker smtp_checker.CheckerInterface
+	checker smtp_checker.Checker
 }
 
 func (s smtpValidator) GetDeps() []ValidatorName {
