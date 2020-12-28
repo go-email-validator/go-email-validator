@@ -35,6 +35,7 @@ func TestChecker_Validate(t *testing.T) {
 
 	proxyList, _ := proxy_list.NewProxyListFromStrings(
 		proxy_list.ProxyListDTO{
+			//TODO create local socks5 server for tests
 			Addresses: []string{
 				"socks5://127.0.0.1:9151", // invalid
 				"socks5://127.0.0.1:9150", // valid

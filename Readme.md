@@ -1,3 +1,7 @@
+## Install
+
+```go get -u github.com/go-email-validator/go-email-validator```
+
 ## Features
 
 username@domain.part
@@ -18,7 +22,7 @@ username@domain.part
 * [whiteListValidator](pkg/ev/validator_whitelist_domain.go), accept only emails from white list
 * [gravatarValidator](pkg/ev/validator_gravatar.go)
 
-## How to use
+## Usage
 
 ### With builder
 
@@ -134,6 +138,12 @@ func main() {
 ```
 
 Use function New...(...) to create structure instead of public.
+
+## Problems
+
+Some mail providers can put ip in spam filter.
+
+1. hotmail.com
 
 ## TODO
 

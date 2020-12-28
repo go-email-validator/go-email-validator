@@ -16,15 +16,24 @@ type EmailAddress interface {
 }
 
 func NewEmailAddress(username, domain string) EmailAddress {
+	return NewEmailAddressWithSource(username, domain, username+AT+domain)
+}
+
+func NewEmailAddressWithSource(username, domain, source string) EmailAddress {
+	username = strings.ToLower(username)
+	domain = strings.ToLower(domain)
+	source = strings.ToLower(source)
 	return emailAddress{
-		strings.ToLower(username),
-		strings.ToLower(domain),
+		username: username,
+		domain:   domain,
+		source:   source,
 	}
 }
 
 type emailAddress struct {
 	username string
 	domain   string
+	source   string
 }
 
 func (e emailAddress) Username() string {
@@ -36,7 +45,7 @@ func (e emailAddress) Domain() string {
 }
 
 func (e emailAddress) String() string {
-	return e.Username() + AT + e.Domain()
+	return e.source
 }
 
 func SeparatedEmail(email string) (string, string) {
@@ -50,5 +59,6 @@ func SeparatedEmail(email string) (string, string) {
 }
 
 func EmailFromString(email string) EmailAddress {
-	return NewEmailAddress(SeparatedEmail(email))
+	username, domain := SeparatedEmail(email)
+	return NewEmailAddressWithSource(username, domain, email)
 }
