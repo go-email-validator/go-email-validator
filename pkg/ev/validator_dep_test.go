@@ -1,13 +1,11 @@
 package ev
 
 import (
-	"github.com/emirpasic/gods/sets/hashset"
-	"github.com/go-email-validator/go-email-validator/pkg/ev/contains"
-	"github.com/go-email-validator/go-email-validator/pkg/ev/disposable"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
-	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp"
-	"github.com/go-email-validator/go-email-validator/pkg/ev/role"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evtests"
 	"github.com/stretchr/testify/assert"
+	"reflect"
+	"sort"
 	"testing"
 	"time"
 )
@@ -33,7 +31,7 @@ func (t testSleep) Validate(_ evmail.Address, results ...ValidationResult) Valid
 		}
 	}
 
-	return NewValidatorResult(isValid && t.result, nil, nil, OtherValidator)
+	return NewDepValidatorResult(isValid && t.result, nil)
 }
 
 func TestDepValidator_Validate_Independent(t *testing.T) {
@@ -92,29 +90,107 @@ func TestDepValidator_Validate_Dependent(t *testing.T) {
 }
 
 func TestDepValidator_Validate_Full(t *testing.T) {
-	email := evmail.FromString(validEmailString)
+	evtests.FunctionalSkip(t)
 
-	depValidator := NewDepValidator(map[ValidatorName]Validator{
-		//FreeValidatorName:     FreeDefaultValidator(),
-		RoleValidatorName:       NewRoleValidator(role.NewRBEASetRole()),
-		DisposableValidatorName: NewDisposableValidator(contains.NewFunc(disposable.MailChecker)),
-		SyntaxValidatorName:     NewSyntaxValidator(),
-		MXValidatorName:         DefaultNewMXValidator(),
-		SMTPValidatorName: NewWarningsDecorator(
-			NewSMTPValidator(evsmtp.NewChecker(evsmtp.CheckerDTO{
-				DialFunc:  evsmtp.Dial,
-				SendMail:  evsmtp.NewSendMail(),
-				FromEmail: evmail.FromString(evsmtp.DefaultEmail),
-			})),
-			NewIsWarning(hashset.New(evsmtp.RandomRCPTStage), func(warningMap WarningSet) IsWarning {
-				return func(err error) bool {
-					return warningMap.Contains(err.(evsmtp.Error).Stage())
-				}
-			}),
-		),
-	},
-	)
+	email := evmail.FromString(validEmailString)
+	depValidator := NewDepBuilder(nil).Build()
 
 	v := depValidator.Validate(email)
 	assert.True(t, v.IsValid())
+}
+
+func Test_depValidationResult_Errors(t *testing.T) {
+	type fields struct {
+		isValid bool
+		results DepResult
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   []error
+	}{
+		{
+			name: "with Errors",
+			fields: fields{
+				isValid: false,
+				results: DepResult{
+					mockValidatorName:   mockValidationResult{errs: []error{simpleError, simpleError2}},
+					SyntaxValidatorName: mockValidationResult{errs: []error{simpleError2, simpleError}},
+				},
+			},
+			want: []error{simpleError, simpleError2, simpleError2, simpleError},
+		},
+		{
+			name: "without Errors",
+			fields: fields{
+				isValid: false,
+				results: DepResult{
+					mockValidatorName:   mockValidationResult{},
+					SyntaxValidatorName: mockValidationResult{},
+				},
+			},
+			want: nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			d := NewDepValidatorResult(tt.fields.isValid, tt.fields.results)
+
+			got := d.Errors()
+			sort.Slice(got, sortErrors(got))
+			sort.Slice(tt.want, sortErrors(tt.want))
+
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Errors() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_depValidationResult_Warnings(t *testing.T) {
+	type fields struct {
+		isValid bool
+		results DepResult
+	}
+	tests := []struct {
+		name         string
+		fields       fields
+		wantWarnings []error
+	}{
+		{
+			name: "with Warnings",
+			fields: fields{
+				isValid: false,
+				results: DepResult{
+					mockValidatorName:   mockValidationResult{warns: []error{simpleError, simpleError2}},
+					SyntaxValidatorName: mockValidationResult{warns: []error{simpleError2, simpleError}},
+				},
+			},
+			wantWarnings: []error{simpleError, simpleError2, simpleError2, simpleError},
+		},
+		{
+			name: "without Warnings",
+			fields: fields{
+				isValid: false,
+				results: DepResult{
+					mockValidatorName:   mockValidationResult{},
+					SyntaxValidatorName: mockValidationResult{},
+				},
+			},
+			wantWarnings: nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			d := NewDepValidatorResult(tt.fields.isValid, tt.fields.results)
+
+			gotWarnings := d.Warnings()
+			sort.Slice(gotWarnings, sortErrors(gotWarnings))
+			sort.Slice(tt.wantWarnings, sortErrors(tt.wantWarnings))
+
+			if !reflect.DeepEqual(gotWarnings, tt.wantWarnings) {
+				t.Errorf("Warnings() = %v, want %v", gotWarnings, tt.wantWarnings)
+			}
+		})
+	}
 }

@@ -2,6 +2,7 @@ package proxifier
 
 import (
 	"errors"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evtests"
 	"testing"
 )
 
@@ -9,6 +10,10 @@ const (
 	addressFirst  = "addressFirst"
 	addressSecond = "addressSecond"
 )
+
+func TestMain(m *testing.M) {
+	evtests.TestMain(m)
+}
 
 func getTwoAddrs(t *testing.T) []*Address {
 	twoAddresses, errs := getAddressesFromString([]string{addressFirst, addressSecond})

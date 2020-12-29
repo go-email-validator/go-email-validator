@@ -7,6 +7,7 @@ import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 	"github.com/stretchr/testify/assert"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -17,6 +18,12 @@ var (
 	validMockValidator   Validator = mockValidator{result: true}
 	inValidMockValidator Validator = mockValidator{result: false}
 	simpleError                    = errors.New("simpleError")
+	simpleError2                   = errors.New("simpleError2")
+	sortErrors                     = func(errs []error) func(l, r int) bool {
+		return func(l, r int) bool {
+			return strings.Compare(errs[l].Error(), errs[l].Error()) > 0
+		}
+	}
 )
 
 type mockContains struct {
@@ -69,6 +76,36 @@ func (m mockValidator) Validate(_ evmail.Address, _ ...ValidationResult) Validat
 	}
 
 	return NewValidatorResult(m.result, utils.Errs(err), nil, OtherValidator)
+}
+
+type mockValidationResult struct {
+	errs  []error
+	warns []error
+	name  ValidatorName
+}
+
+func (m mockValidationResult) IsValid() bool {
+	return m.HasErrors()
+}
+
+func (m mockValidationResult) Errors() []error {
+	return m.errs
+}
+
+func (m mockValidationResult) HasErrors() bool {
+	return reflect.ValueOf(m.Errors()).Len() > 0
+}
+
+func (m mockValidationResult) Warnings() []error {
+	return m.warns
+}
+
+func (m mockValidationResult) HasWarnings() bool {
+	return reflect.ValueOf(m.Warnings()).Len() > 0
+}
+
+func (m mockValidationResult) ValidatorName() ValidatorName {
+	return m.name
 }
 
 func TestMain(m *testing.M) {
@@ -150,6 +187,27 @@ func TestNewValidatorResult(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := NewValidatorResult(tt.args.isValid, tt.args.errors, tt.args.warnings, tt.args.name); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewValidatorResult() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestValidatorName_String(t *testing.T) {
+	tests := []struct {
+		name string
+		v    ValidatorName
+		want string
+	}{
+		{
+			name: "success",
+			v:    mockValidatorName,
+			want: string(mockValidatorName),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.v.String(); got != tt.want {
+				t.Errorf("String() = %v, want %v", got, tt.want)
 			}
 		})
 	}

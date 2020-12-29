@@ -11,8 +11,8 @@ import (
 
 type DefaultValidatorFactory func() Validator
 
-func GetDefaultFactories() *ValidatorMap {
-	return &ValidatorMap{
+func GetDefaultFactories() ValidatorMap {
+	return ValidatorMap{
 		RoleValidatorName:       NewRoleValidator(role.NewRBEASetRole()),
 		DisposableValidatorName: NewDisposableValidator(contains.NewFunc(disposable.MailChecker)),
 		SyntaxValidatorName:     NewSyntaxValidator(),
@@ -38,12 +38,12 @@ func GetDefaultFactories() *ValidatorMap {
 	}
 }
 
-func NewDepBuilder(validators *ValidatorMap) *DepBuilder {
+func NewDepBuilder(validators ValidatorMap) *DepBuilder {
 	if validators == nil {
 		validators = GetDefaultFactories()
 	}
 
-	return &DepBuilder{validators: *validators}
+	return &DepBuilder{validators: validators}
 }
 
 type DepBuilder struct {

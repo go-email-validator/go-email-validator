@@ -97,8 +97,8 @@ type DepValidationResult interface {
 
 func NewDepValidatorResult(isValid bool, results DepResult) ValidationResult {
 	return depValidationResult{
-		isValid,
-		results,
+		isValid: isValid,
+		results: results,
 	}
 }
 
@@ -115,9 +115,7 @@ func (d depValidationResult) IsValid() bool {
 	return d.isValid
 }
 
-func (d depValidationResult) Errors() []error {
-	var errors = make([]error, 0)
-
+func (d depValidationResult) Errors() (errors []error) {
 	for _, result := range d.GetResults() {
 		for _, err := range result.Errors() {
 			errors = append(errors, err)
@@ -137,9 +135,7 @@ func (d depValidationResult) HasErrors() bool {
 	return false
 }
 
-func (d depValidationResult) Warnings() []error {
-	var warnings = make([]error, 0)
-
+func (d depValidationResult) Warnings() (warnings []error) {
 	for _, result := range d.GetResults() {
 		for _, warning := range result.Warnings() {
 			warnings = append(warnings, warning)

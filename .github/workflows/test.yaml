@@ -24,8 +24,8 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-      - name: Full test # TODO fix for functional evtests
-        run: make go.test.unit
+      - name: Full test
+        run: make go.test
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         with:

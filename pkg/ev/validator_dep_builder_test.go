@@ -19,7 +19,7 @@ func TestDepBuilder_Build(t *testing.T) {
 			fields: fields{
 				validators: nil,
 			},
-			want: NewDepValidator(nil),
+			want: NewDepValidator(GetDefaultFactories()),
 		},
 		{
 			name: "empty map",
@@ -42,9 +42,16 @@ func TestDepBuilder_Build(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := NewDepBuilder(&tt.fields.validators)
+			d := NewDepBuilder(tt.fields.validators)
 			if got := d.Build(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Build() = %v, want %v", got, tt.want)
+				/*
+					TODO find right way to compare struct with function.
+					1. Use pointer for function
+					2. Use InterfaceData()
+				*/
+				if tt.name != "nil" || len(got.(depValidator).deps) != len(tt.want.(depValidator).deps) {
+					t.Errorf("Build() = %v, want %v", got, tt.want)
+				}
 			}
 		})
 	}
@@ -63,42 +70,38 @@ func TestDepBuilder_Delete(t *testing.T) {
 		args   args
 		want   *DepBuilder
 	}{
-		// TODO: Add test cases.
+		{
+			name: "delete not exist element",
+			fields: fields{
+				validators: ValidatorMap{},
+			},
+			args: args{
+				names: []ValidatorName{mockValidatorName, SyntaxValidatorName},
+			},
+			want: &DepBuilder{
+				validators: ValidatorMap{},
+			},
+		},
+		{
+			name: "delete exist element",
+			fields: fields{
+				validators: ValidatorMap{
+					mockValidatorName: newMockValidator(false),
+					MXValidatorName:   newMockValidator(false)},
+			},
+			args: args{
+				names: []ValidatorName{mockValidatorName, SyntaxValidatorName},
+			},
+			want: &DepBuilder{
+				validators: ValidatorMap{MXValidatorName: newMockValidator(false)},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &DepBuilder{
-				validators: tt.fields.validators,
-			}
+			d := NewDepBuilder(tt.fields.validators)
 			if got := d.Delete(tt.args.names...); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Delete() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestDepBuilder_Has(t *testing.T) {
-	type fields struct {
-		validators ValidatorMap
-	}
-	type args struct {
-		names []ValidatorName
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		args   args
-		want   bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			d := &DepBuilder{
-				validators: tt.fields.validators,
-			}
-			if got := d.Has(tt.args.names...); got != tt.want {
-				t.Errorf("Has() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -118,7 +121,19 @@ func TestDepBuilder_Set(t *testing.T) {
 		args   args
 		want   *DepBuilder
 	}{
-		// TODO: Add test cases.
+		{
+			name: "set",
+			fields: fields{
+				validators: ValidatorMap{},
+			},
+			args: args{
+				name:      mockValidatorName,
+				validator: newMockValidator(false),
+			},
+			want: &DepBuilder{
+				validators: ValidatorMap{mockValidatorName: newMockValidator(false)},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -127,42 +142,6 @@ func TestDepBuilder_Set(t *testing.T) {
 			}
 			if got := d.Set(tt.args.name, tt.args.validator); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Set() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestGetDefaultFactories(t *testing.T) {
-	tests := []struct {
-		name string
-		want *ValidatorMap
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := GetDefaultFactories(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("GetDefaultFactories() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestNewDepBuilder(t *testing.T) {
-	type args struct {
-		validators *ValidatorMap
-	}
-	tests := []struct {
-		name string
-		args args
-		want *DepBuilder
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := NewDepBuilder(tt.args.validators); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewDepBuilder() = %v, want %v", got, tt.want)
 			}
 		})
 	}
