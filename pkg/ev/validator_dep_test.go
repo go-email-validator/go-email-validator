@@ -5,7 +5,6 @@ import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evtests"
 	"github.com/stretchr/testify/assert"
 	"reflect"
-	"sort"
 	"testing"
 	"time"
 )
@@ -136,9 +135,8 @@ func Test_depValidationResult_Errors(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			d := NewDepValidatorResult(tt.fields.isValid, tt.fields.results)
 
-			got := d.Errors()
-			sort.Slice(got, sortErrors(got))
-			sort.Slice(tt.want, sortErrors(tt.want))
+			got := sortErrors(d.Errors())
+			tt.want = sortErrors(tt.want)
 
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Errors() = %v, want %v", got, tt.want)
@@ -184,9 +182,8 @@ func Test_depValidationResult_Warnings(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			d := NewDepValidatorResult(tt.fields.isValid, tt.fields.results)
 
-			gotWarnings := d.Warnings()
-			sort.Slice(gotWarnings, sortErrors(gotWarnings))
-			sort.Slice(tt.wantWarnings, sortErrors(tt.wantWarnings))
+			gotWarnings := sortErrors(d.Warnings())
+			tt.wantWarnings = sortErrors(tt.wantWarnings)
 
 			if !reflect.DeepEqual(gotWarnings, tt.wantWarnings) {
 				t.Errorf("Warnings() = %v, want %v", gotWarnings, tt.wantWarnings)

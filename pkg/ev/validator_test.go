@@ -7,6 +7,7 @@ import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 	"github.com/stretchr/testify/assert"
 	"reflect"
+	"sort"
 	"strings"
 	"testing"
 )
@@ -19,12 +20,15 @@ var (
 	inValidMockValidator Validator = mockValidator{result: false}
 	simpleError                    = errors.New("simpleError")
 	simpleError2                   = errors.New("simpleError2")
-	sortErrors                     = func(errs []error) func(l, r int) bool {
-		return func(l, r int) bool {
-			return strings.Compare(errs[l].Error(), errs[l].Error()) > 0
-		}
-	}
 )
+
+func sortErrors(errs []error) []error {
+	sort.Slice(errs, func(l, r int) bool {
+		return strings.Compare(errs[l].Error(), errs[l].Error()) >= 0
+	})
+
+	return errs
+}
 
 type mockContains struct {
 	t    *testing.T
