@@ -1,14 +1,14 @@
 package ev
 
 import (
-	email "github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
-	"github.com/go-email-validator/go-email-validator/pkg/ev/test_utils"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evtests"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-var emptyEmail = email.NewEmailAddress("", "")
+var emptyEmail = evmail.NewEmailAddress("", "")
 var validMockValidator Validator = mockValidator{result: true}
 var inValidMockValidator Validator = mockValidator{result: false}
 
@@ -43,7 +43,7 @@ type mockValidator struct {
 	AValidatorWithoutDeps
 }
 
-func (m mockValidator) Validate(_ email.EmailAddress, _ ...ValidationResult) ValidationResult {
+func (m mockValidator) Validate(_ evmail.Address, _ ...ValidationResult) ValidationResult {
 	var err error
 	if !m.result {
 		err = newMockError()
@@ -53,7 +53,7 @@ func (m mockValidator) Validate(_ email.EmailAddress, _ ...ValidationResult) Val
 }
 
 func TestMain(m *testing.M) {
-	test_utils.TestMain(m)
+	evtests.TestMain(m)
 }
 
 func TestMockValidator(t *testing.T) {
@@ -71,7 +71,7 @@ func TestMockValidator(t *testing.T) {
 		},
 	}
 
-	var emptyEmail email.EmailAddress
+	var emptyEmail evmail.Address
 	for _, c := range cases {
 		actual := c.validator.Validate(emptyEmail)
 		assert.Equal(t, c.expected, actual)

@@ -4,11 +4,11 @@ import (
 	"github.com/emirpasic/gods/sets"
 )
 
-type Interface interface {
+type InSet interface {
 	Contains(value interface{}) bool
 }
 
-func NewSet(s sets.Set) Interface {
+func NewSet(s sets.Set) InSet {
 	return setContains{s}
 }
 
@@ -22,7 +22,7 @@ func (s setContains) Contains(value interface{}) bool {
 
 type FuncChecker func(value interface{}) bool
 
-func NewFunc(f FuncChecker) Interface {
+func NewFunc(f FuncChecker) InSet {
 	return funcContains{f}
 }
 

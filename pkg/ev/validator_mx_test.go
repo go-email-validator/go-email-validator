@@ -1,12 +1,12 @@
 package ev
 
 import (
-	"github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"testing"
 )
 
 func BenchmarkSMTPValidator_Validate_MX(b *testing.B) {
-	email := ev_email.EmailFromString(validEmailString)
+	email := evmail.FromString(validEmailString)
 
 	depValidator := NewDepValidator(
 		map[ValidatorName]Validator{

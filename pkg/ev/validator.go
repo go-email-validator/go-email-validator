@@ -1,7 +1,7 @@
 package ev
 
 import (
-	"github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 )
 
@@ -15,7 +15,7 @@ func (v ValidatorName) String() string {
 
 type Validator interface {
 	GetDeps() []ValidatorName
-	Validate(email ev_email.EmailAddress, results ...ValidationResult) ValidationResult
+	Validate(email evmail.Address, results ...ValidationResult) ValidationResult
 }
 
 type ChangeableValidationResult interface {
@@ -91,6 +91,6 @@ var emptyDeps = make([]ValidatorName, 0)
 
 type AValidatorWithoutDeps struct{}
 
-func (_ AValidatorWithoutDeps) GetDeps() []ValidatorName {
+func (a AValidatorWithoutDeps) GetDeps() []ValidatorName {
 	return emptyDeps
 }

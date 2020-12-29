@@ -2,7 +2,7 @@ package ev
 
 import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/contains"
-	"github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 )
 
@@ -12,16 +12,16 @@ type BlackListDomainsError struct {
 	utils.Err
 }
 
-func NewBlackListValidator(d contains.Interface) Validator {
+func NewBlackListValidator(d contains.InSet) Validator {
 	return blackListValidator{d: d}
 }
 
 type blackListValidator struct {
-	d contains.Interface
+	d contains.InSet
 	AValidatorWithoutDeps
 }
 
-func (w blackListValidator) Validate(email ev_email.EmailAddress, _ ...ValidationResult) ValidationResult {
+func (w blackListValidator) Validate(email evmail.Address, _ ...ValidationResult) ValidationResult {
 	var err error
 	var isContains = w.d.Contains(email.Domain())
 	if isContains {

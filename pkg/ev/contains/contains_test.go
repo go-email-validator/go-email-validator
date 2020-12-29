@@ -3,7 +3,7 @@ package contains
 import (
 	"github.com/emirpasic/gods/sets"
 	"github.com/emirpasic/gods/sets/hashset"
-	"github.com/go-email-validator/go-email-validator/pkg/ev/test_utils"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evtests"
 	"testing"
 )
 
@@ -14,7 +14,7 @@ func getFuncChecker(valueToCheck interface{}) FuncChecker {
 }
 
 func TestMain(m *testing.M) {
-	test_utils.TestMain(m)
+	evtests.TestMain(m)
 }
 
 func Test_funcContains_Contains(t *testing.T) {
@@ -81,6 +81,7 @@ func Test_setContains_Contains(t *testing.T) {
 			want:   false,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := NewSet(tt.fields.set)

@@ -1,3 +1,6 @@
+[![codecov](https://codecov.io/gh/go-email-validator/go-email-validator/branch/master/graph/badge.svg?token=BC864E3W3X)](https://codecov.io/gh/go-email-validator/go-email-validator)
+[![Go Report](https://goreportcard.com/badge/github.com/go-email-validator/go-email-validator)](https://goreportcard.com/report/github.com/go-email-validator/go-email-validator)
+
 ## Install
 
 ```go get -u github.com/go-email-validator/go-email-validator```
@@ -15,7 +18,7 @@ username@domain.part
 * [mxValidator](pkg/ev/validator_mx.go)
 * [smtpValidator](pkg/ev/validator_smtp.go)
 
-    to use proxy set [Checker](pkg/ev/smtp_checker/smtp.go) with [proxy_list.ProxySmtpDialer()](pkg/proxy_list/proxy_dialer.go)
+    to use proxy set [Checker](pkg/ev/evsmtp/smtp.go) with [proxy_list.ProxySmtpDialer()](pkg/proxifier/proxy_dialer.go)
 * [banWordsUsernameValidator](pkg/ev/validator_banwords_username.go), search words in username
 * [blackListEmailsValidator](pkg/ev/validator_blacklist_email.go), block emails from list
 * [blackListValidator](pkg/ev/validator_blacklist_domain.go), block emails with domain from black list
@@ -32,11 +35,12 @@ package main
 import (
   "fmt"
   "github.com/go-email-validator/go-email-validator/pkg/ev"
+  "github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 )
 
 func main() {
   // create defaults list with GetDefaultFactories()
-  builder := NewDepBuilder().Build()
+  builder := ev.NewDepBuilder(nil).Build()
   /*
      to set list of initial validators
      builder := NewDepBuilder(&ValidatorMap{
@@ -50,7 +54,7 @@ func main() {
 
   validator := builder.Build()
 
-  v := validator.Validate(ev_email.EmailFromString("test@email.com"))
+  v := validator.Validate(evmail.FromString("test@evmail.com"))
   if !v.IsValid() {
     panic("email is invalid")
   }
@@ -69,44 +73,44 @@ import (
   "fmt"
   "github.com/emirpasic/gods/sets/hashset"
   "github.com/go-email-validator/go-email-validator/pkg/ev"
+  "github.com/go-email-validator/go-email-validator/pkg/ev/contains"
   "github.com/go-email-validator/go-email-validator/pkg/ev/disposable"
-  "github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
+  "github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
   "github.com/go-email-validator/go-email-validator/pkg/ev/free"
   "github.com/go-email-validator/go-email-validator/pkg/ev/role"
-  "github.com/go-email-validator/go-email-validator/pkg/ev/smtp_checker"
-  "net/smtp"
+  "github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp"
 )
 
 func main() {
   depValidator := ev.NewDepValidator(
-    map[ev.ValidatorName]ev.ValidatorInterface{
+    ev.ValidatorMap{
       //ev.FreeValidatorName:       ev.FreeDefaultValidator(),
       ev.RoleValidatorName:       ev.NewRoleValidator(role.NewRBEASetRole()),
-      ev.DisposableValidatorName: ev.NewDisposableValidator(disposable.NewFuncDisposable(disposable.MailChecker)),
+      ev.DisposableValidatorName: ev.NewDisposableValidator(contains.NewFunc(disposable.MailChecker)),
       ev.SyntaxValidatorName:     ev.NewSyntaxValidator(),
       ev.MXValidatorName:         ev.NewMXValidator(),
       ev.SMTPValidatorName: ev.NewWarningsDecorator(
         ev.NewSMTPValidator(
-          smtp_checker.NewChecker(smtp_checker.CheckerDTO{
-            DialFunc:  smtp.Dial,
-            SendMail:  smtp_checker.NewSendMail(),
-            FromEmail: ev_email.EmailFromString(smtp_checker.DefaultEmail),
+          evsmtp.NewChecker(evsmtp.CheckerDTO{
+            DialFunc:  evsmtp.Dial,
+            SendMail:  evsmtp.NewSendMail(),
+            FromEmail: evmail.FromString(evsmtp.DefaultEmail),
           }),
         ),
-        ev.NewIsWarning(hashset.New(smtp_checker.RandomRCPTStage), func(warningMap ev.WarningSet) ev.IsWarning {
+        ev.NewIsWarning(hashset.New(evsmtp.RandomRCPTStage), func(warningMap ev.WarningSet) ev.IsWarning {
           return func(err error) bool {
-            errSmtp, ok := err.(smtp_checker.SMTPError)
+            errSMTP, ok := err.(evsmtp.Error)
             if !ok {
               return false
             }
-            return warningMap.Contains(errSmtp.Stage())
+            return warningMap.Contains(errSMTP.Stage())
           }
         }),
       ),
     },
   )
 
-  v := depValidator.Validate(ev_email.EmailFromString("test@email.com"))
+  v := depValidator.Validate(evmail.FromString("test@evmail.com"))
   if !v.IsValid() {
     panic("email is invalid")
   }
@@ -123,11 +127,11 @@ package main
 import (
   "fmt"
   "github.com/go-email-validator/go-email-validator/pkg/ev"
-  "github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
+  "github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 )
 
 func main() {
-  var v = ev.NewSyntaxValidator().Validate(ev_email.EmailFromString("some@email.here")) // ev.ValidationResult
+  var v = ev.NewSyntaxValidator().Validate(evmail.FromString("some@evmail.here")) // ev.ValidationResult
 
   if !v.IsValid() {
     panic("email is invalid")
@@ -139,6 +143,10 @@ func main() {
 
 Use function New...(...) to create structure instead of public.
 
+## Addition
+
+1. For running workflow locally use [act](https://github.com/nektos/act)
+
 ## Problems
 
 Some mail providers can put ip in spam filter.
@@ -149,6 +157,7 @@ Some mail providers can put ip in spam filter.
 
 * Tests
 * SMTP working with other ports
+* Add linter in pre-hook and ci
 * Copy features from [truemail](https://github.com/truemail-rb/truemail)
     * [Extend MX](https://truemail-rb.org/truemail-gem/#/validations-layers?id=mx-validation)
       , [rfc5321 section 5](https://tools.ietf.org/html/rfc5321#section-5)

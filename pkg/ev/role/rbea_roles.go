@@ -10,7 +10,7 @@ func RBEARoles() []string {
 	return rbeaRoles
 }
 
-func NewRBEASetRole() contains.Interface {
+func NewRBEASetRole() contains.InSet {
 	RBEARoles := RBEARoles()
 	roles := make([]interface{}, len(RBEARoles))
 	for i, role := range RBEARoles {

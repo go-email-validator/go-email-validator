@@ -1,4 +1,4 @@
-package proxy_list
+package proxifier
 
 import (
 	"errors"
@@ -8,14 +8,14 @@ import (
 	"net/smtp"
 )
 
-func NewProxyDialer(list ProxyList) proxy.Dialer {
+func NewProxyDialer(list List) proxy.Dialer {
 	return &dialer{
 		list: list,
 	}
 }
 
 type dialer struct {
-	list ProxyList
+	list List
 }
 
 func (d *dialer) Dial(network, addr string) (c net.Conn, err error) {
@@ -38,11 +38,11 @@ func (d *dialer) Dial(network, addr string) (c net.Conn, err error) {
 }
 
 type SMTPDialler interface {
-	Dial(addr string) (*smtp.Client, error)
+	Dial(addr string) (interface{}, error)
 }
 
 func ProxySmtpDialer(addrs []string) (SMTPDialler, []error) {
-	list, err := NewProxyListFromStrings(ProxyListDTO{Addresses: addrs})
+	list, err := NewListFromStrings(ListDTO{Addresses: addrs})
 	return NewSMTPDialer(NewProxyDialer(list), ""), err
 }
 
@@ -62,7 +62,7 @@ type smtpDialer struct {
 	network string
 }
 
-func (p *smtpDialer) Dial(addr string) (*smtp.Client, error) {
+func (p *smtpDialer) Dial(addr string) (interface{}, error) {
 	conn, err := p.dialer.Dial(p.network, addr)
 	if err != nil {
 		return nil, err

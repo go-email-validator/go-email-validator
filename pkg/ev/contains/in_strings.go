@@ -20,12 +20,12 @@ func NewInStringsFromArray(elements []string) InStrings {
 	return NewInStrings(NewSet(hashset.New(setElements...)), maxLen)
 }
 
-func NewInStrings(contains Interface, maxLen int) InStrings {
+func NewInStrings(contains InSet, maxLen int) InStrings {
 	return inStrings{contains, maxLen}
 }
 
 type inStrings struct {
-	contains Interface
+	contains InSet
 	maxLen   int
 }
 
@@ -40,7 +40,7 @@ func (is inStrings) Contains(value string) bool {
 			jEnd = maxLen
 		}
 		for j := i; j < jEnd; j++ {
-			key = key + string(value[j])
+			key += string(value[j])
 			if is.contains.Contains(key) {
 				return true
 			}

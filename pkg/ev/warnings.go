@@ -2,7 +2,7 @@ package ev
 
 import (
 	"github.com/emirpasic/gods/sets"
-	"github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 )
 
 func NewWarningsDecorator(validator Validator, isWarning IsWarning) Validator {
@@ -26,7 +26,7 @@ func (w WarningsDecorator) GetDeps() []ValidatorName {
 	return w.validator.GetDeps()
 }
 
-func (w WarningsDecorator) Validate(email ev_email.EmailAddress, results ...ValidationResult) ValidationResult {
+func (w WarningsDecorator) Validate(email evmail.Address, results ...ValidationResult) ValidationResult {
 	result := w.validator.Validate(email, results...)
 	changeableResult, ok := result.(ChangeableValidationResult)
 	if !ok {

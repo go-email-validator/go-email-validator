@@ -2,17 +2,17 @@ package ev
 
 import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/contains"
-	"github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"reflect"
 	"testing"
 )
 
 func TestDisposableValidator_Validate(t *testing.T) {
 	type fields struct {
-		d contains.Interface
+		d contains.InSet
 	}
 	type args struct {
-		email ev_email.EmailAddress
+		email evmail.Address
 		in1   []ValidationResult
 	}
 	tests := []struct {

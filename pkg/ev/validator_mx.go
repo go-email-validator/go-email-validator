@@ -1,7 +1,8 @@
 package ev
 
 import (
-	"github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 	"net"
 )
@@ -13,20 +14,20 @@ type EmptyMXsError struct {
 }
 
 type MXValidationResult interface {
-	MX() utils.MXs
+	MX() evsmtp.MXs
 	ValidationResult
 }
 
-func NewMXValidationResult(mx utils.MXs, result *AValidationResult) MXValidationResult {
-	return mxValidationResult{mx, result}
+func NewMXValidationResult(mx evsmtp.MXs, result *AValidationResult) MXValidationResult {
+	return mxValidationResult{mx: mx, AValidationResult: result}
 }
 
 type mxValidationResult struct {
-	mx utils.MXs
 	*AValidationResult
+	mx evsmtp.MXs
 }
 
-func (v mxValidationResult) MX() utils.MXs {
+func (v mxValidationResult) MX() evsmtp.MXs {
 	return v.mx
 }
 
@@ -36,8 +37,8 @@ func NewMXValidator() Validator {
 
 type mxValidator struct{ AValidatorWithoutDeps }
 
-func (v mxValidator) Validate(email ev_email.EmailAddress, _ ...ValidationResult) ValidationResult {
-	var mxs utils.MXs
+func (v mxValidator) Validate(email evmail.Address, _ ...ValidationResult) ValidationResult {
+	var mxs evsmtp.MXs
 	var err error
 	mxs, err = net.LookupMX(email.Domain())
 

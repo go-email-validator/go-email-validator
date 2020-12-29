@@ -4,38 +4,37 @@ import (
 	"github.com/emirpasic/gods/sets/hashset"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/contains"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/disposable"
-	"github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/role"
-	"github.com/go-email-validator/go-email-validator/pkg/ev/smtp_checker"
-	"net/smtp"
 )
 
 type DefaultValidatorFactory func() Validator
 
 func GetDefaultFactories() *ValidatorMap {
 	return &ValidatorMap{
-		DisposableValidatorName: NewDisposableValidator(contains.NewFunc(disposable.MailChecker)),
 		RoleValidatorName:       NewRoleValidator(role.NewRBEASetRole()),
+		DisposableValidatorName: NewDisposableValidator(contains.NewFunc(disposable.MailChecker)),
+		SyntaxValidatorName:     NewSyntaxValidator(),
 		MXValidatorName:         NewMXValidator(),
 		SMTPValidatorName: NewWarningsDecorator(
 			smtpValidator{
-				checker: smtp_checker.NewChecker(smtp_checker.CheckerDTO{
-					DialFunc:  smtp.Dial,
-					SendMail:  smtp_checker.NewSendMail(),
-					FromEmail: ev_email.EmailFromString(smtp_checker.DefaultEmail),
+				checker: evsmtp.NewChecker(evsmtp.CheckerDTO{
+					DialFunc:  evsmtp.Dial,
+					SendMail:  evsmtp.NewSendMail(),
+					FromEmail: evmail.FromString(evsmtp.DefaultEmail),
 				}),
 			},
-			NewIsWarning(hashset.New(smtp_checker.RandomRCPTStage), func(warningMap WarningSet) IsWarning {
+			NewIsWarning(hashset.New(evsmtp.RandomRCPTStage), func(warningMap WarningSet) IsWarning {
 				return func(err error) bool {
-					errSmtp, ok := err.(smtp_checker.SMTPError)
+					errSMTP, ok := err.(evsmtp.Error)
 					if !ok {
 						return false
 					}
-					return warningMap.Contains(errSmtp.Stage())
+					return warningMap.Contains(errSMTP.Stage())
 				}
 			}),
 		),
-		SyntaxValidatorName: NewSyntaxValidator(),
 	}
 }
 

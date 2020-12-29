@@ -1,7 +1,7 @@
-package ev_email
+package evmail
 
 import (
-	"github.com/go-email-validator/go-email-validator/pkg/ev/test_utils"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evtests"
 	"reflect"
 	"testing"
 )
@@ -21,7 +21,7 @@ func defaultEmailInputString() string {
 	return defaultUsernameInput + AT + defaultDomainInput
 }
 
-func defaultEmail() EmailAddress {
+func defaultEmail() Address {
 	return NewEmailAddress(defaultUsername, defaultDomain)
 }
 
@@ -38,7 +38,7 @@ func emptyEmailString() string {
 	return emptyUsername + AT + emptyDomain
 }
 
-func emptyEmail() EmailAddress {
+func emptyEmail() Address {
 	return NewEmailAddress(emptyUsername, emptyDomain)
 }
 
@@ -50,11 +50,10 @@ type fields struct {
 func emptyFields() fields { return fields{username: emptyUsername, domain: emptyDomain} }
 
 func TestMain(m *testing.M) {
-	test_utils.TestMain(m)
+	evtests.TestMain(m)
 }
 
 func TestEmailAddress_Domain(t *testing.T) {
-
 	tests := []struct {
 		name   string
 		fields fields
@@ -142,7 +141,7 @@ func TestEmailFromString(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want EmailAddress
+		want Address
 	}{
 		{
 			name: "email",
@@ -157,8 +156,8 @@ func TestEmailFromString(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := EmailFromString(tt.args.email); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("EmailFromString() = %v, want %v", got, tt.want)
+			if got := FromString(tt.args.email); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("FromString() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -189,12 +188,12 @@ func TestSeparatedEmail(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, got1 := SeparatedEmail(tt.args.email)
+			got, got1 := SeparateEmail(tt.args.email)
 			if got != tt.want {
-				t.Errorf("SeparatedEmail() got = %v, want %v", got, tt.want)
+				t.Errorf("SeparateEmail() got = %v, want %v", got, tt.want)
 			}
 			if got1 != tt.want1 {
-				t.Errorf("SeparatedEmail() got1 = %v, want %v", got1, tt.want1)
+				t.Errorf("SeparateEmail() got1 = %v, want %v", got1, tt.want1)
 			}
 		})
 	}

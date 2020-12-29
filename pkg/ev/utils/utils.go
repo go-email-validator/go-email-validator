@@ -1,12 +1,8 @@
 package utils
 
 import (
-	"fmt"
 	"go/types"
-	"net"
 )
-
-type MXs = []*net.MX
 
 func RangeLen(i interface{}) int {
 	if i == nil {
@@ -20,19 +16,15 @@ func RangeLen(i interface{}) int {
 	case types.Map:
 		return len(i.(map[interface{}]interface{}))
 	}
-	panic(fmt.Sprintf("interface should be \"array\", \"slice\" or \"map\""))
+	panic("interface should be \"array\", \"slice\" or \"map\"")
 }
 
-func abstractFunc() interface{} {
-	panic("implement me")
-}
-
-func Errs(err error) []error {
-	if err == nil {
+func Errs(errs ...error) []error {
+	if errs == nil || len(errs) == 1 && errs[0] == nil {
 		return nil
 	}
 
-	return []error{err}
+	return errs
 }
 
 func NewError(text string) error {

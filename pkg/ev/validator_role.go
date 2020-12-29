@@ -2,7 +2,7 @@ package ev
 
 import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/contains"
-	"github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 )
 
@@ -12,16 +12,16 @@ type RoleError struct {
 	utils.Err
 }
 
-func NewRoleValidator(r contains.Interface) Validator {
+func NewRoleValidator(r contains.InSet) Validator {
 	return roleValidator{r: r}
 }
 
 type roleValidator struct {
-	r contains.Interface
 	AValidatorWithoutDeps
+	r contains.InSet
 }
 
-func (r roleValidator) Validate(email ev_email.EmailAddress, _ ...ValidationResult) ValidationResult {
+func (r roleValidator) Validate(email evmail.Address, _ ...ValidationResult) ValidationResult {
 	var err error
 	var hasRole = r.r.Contains(email.Username())
 	if hasRole {

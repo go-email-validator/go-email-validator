@@ -4,11 +4,10 @@ import (
 	"github.com/emirpasic/gods/sets/hashset"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/contains"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/disposable"
-	"github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/role"
-	"github.com/go-email-validator/go-email-validator/pkg/ev/smtp_checker"
 	"github.com/stretchr/testify/assert"
-	"net/smtp"
 	"testing"
 	"time"
 )
@@ -23,7 +22,7 @@ func (t testSleep) GetDeps() []ValidatorName {
 	return t.deps
 }
 
-func (t testSleep) Validate(_ ev_email.EmailAddress, results ...ValidationResult) ValidationResult {
+func (t testSleep) Validate(_ evmail.Address, results ...ValidationResult) ValidationResult {
 	time.Sleep(t.sleep)
 
 	var isValid = true
@@ -93,7 +92,7 @@ func TestDepValidator_Validate_Dependent(t *testing.T) {
 }
 
 func TestDepValidator_Validate_Full(t *testing.T) {
-	email := ev_email.EmailFromString(validEmailString)
+	email := evmail.FromString(validEmailString)
 
 	depValidator := NewDepValidator(map[ValidatorName]Validator{
 		//FreeValidatorName:     FreeDefaultValidator(),
@@ -102,14 +101,14 @@ func TestDepValidator_Validate_Full(t *testing.T) {
 		SyntaxValidatorName:     NewSyntaxValidator(),
 		MXValidatorName:         NewMXValidator(),
 		SMTPValidatorName: NewWarningsDecorator(
-			NewSMTPValidator(smtp_checker.NewChecker(smtp_checker.CheckerDTO{
-				DialFunc:  smtp.Dial,
-				SendMail:  smtp_checker.NewSendMail(),
-				FromEmail: ev_email.EmailFromString(smtp_checker.DefaultEmail),
+			NewSMTPValidator(evsmtp.NewChecker(evsmtp.CheckerDTO{
+				DialFunc:  evsmtp.Dial,
+				SendMail:  evsmtp.NewSendMail(),
+				FromEmail: evmail.FromString(evsmtp.DefaultEmail),
 			})),
-			NewIsWarning(hashset.New(smtp_checker.RandomRCPTStage), func(warningMap WarningSet) IsWarning {
+			NewIsWarning(hashset.New(evsmtp.RandomRCPTStage), func(warningMap WarningSet) IsWarning {
 				return func(err error) bool {
-					return warningMap.Contains(err.(smtp_checker.SMTPError).Stage())
+					return warningMap.Contains(err.(evsmtp.Error).Stage())
 				}
 			}),
 		),

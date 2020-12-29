@@ -10,7 +10,7 @@ func WillWhiteFree() []string {
 	return willWhiteFree
 }
 
-func NewWillWhiteSetFree() contains.Interface {
+func NewWillWhiteSetFree() contains.InSet {
 	WillWhiteFree := WillWhiteFree()
 	freeEmails := make([]interface{}, len(WillWhiteFree))
 	for i, freeEmail := range WillWhiteFree {

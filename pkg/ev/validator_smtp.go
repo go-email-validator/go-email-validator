@@ -1,26 +1,26 @@
 package ev
 
 import (
-	"github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
-	"github.com/go-email-validator/go-email-validator/pkg/ev/smtp_checker"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp"
 )
 
 const SMTPValidatorName ValidatorName = "SMTPValidator"
 
-func NewSMTPValidator(Checker smtp_checker.Checker) Validator {
+func NewSMTPValidator(Checker evsmtp.Checker) Validator {
 	return smtpValidator{Checker}
 }
 
 type smtpValidator struct {
-	checker smtp_checker.Checker
+	checker evsmtp.Checker
 }
 
 func (s smtpValidator) GetDeps() []ValidatorName {
 	return []ValidatorName{SyntaxValidatorName, MXValidatorName}
 }
 
-func (s smtpValidator) Validate(email ev_email.EmailAddress, results ...ValidationResult) ValidationResult {
-	syntaxResult := results[0].(SyntaxValidatorResultInterface)
+func (s smtpValidator) Validate(email evmail.Address, results ...ValidationResult) ValidationResult {
+	syntaxResult := results[0].(SyntaxValidatorResult)
 	mxResult := results[1].(MXValidationResult)
 	var errs []error
 

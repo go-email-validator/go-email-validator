@@ -45,7 +45,7 @@ func TestNewInStringsFromArray(t *testing.T) {
 
 func Test_inStrings_Contains(t *testing.T) {
 	type fields struct {
-		contains Interface
+		contains InSet
 		maxLen   int
 	}
 	type args struct {

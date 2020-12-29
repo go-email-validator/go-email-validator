@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	FreeUrl           = "https://raw.githubusercontent.com/willwhite/freemail/master/data/free.txt"
+	FreeURL           = "https://raw.githubusercontent.com/willwhite/freemail/master/data/free.txt"
 	WillWhiteFreePath = "pkg/ev/free/willwhite_free.go"
 )
 

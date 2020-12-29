@@ -1,7 +1,7 @@
 package ev
 
 import (
-	"github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"reflect"
 	"testing"
 )
@@ -11,7 +11,7 @@ const GravatarExistEmail = "beau@dentedreality.com.au"
 // TODO mocking Gravatar
 func Test_gravatarValidator_Validate(t *testing.T) {
 	type args struct {
-		email   ev_email.EmailAddress
+		email   evmail.Address
 		results []ValidationResult
 	}
 
@@ -23,7 +23,7 @@ func Test_gravatarValidator_Validate(t *testing.T) {
 		{
 			name: "valid",
 			args: args{
-				email:   ev_email.EmailFromString(GravatarExistEmail),
+				email:   evmail.FromString(GravatarExistEmail),
 				results: []ValidationResult{NewValidValidatorResult(SyntaxValidatorName)},
 			},
 			want: NewValidValidatorResult(GravatarValidatorName),
@@ -31,7 +31,7 @@ func Test_gravatarValidator_Validate(t *testing.T) {
 		{
 			name: "invalid syntax",
 			args: args{
-				email:   ev_email.EmailFromString(""),
+				email:   evmail.FromString(""),
 				results: []ValidationResult{syntaxGetError()},
 			},
 			want: gravatarGetError(DepsError{}),
@@ -39,7 +39,7 @@ func Test_gravatarValidator_Validate(t *testing.T) {
 		{
 			name: "invalid in gravatar",
 			args: args{
-				email:   ev_email.EmailFromString("some.none.exist@with.non.exist.domain"),
+				email:   evmail.FromString("some.none.exist@with.non.exist.domain"),
 				results: []ValidationResult{NewValidValidatorResult(SyntaxValidatorName)},
 			},
 			want: gravatarGetError(GravatarError{}),

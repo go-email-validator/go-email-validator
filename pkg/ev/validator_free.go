@@ -2,7 +2,7 @@ package ev
 
 import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/contains"
-	"github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/free"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 )
@@ -17,16 +17,16 @@ func FreeDefaultValidator() Validator {
 	return NewFreeValidator(free.NewWillWhiteSetFree())
 }
 
-func NewFreeValidator(f contains.Interface) Validator {
+func NewFreeValidator(f contains.InSet) Validator {
 	return freeValidator{f: f}
 }
 
 type freeValidator struct {
-	f contains.Interface
 	AValidatorWithoutDeps
+	f contains.InSet
 }
 
-func (r freeValidator) Validate(email ev_email.EmailAddress, _ ...ValidationResult) ValidationResult {
+func (r freeValidator) Validate(email evmail.Address, _ ...ValidationResult) ValidationResult {
 	var err error
 	var isFree = r.f.Contains(email.Domain())
 	if isFree {

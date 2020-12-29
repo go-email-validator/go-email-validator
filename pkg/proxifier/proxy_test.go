@@ -1,6 +1,9 @@
-package proxy_list
+package proxifier
 
-import "testing"
+import (
+	"errors"
+	"testing"
+)
 
 const (
 	addressFirst  = "addressFirst"
@@ -149,7 +152,7 @@ func Test_proxyList_GetAddress(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := &proxyList{
+			p := &list{
 				minUsing:            tt.fields.minUsing,
 				bulkPool:            tt.fields.bulkPool,
 				indexPool:           tt.fields.indexPool,
@@ -162,7 +165,7 @@ func Test_proxyList_GetAddress(t *testing.T) {
 			}
 
 			got, err := p.GetAddress()
-			if (err != nil) && err != tt.wantErr {
+			if (err != nil) && !errors.Is(err, tt.wantErr) {
 				t.Errorf("GetAddress() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}

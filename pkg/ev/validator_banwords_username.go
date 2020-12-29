@@ -2,7 +2,7 @@ package ev
 
 import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/contains"
-	"github.com/go-email-validator/go-email-validator/pkg/ev/ev_email"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 )
 
@@ -21,7 +21,7 @@ type banWordsUsernameValidator struct {
 	AValidatorWithoutDeps
 }
 
-func (w banWordsUsernameValidator) Validate(email ev_email.EmailAddress, _ ...ValidationResult) ValidationResult {
+func (w banWordsUsernameValidator) Validate(email evmail.Address, _ ...ValidationResult) ValidationResult {
 	var err error
 	var isContains = w.d.Contains(email.Username())
 	if isContains {

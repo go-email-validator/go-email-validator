@@ -1,4 +1,4 @@
-package proxy_list
+package proxifier
 
 import (
 	"math/rand"
@@ -6,28 +6,30 @@ import (
 )
 
 type Address struct {
-	url       string
-	used      uint
-	lastUsing time.Duration
-	ban       bool
+	url  string
+	used uint
+	ban  bool
 }
 
-// []interface{} - []string
+// interface{} consist of string.
 type GetAddress func(MapAddress, []interface{}) *Address
 
 func GetRandomAddress(m MapAddress, addrs []interface{}) *Address {
 	rand.Seed(time.Now().UnixNano())
 	addr, _ := m.Get(addrs[rand.Intn(len(addrs))])
+
 	return addr.(*Address)
 }
 
 func GetFirstAddress(m MapAddress, addrs []interface{}) *Address {
 	addr, _ := m.Get(addrs[0])
+
 	return addr.(*Address)
 }
 
 func GetLastAddress(m MapAddress, addrs []interface{}) *Address {
 	addr, _ := m.Get(addrs[len(addrs)-1])
+
 	return addr.(*Address)
 }
 
@@ -37,7 +39,10 @@ func CreateCircleAddress(i int) GetAddress {
 			i = 0
 		}
 		i++
-		addr, _ := m.Get(addrs[len(addrs)-1])
+
+		addrKey := addrs[len(addrs)-1]
+		addr, _ := m.Get(addrKey)
+
 		return addr.(*Address)
 	}
 }

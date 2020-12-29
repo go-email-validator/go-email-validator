@@ -1,4 +1,4 @@
-package proxy_list
+package proxifier
 
 import (
 	"errors"
@@ -9,32 +9,29 @@ import (
 )
 
 const (
-	PrefixError      = "ev-proxy: "
+	PrefixError      = "proxifier: "
 	InvalidAddr      = PrefixError + "addr %v: %w"
 	InfiniteRecovery = -1
 	EmptyAddress     = ""
 )
 
 var ErrEmptyPool = errors.New(PrefixError + "proxy pool is empty")
-var ErrActivePool = errors.New(PrefixError + "proxy pool should be more or equal of ProxyListDTO.ActivePool")
+var ErrActivePool = errors.New(PrefixError + "proxy pool should be more or equal of ListDTO.ActivePool")
 
-type ProxyList interface {
+type List interface {
 	GetAddress() (string, error)
 	Ban(string) bool
 }
 
-type ProxyListDTO struct {
+type ListDTO struct {
 	Addresses     []string
 	BulkPool      int
 	AddressGetter GetAddress
 	ActivePool    int
 }
 
-func NewProxyListFromStrings(dto ProxyListDTO) (list ProxyList, errs []error) {
-	var addrs = make([]*Address, 0)
-	errs = make([]error, 0)
-
-	addrs, errs = getAddressesFromString(dto.Addresses)
+func NewListFromStrings(dto ListDTO) (lst List, errs []error) {
+	addrs, errs := getAddressesFromString(dto.Addresses)
 
 	if dto.AddressGetter == nil {
 		dto.AddressGetter = GetRandomAddress
@@ -45,7 +42,7 @@ func NewProxyListFromStrings(dto ProxyListDTO) (list ProxyList, errs []error) {
 		return nil, errs
 	}
 
-	return &proxyList{
+	return &list{
 		minUsing:      dto.ActivePool,
 		bulkPool:      dto.BulkPool,
 		indexPool:     0,
@@ -91,7 +88,7 @@ func newMap() MapAddress {
 type MapAddress maps.Map // linkedhashmap.Map
 
 // TODO add strategy struct for changing behavior
-type proxyList struct {
+type list struct {
 	bulkPool            int // count of new getting proxies
 	indexPool           int
 	pool                []*Address
@@ -103,7 +100,7 @@ type proxyList struct {
 	addressGetter       GetAddress
 }
 
-func (p *proxyList) GetAddress() (string, error) {
+func (p *list) GetAddress() (string, error) {
 	if p.needMore() {
 		if p.shouldGetNewAddresses() {
 			p.getNewAddresses()
@@ -138,31 +135,31 @@ func (p *proxyList) GetAddress() (string, error) {
 	return addr.url, nil
 }
 
-func (p *proxyList) needMore() bool {
+func (p *list) needMore() bool {
 	return p.using.Size() < p.minUsing || p.using.Size() == 0
 }
 
-func (p *proxyList) shouldGetNewAddresses() bool {
+func (p *list) shouldGetNewAddresses() bool {
 	return len(p.pool) <= p.indexPool && p.requestNewAddresses != nil
 }
 
-func (p *proxyList) getNewAddresses() {
+func (p *list) getNewAddresses() {
 	p.pool = append(p.pool, p.requestNewAddresses()...)
 }
 
-func (p *proxyList) hasUnusedInPoll() bool {
+func (p *list) hasUnusedInPoll() bool {
 	return len(p.pool) > p.indexPool
 }
 
-func (p *proxyList) canRecoveryBan() bool {
+func (p *list) canRecoveryBan() bool {
 	return p.hasAttempts() || p.banRecovering == InfiniteRecovery
 }
 
-func (p *proxyList) hasAttempts() bool {
+func (p *list) hasAttempts() bool {
 	return p.banRecovering > 0
 }
 
-func (p *proxyList) Ban(addrKey string) bool {
+func (p *list) Ban(addrKey string) bool {
 	if _, hasKey := p.using.Get(addrKey); !hasKey {
 		return false
 	}
