@@ -27,7 +27,7 @@ func TestNewInStringsFromArray(t *testing.T) {
 		want InStrings
 	}{
 		{
-			name: "",
+			name: "success",
 			args: args{
 				elements: twoStrings,
 			},
@@ -58,7 +58,7 @@ func Test_inStrings_Contains(t *testing.T) {
 		want   bool
 	}{
 		{
-			name: "has equvalent of " + firstValue,
+			name: "has equivalent of " + firstValue,
 			fields: fields{
 				contains: setTwoStrings,
 				maxLen:   len(longValue),
@@ -112,8 +112,19 @@ func Test_inStrings_Contains(t *testing.T) {
 			},
 			want: false,
 		},
+		{
+			name: "empty value",
+			fields: fields{
+				contains: setTwoStrings,
+				maxLen:   len(longValue),
+			},
+			args: args{
+				value: "",
+			},
+			want: false,
+		},
 	}
-	for _, tt := range tests[:1] {
+	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			is := NewInStrings(tt.fields.contains, tt.fields.maxLen)
 			if got := is.Contains(tt.args.value); got != tt.want {

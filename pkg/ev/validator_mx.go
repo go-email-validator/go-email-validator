@@ -4,7 +4,6 @@ import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
-	"net"
 )
 
 const MXValidatorName ValidatorName = "MXValidator"
@@ -31,19 +30,27 @@ func (v mxValidationResult) MX() evsmtp.MXs {
 	return v.mx
 }
 
-func NewMXValidator() Validator {
-	return mxValidator{}
+func DefaultNewMXValidator() Validator {
+	return NewMXValidator(evsmtp.LookupMX)
 }
 
-type mxValidator struct{ AValidatorWithoutDeps }
+func NewMXValidator(lookupMX evsmtp.FuncLookupMX) Validator {
+	return mxValidator{
+		lookupMX: lookupMX,
+	}
+}
+
+type mxValidator struct {
+	AValidatorWithoutDeps
+	lookupMX evsmtp.FuncLookupMX
+}
 
 func (v mxValidator) Validate(email evmail.Address, _ ...ValidationResult) ValidationResult {
 	var mxs evsmtp.MXs
 	var err error
-	mxs, err = net.LookupMX(email.Domain())
+	mxs, err = v.lookupMX(email.Domain())
 
-	hasMXs := len(mxs) > 0
-	if !hasMXs {
+	if hasMXs := len(mxs) > 0; err == nil && !hasMXs {
 		err = EmptyMXsError{}
 	}
 

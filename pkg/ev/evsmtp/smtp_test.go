@@ -19,7 +19,7 @@ func TestMain(m *testing.M) {
 }
 
 func mx(domain string, t *testing.T) MXs {
-	mxs, err := net.LookupMX(domain)
+	mxs, err := LookupMX(domain)
 	assert.Nil(t, err)
 
 	return mxs

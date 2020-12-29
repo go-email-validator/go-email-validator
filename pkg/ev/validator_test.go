@@ -1,29 +1,46 @@
 package ev
 
 import (
+	"errors"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evtests"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 	"github.com/stretchr/testify/assert"
+	"reflect"
 	"testing"
 )
 
-var emptyEmail = evmail.NewEmailAddress("", "")
-var validMockValidator Validator = mockValidator{result: true}
-var inValidMockValidator Validator = mockValidator{result: false}
-
-const validEmailString = "go.email.validator@gmail.com"
-
-func newMockContains(value interface{}) mockContains {
-	return mockContains{value}
-}
+var (
+	emptyEmail                     = evmail.NewEmailAddress("", "")
+	emptyErrors                    = make([]error, 0)
+	validEmail                     = evmail.FromString(validEmailString)
+	validMockValidator   Validator = mockValidator{result: true}
+	inValidMockValidator Validator = mockValidator{result: false}
+	simpleError                    = errors.New("simpleError")
+)
 
 type mockContains struct {
-	value interface{}
+	t    *testing.T
+	want interface{}
+	ret  bool
 }
 
 func (m mockContains) Contains(value interface{}) bool {
-	return m.value == value
+	assert.Equal(m.t, value, m.want)
+
+	return m.ret
+}
+
+type mockInString struct {
+	t    *testing.T
+	want interface{}
+	ret  bool
+}
+
+func (m mockInString) Contains(value string) bool {
+	assert.Equal(m.t, value, m.want)
+
+	return m.ret
 }
 
 func newMockError() error {
@@ -33,6 +50,8 @@ func newMockError() error {
 type mockError struct {
 	utils.Err
 }
+
+const mockValidatorName ValidatorName = "mockValidatorName"
 
 func newMockValidator(result bool) mockValidator {
 	return mockValidator{result: result}
@@ -82,4 +101,56 @@ func TestAValidatorWithoutDeps(t *testing.T) {
 	validator := AValidatorWithoutDeps{}
 
 	assert.Equal(t, emptyDeps, validator.GetDeps())
+}
+
+func TestNewValidatorResult(t *testing.T) {
+	type args struct {
+		isValid  bool
+		errors   []error
+		warnings []error
+		name     ValidatorName
+	}
+	tests := []struct {
+		name string
+		args args
+		want ValidationResult
+	}{
+		{
+			name: "empty name",
+			args: args{
+				isValid:  true,
+				errors:   nil,
+				warnings: nil,
+				name:     "",
+			},
+			want: &validationResult{true, nil, nil, OtherValidator},
+		},
+		{
+			name: "invalid with errors and warnings",
+			args: args{
+				isValid:  false,
+				errors:   []error{simpleError},
+				warnings: []error{simpleError},
+				name:     mockValidatorName,
+			},
+			want: &validationResult{false, []error{simpleError}, []error{simpleError}, mockValidatorName},
+		},
+		{
+			name: "invalid",
+			args: args{
+				isValid:  false,
+				errors:   nil,
+				warnings: nil,
+				name:     mockValidatorName,
+			},
+			want: &validationResult{false, nil, nil, mockValidatorName},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := NewValidatorResult(tt.args.isValid, tt.args.errors, tt.args.warnings, tt.args.name); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewValidatorResult() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }

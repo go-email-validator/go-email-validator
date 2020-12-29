@@ -32,8 +32,6 @@ type ValidationResult interface {
 	ValidatorName() ValidatorName
 }
 
-var emptyErrors = make([]error, 0)
-
 // Abstract class for expected of validation
 type AValidationResult struct {
 	isValid  bool
@@ -47,25 +45,25 @@ func (a AValidationResult) IsValid() bool {
 }
 
 func (a *AValidationResult) SetErrors(errors []error) {
-	a.isValid = len(errors) == 0
 	a.errors = errors
+	a.isValid = !a.HasErrors()
 }
 
-func (a AValidationResult) Errors() []error {
+func (a *AValidationResult) Errors() []error {
 	return a.errors
 }
 
-func (a AValidationResult) HasErrors() bool {
+func (a *AValidationResult) HasErrors() bool {
 	return utils.RangeLen(a.Errors()) > 0
 }
 func (a *AValidationResult) SetWarnings(warnings []error) {
 	a.warnings = warnings
 }
-func (a AValidationResult) Warnings() []error {
+func (a *AValidationResult) Warnings() []error {
 	return a.warnings
 }
 
-func (a AValidationResult) HasWarnings() bool {
+func (a *AValidationResult) HasWarnings() bool {
 	return utils.RangeLen(a.Warnings()) > 0
 }
 

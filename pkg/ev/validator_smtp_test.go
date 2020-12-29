@@ -23,7 +23,7 @@ func getSmtpValidator_Validate() Validator {
 	return NewDepValidator(
 		map[ValidatorName]Validator{
 			SyntaxValidatorName: NewSyntaxValidator(),
-			MXValidatorName:     NewMXValidator(),
+			MXValidatorName:     DefaultNewMXValidator(),
 			SMTPValidatorName: NewWarningsDecorator(
 				Validator(newSMTPValidator()),
 				NewIsWarning(hashset.New(evsmtp.RandomRCPTStage), func(warningMap WarningSet) IsWarning {

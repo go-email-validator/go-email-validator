@@ -13,7 +13,7 @@ type BlackListEmailsError struct {
 }
 
 func NewBlackListEmailsValidator(d contains.InSet) Validator {
-	return blackListValidator{d: d}
+	return blackListEmailsValidator{d: d}
 }
 
 type blackListEmailsValidator struct {

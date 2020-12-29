@@ -54,3 +54,23 @@ func Test_gravatarValidator_Validate(t *testing.T) {
 		})
 	}
 }
+
+func Test_gravatarValidator_GetDeps(t *testing.T) {
+	tests := []struct {
+		name string
+		want []ValidatorName
+	}{
+		{
+			name: "success",
+			want: []ValidatorName{SyntaxValidatorName},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			g := NewGravatarValidator()
+			if got := g.GetDeps(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("GetDeps() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

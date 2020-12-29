@@ -3,17 +3,17 @@ package ev
 import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/contains"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 	"reflect"
 	"testing"
 )
 
-func TestDisposableValidator_Validate(t *testing.T) {
+func Test_blackListValidator_Validate(t *testing.T) {
 	type fields struct {
 		d contains.InSet
 	}
 	type args struct {
 		email evmail.Address
-		in1   []ValidationResult
 	}
 	tests := []struct {
 		name   string
@@ -22,26 +22,30 @@ func TestDisposableValidator_Validate(t *testing.T) {
 		want   ValidationResult
 	}{
 		{
-			name: "valid",
+			name: "domain is valid",
 			fields: fields{
 				d: mockContains{t: t, want: validEmail.Domain(), ret: false},
 			},
-			args: args{email: validEmail},
-			want: NewValidatorResult(true, nil, nil, DisposableValidatorName),
+			args: args{
+				email: validEmail,
+			},
+			want: NewValidatorResult(true, nil, nil, BlackListDomainsValidatorName),
 		},
 		{
-			name: "invalid",
+			name: "domain is invalid",
 			fields: fields{
 				d: mockContains{t: t, want: validEmail.Domain(), ret: true},
 			},
-			args: args{email: validEmail},
-			want: NewValidatorResult(false, []error{DisposableError{}}, nil, DisposableValidatorName),
+			args: args{
+				email: validEmail,
+			},
+			want: NewValidatorResult(false, utils.Errs(BlackListDomainsError{}), nil, BlackListDomainsValidatorName),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := NewDisposableValidator(tt.fields.d)
-			if got := d.Validate(tt.args.email, tt.args.in1...); !reflect.DeepEqual(got, tt.want) {
+			w := NewBlackListValidator(tt.fields.d)
+			if got := w.Validate(tt.args.email); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Validate() = %v, want %v", got, tt.want)
 			}
 		})

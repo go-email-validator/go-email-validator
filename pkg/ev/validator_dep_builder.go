@@ -16,7 +16,7 @@ func GetDefaultFactories() *ValidatorMap {
 		RoleValidatorName:       NewRoleValidator(role.NewRBEASetRole()),
 		DisposableValidatorName: NewDisposableValidator(contains.NewFunc(disposable.MailChecker)),
 		SyntaxValidatorName:     NewSyntaxValidator(),
-		MXValidatorName:         NewMXValidator(),
+		MXValidatorName:         DefaultNewMXValidator(),
 		SMTPValidatorName: NewWarningsDecorator(
 			smtpValidator{
 				checker: evsmtp.NewChecker(evsmtp.CheckerDTO{

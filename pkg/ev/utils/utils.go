@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"go/types"
+	"reflect"
 )
 
 func RangeLen(i interface{}) int {
@@ -9,14 +9,7 @@ func RangeLen(i interface{}) int {
 		return 0
 	}
 
-	switch i.(type) {
-	case types.Array:
-	case types.Slice:
-		return len(i.([]interface{}))
-	case types.Map:
-		return len(i.(map[interface{}]interface{}))
-	}
-	panic("interface should be \"array\", \"slice\" or \"map\"")
+	return reflect.ValueOf(i).Len()
 }
 
 func Errs(errs ...error) []error {
@@ -25,10 +18,6 @@ func Errs(errs ...error) []error {
 	}
 
 	return errs
-}
-
-func NewError(text string) error {
-	return Err{text}
 }
 
 type Err struct {

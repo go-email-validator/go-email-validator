@@ -38,16 +38,11 @@ type Checker interface {
 type RandomEmail func(domain string) (evmail.Address, error)
 
 func randomEmail(domain string) (evmail.Address, error) {
-	input := new(password.GeneratorInput)
-	input.LowerLetters = password.LowerLetters + password.Digits
-
-	gen, _ := password.NewGenerator(input)
+	gen, _ := password.NewGenerator(&password.GeneratorInput{
+		LowerLetters: password.LowerLetters + password.Digits,
+	})
 	username, err := gen.Generate(15, 0, 0, true, true)
-	if err != nil {
-		return nil, err
-	}
-
-	return evmail.NewEmailAddress(username, domain), nil
+	return evmail.NewEmailAddress(username, domain), err
 }
 
 type CheckerDTO struct {

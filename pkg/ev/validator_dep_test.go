@@ -99,7 +99,7 @@ func TestDepValidator_Validate_Full(t *testing.T) {
 		RoleValidatorName:       NewRoleValidator(role.NewRBEASetRole()),
 		DisposableValidatorName: NewDisposableValidator(contains.NewFunc(disposable.MailChecker)),
 		SyntaxValidatorName:     NewSyntaxValidator(),
-		MXValidatorName:         NewMXValidator(),
+		MXValidatorName:         DefaultNewMXValidator(),
 		SMTPValidatorName: NewWarningsDecorator(
 			NewSMTPValidator(evsmtp.NewChecker(evsmtp.CheckerDTO{
 				DialFunc:  evsmtp.Dial,

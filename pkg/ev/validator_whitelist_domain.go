@@ -24,8 +24,8 @@ type whiteListValidator struct {
 func (w whiteListValidator) Validate(email evmail.Address, _ ...ValidationResult) ValidationResult {
 	var err error
 	var isContains = w.d.Contains(email.Domain())
-	if isContains {
-		err = &WhiteListError{}
+	if !isContains {
+		err = WhiteListError{}
 	}
 
 	return NewValidatorResult(isContains, utils.Errs(err), nil, WhiteListDomainValidatorName)
