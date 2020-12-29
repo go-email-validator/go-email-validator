@@ -22,3 +22,10 @@ func FunctionalSkip(t *testing.T) {
 		t.Skip()
 	}
 }
+
+func ToError(ret interface{}) error {
+	if ret != nil {
+		return ret.(error)
+	}
+	return nil
+}

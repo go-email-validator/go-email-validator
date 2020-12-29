@@ -93,6 +93,7 @@ func (s *sendMail) RCPTs(addr []string) error {
 			return err
 		}
 	}
+
 	return nil
 }
 

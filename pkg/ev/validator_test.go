@@ -24,7 +24,7 @@ var (
 
 func sortErrors(errs []error) []error {
 	sort.Slice(errs, func(l, r int) bool {
-		return strings.Compare(errs[l].Error(), errs[l].Error()) >= 0
+		return strings.Compare(errs[l].Error(), errs[r].Error()) >= 0
 	})
 
 	return errs

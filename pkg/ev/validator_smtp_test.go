@@ -9,14 +9,12 @@ import (
 )
 
 // test monicaramirezrestrepo@hotmail.com.
-func newSMTPValidator() *smtpValidator {
-	return &smtpValidator{
-		checker: evsmtp.NewChecker(evsmtp.CheckerDTO{
-			DialFunc:  evsmtp.Dial,
-			SendMail:  evsmtp.NewSendMail(),
-			FromEmail: evmail.FromString(evsmtp.DefaultEmail),
-		}),
-	}
+func newSMTPValidator() Validator {
+	return NewSMTPValidator(evsmtp.NewChecker(evsmtp.CheckerDTO{
+		DialFunc:  evsmtp.Dial,
+		SendMail:  evsmtp.NewSendMail(),
+		FromEmail: evmail.FromString(evsmtp.DefaultEmail),
+	}))
 }
 
 func getSmtpValidator_Validate() Validator {

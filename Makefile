@@ -11,9 +11,7 @@ go.test.unit:
 go.test:
 	$(GO_TEST) -race -covermode=atomic -func -coverprofile=$(COVERAGE_FILE)
 
-
 GO_COVER=go tool cover -func=$(COVERAGE_FILE)
-
 go.cover:
 	$(GO_COVER)
 

@@ -306,7 +306,7 @@ func TestChecker_Validate_WithProxy(t *testing.T) {
 			AddressGetter: proxifier.CreateCircleAddress(0),
 		},
 	)
-	prxyGetter := proxifier.NewSMTPDialer(proxifier.NewProxyDialer(proxyList), "")
+	prxyGetter := proxifier.NewSMTPDialer(proxifier.NewProxyDialer(proxyList, nil), "")
 	emailFrom := evmail.FromString(DefaultEmail)
 	emailTest := evmail.FromString(emailString)
 	mxs := mx(emailTest.Domain(), t)

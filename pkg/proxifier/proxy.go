@@ -16,7 +16,7 @@ const (
 )
 
 var ErrEmptyPool = errors.New(PrefixError + "proxy pool is empty")
-var ErrActivePool = errors.New(PrefixError + "proxy pool should be more or equal of ListDTO.ActivePool")
+var ErrNotEnough = errors.New(PrefixError + "proxy pool should be more or equal of ListDTO.MinUsing")
 
 type List interface {
 	GetAddress() (string, error)
@@ -24,10 +24,11 @@ type List interface {
 }
 
 type ListDTO struct {
-	Addresses     []string
-	BulkPool      int
-	AddressGetter GetAddress
-	ActivePool    int
+	Addresses           []string
+	BulkPool            int
+	AddressGetter       GetAddress
+	MinUsing            int
+	RequestNewAddresses func() []*Address
 }
 
 func NewListFromStrings(dto ListDTO) (lst List, errs []error) {
@@ -37,19 +38,20 @@ func NewListFromStrings(dto ListDTO) (lst List, errs []error) {
 		dto.AddressGetter = GetRandomAddress
 	}
 
-	if dto.ActivePool > len(addrs) {
-		errs = append(errs, ErrActivePool)
+	if dto.MinUsing > len(addrs) {
+		errs = append(errs, ErrNotEnough)
 		return nil, errs
 	}
 
 	return &list{
-		minUsing:      dto.ActivePool,
-		bulkPool:      dto.BulkPool,
-		indexPool:     0,
-		pool:          addrs,
-		addressGetter: dto.AddressGetter,
-		using:         newMap(),
-		banned:        newMap(),
+		minUsing:            dto.MinUsing,
+		bulkPool:            dto.BulkPool,
+		indexPool:           0,
+		pool:                addrs,
+		addressGetter:       dto.AddressGetter,
+		using:               newMap(),
+		banned:              newMap(),
+		requestNewAddresses: dto.RequestNewAddresses,
 	}, errs
 }
 
@@ -93,8 +95,8 @@ type list struct {
 	indexPool           int
 	pool                []*Address
 	using               MapAddress
-	minUsing            int // minimal count of using address in one time
-	banned              MapAddress
+	minUsing            int        // minimal count of using address in one time
+	banned              MapAddress // could be used common map
 	banRecovering       int
 	requestNewAddresses func() []*Address
 	addressGetter       GetAddress
@@ -177,7 +179,7 @@ func mergeAddress(addrsSource MapAddress, addrsExt MapAddress) MapAddress {
 		return addrsExt
 	}
 
-	for key := range addrsExt.Keys() {
+	for _, key := range addrsExt.Keys() {
 		addrExt, _ := addrsExt.Get(key)
 		addrsSource.Put(key, addrExt)
 	}

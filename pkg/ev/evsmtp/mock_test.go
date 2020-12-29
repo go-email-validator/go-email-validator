@@ -2,6 +2,7 @@ package evsmtp
 
 import (
 	"bytes"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evtests"
 	"github.com/stretchr/testify/assert"
 	"io"
 	"net/smtp"
@@ -59,7 +60,7 @@ func (s *mockSendMail) Client() interface{} {
 }
 
 func (s *mockSendMail) Hello(localName string) error {
-	return toError(s.do(smHello + localName))
+	return evtests.ToError(s.do(smHello + localName))
 }
 
 func (s *mockSendMail) Auth(a smtp.Auth) error {
@@ -67,38 +68,38 @@ func (s *mockSendMail) Auth(a smtp.Auth) error {
 	if !reflect.DeepEqual(a, ret[0]) {
 		s.t.Errorf("Invalid auth, got %#v, want %#v", a, testAuth)
 	}
-	return toError(ret[1])
+	return evtests.ToError(ret[1])
 }
 
 func (s *mockSendMail) Mail(from string) error {
-	return toError(s.do(smMail + from))
+	return evtests.ToError(s.do(smMail + from))
 }
 
 func (s *mockSendMail) RCPTs(addr []string) error {
-	return toError(s.do(smRcpts + stringsJoin(addr)))
+	return evtests.ToError(s.do(smRcpts + stringsJoin(addr)))
 }
 
 func (s *mockSendMail) RCPT(addr string) error {
-	return toError(s.do(smRcpt + addr))
+	return evtests.ToError(s.do(smRcpt + addr))
 }
 
 func (s *mockSendMail) Data() (io.WriteCloser, error) {
-	return &mockWriter{s: s, want: testMsg}, toError(s.do(smData))
+	return &mockWriter{s: s, want: testMsg}, evtests.ToError(s.do(smData))
 }
 
 func (s *mockSendMail) Write(w io.WriteCloser, msg []byte) error {
 	w.Write(msg)
 	w.Close()
 
-	return toError(s.do(smWrite))
+	return evtests.ToError(s.do(smWrite))
 }
 
 func (s *mockSendMail) Quit() error {
-	return toError(s.do(smQuit))
+	return evtests.ToError(s.do(smQuit))
 }
 
 func (s *mockSendMail) Close() error {
-	return toError(s.do(smClose))
+	return evtests.ToError(s.do(smClose))
 }
 
 func (s *mockSendMail) do(cmd string) interface{} {
@@ -112,13 +113,6 @@ func (s *mockSendMail) do(cmd string) interface{} {
 	s.i++
 
 	return s.want[s.i-1].ret
-}
-
-func toError(ret interface{}) error {
-	if ret != nil {
-		return ret.(error)
-	}
-	return nil
 }
 
 type mockWriter struct {

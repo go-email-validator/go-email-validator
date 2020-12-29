@@ -8,14 +8,22 @@ import (
 	"net/smtp"
 )
 
-func NewProxyDialer(list List) proxy.Dialer {
+func NewProxyDialer(list List, dialerFunc ProxyDialerFunc) proxy.Dialer {
+	if dialerFunc == nil {
+		dialerFunc = socks.Dial
+	}
+
 	return &dialer{
-		list: list,
+		list:       list,
+		dialerFunc: dialerFunc,
 	}
 }
 
+type ProxyDialerFunc func(proxyURI string) func(network string, addr string) (net.Conn, error)
+
 type dialer struct {
-	list List
+	list       List
+	dialerFunc ProxyDialerFunc
 }
 
 func (d *dialer) Dial(network, addr string) (c net.Conn, err error) {
@@ -25,13 +33,13 @@ func (d *dialer) Dial(network, addr string) (c net.Conn, err error) {
 		if proxyAddr != "" {
 			d.list.Ban(proxyAddr)
 		}
-		proxyAddr, proxyErr := d.list.GetAddress()
+		var proxyErr error
+		proxyAddr, proxyErr = d.list.GetAddress()
 		if proxyErr != nil {
 			return nil, proxyErr
 		}
 
-		Dial := socks.Dial(proxyAddr)
-		c, err = Dial(network, addr)
+		c, err = d.dialerFunc(proxyAddr)(network, addr)
 	}
 
 	return c, nil
@@ -42,8 +50,8 @@ type SMTPDialler interface {
 }
 
 func ProxySmtpDialer(addrs []string) (SMTPDialler, []error) {
-	list, err := NewListFromStrings(ListDTO{Addresses: addrs})
-	return NewSMTPDialer(NewProxyDialer(list), ""), err
+	lst, err := NewListFromStrings(ListDTO{Addresses: addrs})
+	return NewSMTPDialer(NewProxyDialer(lst, nil), ""), err
 }
 
 func NewSMTPDialer(dialer proxy.Dialer, network string) SMTPDialler {

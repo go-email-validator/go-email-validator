@@ -156,6 +156,8 @@ Some mail providers can put ip in spam filter.
 ## TODO
 
 * Tests
+  * Add functional tests
+  * Find way to compare func in tests
 * SMTP working with other ports
 * Add linter in pre-hook and ci
 * Copy features from [truemail](https://github.com/truemail-rb/truemail)
