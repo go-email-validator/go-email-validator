@@ -1,3 +1,4 @@
+[![Go Reference](https://pkg.go.dev/badge/github.com/go-email-validator/go-email-validator.svg)](https://pkg.go.dev/github.com/go-email-validator/go-email-validator)
 [![codecov](https://codecov.io/gh/go-email-validator/go-email-validator/branch/master/graph/badge.svg?token=BC864E3W3X)](https://codecov.io/gh/go-email-validator/go-email-validator)
 [![Go Report](https://goreportcard.com/badge/github.com/go-email-validator/go-email-validator)](https://goreportcard.com/report/github.com/go-email-validator/go-email-validator)
 
