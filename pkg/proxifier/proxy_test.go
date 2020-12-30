@@ -63,7 +63,7 @@ func Test_list_GetAddress(t *testing.T) {
 				using:         newMap(),
 				banned:        newMap(),
 			},
-			want:    addressFirst,
+			want:    addressFirstWithPort,
 			wantErr: nil,
 		},
 		{
@@ -99,7 +99,7 @@ func Test_list_GetAddress(t *testing.T) {
 				addressGetter: GetFirstAddress,
 				using:         newMap(),
 			},
-			want:    addressFirst,
+			want:    addressFirstWithPort,
 			wantErr: nil,
 		},
 		{
@@ -202,7 +202,7 @@ func TestNewListFromStrings(t *testing.T) {
 			name: "with only address Error",
 			args: args{
 				dto: ListDTO{
-					Addresses: []string{addressInvalid, addressInvalid, addressFirst},
+					Addresses: []string{addressInvalid, addressInvalid, addressFirstWithPort},
 					BulkPool:  3,
 					MinUsing:  1,
 				},
@@ -211,23 +211,23 @@ func TestNewListFromStrings(t *testing.T) {
 				minUsing:  1,
 				bulkPool:  3,
 				indexPool: 0,
-				pool:      getAddrsTest(t, []string{addressFirst}),
+				pool:      getAddrsTest(t, []string{addressFirstWithPort}),
 				using:     newMap(),
 				banned:    newMap(),
 			},
-			wantErrs: append(getAddrErrs([]string{addressInvalid, addressInvalid, addressFirst})),
+			wantErrs: append(getAddrErrs([]string{addressInvalid, addressInvalid, addressFirstWithPort})),
 		},
 		{
 			name: "with Error",
 			args: args{
 				dto: ListDTO{
-					Addresses: []string{addressInvalid, addressInvalid, addressFirst},
+					Addresses: []string{addressInvalid, addressInvalid, addressFirstWithPort},
 					BulkPool:  3,
 					MinUsing:  5,
 				},
 			},
 			wantLst:  nil,
-			wantErrs: append(getAddrErrs([]string{addressInvalid, addressInvalid, addressFirst}), ErrNotEnough),
+			wantErrs: append(getAddrErrs([]string{addressInvalid, addressInvalid, addressFirstWithPort}), ErrNotEnough),
 		},
 	}
 	for _, tt := range tests {
@@ -251,21 +251,6 @@ func TestNewListFromStrings(t *testing.T) {
 			}
 		})
 	}
-}
-
-type addressValue struct {
-	key   interface{}
-	value interface{}
-}
-
-func mapAddress(values ...addressValue) MapAddress {
-	m := newMap()
-
-	for _, value := range values {
-		m.Put(value.key, value.value)
-	}
-
-	return m
 }
 
 func Test_list_Ban(t *testing.T) {

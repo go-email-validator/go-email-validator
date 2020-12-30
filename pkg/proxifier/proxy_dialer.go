@@ -8,6 +8,11 @@ import (
 	"net/smtp"
 )
 
+const (
+	TCPConnection = "tcp"
+	UDPConnection = "udp"
+)
+
 func NewProxyDialer(list List, dialerFunc ProxyDialerFunc) proxy.Dialer {
 	if dialerFunc == nil {
 		dialerFunc = socks.Dial
@@ -56,7 +61,7 @@ func ProxySmtpDialer(addrs []string) (SMTPDialler, []error) {
 
 func NewSMTPDialer(dialer proxy.Dialer, network string) SMTPDialler {
 	if network == "" {
-		network = "tcp"
+		network = TCPConnection
 	}
 
 	return &smtpDialer{
@@ -70,6 +75,8 @@ type smtpDialer struct {
 	network string
 }
 
+var smtpNewClient = smtp.NewClient
+
 func (p *smtpDialer) Dial(addr string) (interface{}, error) {
 	conn, err := p.dialer.Dial(p.network, addr)
 	if err != nil {
@@ -77,5 +84,5 @@ func (p *smtpDialer) Dial(addr string) (interface{}, error) {
 	}
 
 	host, _, _ := net.SplitHostPort(addr)
-	return smtp.NewClient(conn, host)
+	return smtpNewClient(conn, host)
 }

@@ -1,8 +1,13 @@
 package proxifier
 
 import (
+	"fmt"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evtests"
+	"github.com/stretchr/testify/assert"
+	"golang.org/x/net/proxy"
+	"h12.io/socks"
 	"net"
+	"net/smtp"
 	"reflect"
 	"testing"
 )
@@ -14,7 +19,12 @@ const (
 	networkUDP     = "udp"
 )
 
-var tcpConn = &net.TCPConn{}
+var (
+	tcpConn         = &net.TCPConn{}
+	udpConn         = &net.UDPConn{}
+	smtpClient      = &smtp.Client{}
+	emptySmtpClient = new(smtp.Client)
+)
 
 type mockListWant struct {
 	value interface{}
@@ -50,14 +60,41 @@ func (l *mockList) do(value interface{}) interface{} {
 }
 
 type dialFuncWant struct {
-	proxyURI string
-	network  string
-	addr     string
-	conn     net.Conn
-	err      error
+	network string
+	addr    string
+	conn    net.Conn
+	err     error
 }
 
-func mockDialFunc(t *testing.T, want []dialFuncWant) ProxyDialerFunc {
+type mockDialer struct {
+	t    *testing.T
+	i    int
+	want []dialFuncWant
+}
+
+func (d *mockDialer) Dial(network, addr string) (c net.Conn, err error) {
+	if d.i >= len(d.want) {
+		d.t.Fatalf("Invalid arguments %v, %v", network, addr)
+	}
+
+	if network != d.want[d.i].network {
+		d.t.Fatalf("Invalid network %q, want %q", network, d.want[d.i].network)
+	}
+	if addr != d.want[d.i].addr {
+		d.t.Fatalf("Invalid addr %q, want %q", addr, d.want[d.i].addr)
+	}
+
+	d.i++
+
+	return d.want[d.i-1].conn, d.want[d.i-1].err
+}
+
+type dialProxyFuncWant struct {
+	dialFuncWant
+	proxyURI string
+}
+
+func mockProxyDialFunc(t *testing.T, want []dialProxyFuncWant) ProxyDialerFunc {
 	i := 0
 	return func(proxyURI string) func(string, string) (net.Conn, error) {
 		if i >= len(want) {
@@ -110,17 +147,19 @@ func Test_dialer_Dial(t *testing.T) {
 					want: []mockListWant{
 						{
 							value: WantGetAddress,
-							ret:   []interface{}{addressFirst, nil},
+							ret:   []interface{}{addressFirstWithPort, nil},
 						},
 					},
 				},
-				dialerFunc: mockDialFunc(t, []dialFuncWant{
+				dialerFunc: mockProxyDialFunc(t, []dialProxyFuncWant{
 					{
-						proxyURI: addressFirst,
-						network:  networkTCP,
-						addr:     addressSecond,
-						conn:     tcpConn,
-						err:      nil,
+						proxyURI: addressFirstWithPort,
+						dialFuncWant: dialFuncWant{
+							network: networkTCP,
+							addr:    addressSecond,
+							conn:    tcpConn,
+							err:     nil,
+						},
 					},
 				}),
 			},
@@ -139,10 +178,10 @@ func Test_dialer_Dial(t *testing.T) {
 					want: []mockListWant{
 						{
 							value: WantGetAddress,
-							ret:   []interface{}{addressFirst, nil},
+							ret:   []interface{}{addressFirstWithPort, nil},
 						},
 						{
-							value: WantBan + addressFirst,
+							value: WantBan + addressFirstWithPort,
 							ret:   true,
 						},
 						{
@@ -151,20 +190,24 @@ func Test_dialer_Dial(t *testing.T) {
 						},
 					},
 				},
-				dialerFunc: mockDialFunc(t, []dialFuncWant{
+				dialerFunc: mockProxyDialFunc(t, []dialProxyFuncWant{
 					{
-						proxyURI: addressFirst,
-						network:  networkUDP,
-						addr:     addressThird,
-						conn:     nil,
-						err:      simpleError,
+						proxyURI: addressFirstWithPort,
+						dialFuncWant: dialFuncWant{
+							network: networkUDP,
+							addr:    addressThird,
+							conn:    nil,
+							err:     simpleError,
+						},
 					},
 					{
 						proxyURI: addressSecond,
-						network:  networkUDP,
-						addr:     addressThird,
-						conn:     tcpConn,
-						err:      nil,
+						dialFuncWant: dialFuncWant{
+							network: networkUDP,
+							addr:    addressThird,
+							conn:    tcpConn,
+							err:     nil,
+						},
 					},
 				}),
 			},
@@ -191,7 +234,7 @@ func Test_dialer_Dial(t *testing.T) {
 			},
 			args: args{
 				network: networkTCP,
-				addr:    addressFirst,
+				addr:    addressFirstWithPort,
 			},
 			wantC:   nil,
 			wantErr: true,
@@ -213,4 +256,151 @@ func Test_dialer_Dial(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestNewProxyDialer(t *testing.T) {
+	type args struct {
+		list       List
+		dialerFunc ProxyDialerFunc
+	}
+	tests := []struct {
+		name string
+		args args
+		want proxy.Dialer
+	}{
+		{
+			name: "empty dialerFunc",
+			args: args{
+				list:       &mockList{},
+				dialerFunc: nil,
+			},
+			want: &dialer{
+				list:       &mockList{},
+				dialerFunc: socks.Dial,
+			},
+		},
+		{
+			name: "filled",
+			args: args{
+				list:       &mockList{},
+				dialerFunc: mockProxyDialFunc(t, nil),
+			},
+			want: &dialer{
+				list:       &mockList{},
+				dialerFunc: mockProxyDialFunc(t, nil),
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := NewProxyDialer(tt.args.list, tt.args.dialerFunc); !reflect.DeepEqual(got.(*dialer).list, tt.want.(*dialer).list) &&
+				fmt.Sprintf("%v", got.(*dialer).dialerFunc) != fmt.Sprintf("%v", tt.want.(*dialer).dialerFunc) {
+				t.Errorf("NewProxyDialer() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_smtpDialer_Dial(t *testing.T) {
+	type fields struct {
+		dialer        proxy.Dialer
+		network       string
+		smtpNewClient func(conn net.Conn, host string) (*smtp.Client, error)
+	}
+	type args struct {
+		addr string
+	}
+
+	defaultMockDialer := &mockDialer{
+		t: t,
+		want: []dialFuncWant{
+			{
+				network: TCPConnection,
+				addr:    addressFirstWithPort,
+				conn:    tcpConn,
+				err:     nil,
+			},
+		},
+	}
+
+	errorMockDialer := &mockDialer{
+		t: t,
+		want: []dialFuncWant{
+			{
+				network: UDPConnection,
+				addr:    addressFirstWithPort,
+				conn:    tcpConn,
+				err:     simpleError,
+			},
+		},
+	}
+
+	tests := []struct {
+		name       string
+		fields     fields
+		args       args
+		want       interface{}
+		wantErr    bool
+		wantDialer *smtpDialer
+	}{
+		{
+			name: "default " + addressFirstWithPort,
+			fields: fields{
+				dialer:  defaultMockDialer,
+				network: "",
+				smtpNewClient: func(conn net.Conn, host string) (*smtp.Client, error) {
+					assert.Equal(t, tcpConn, conn)
+					assert.Equal(t, addressFirst, host)
+
+					return smtpClient, nil
+				},
+			},
+			args: args{
+				addr: addressFirstWithPort,
+			},
+			want:    smtpClient,
+			wantErr: false,
+			wantDialer: &smtpDialer{
+				dialer:  defaultMockDialer,
+				network: TCPConnection,
+			},
+		},
+		{
+			name: "problem proxy " + addressFirstWithPort,
+			fields: fields{
+				dialer:  errorMockDialer,
+				network: UDPConnection,
+			},
+			args: args{
+				addr: addressFirstWithPort,
+			},
+			want:    nil,
+			wantErr: true,
+			wantDialer: &smtpDialer{
+				dialer:  errorMockDialer,
+				network: UDPConnection,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := NewSMTPDialer(tt.fields.dialer, tt.fields.network)
+			if !reflect.DeepEqual(p, tt.wantDialer) {
+				t.Errorf("smtpDialer() p = %v, wantDialer %v", p, tt.wantDialer)
+				return
+			}
+
+			smtpNewClient = tt.fields.smtpNewClient
+
+			got, err := p.Dial(tt.args.addr)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Dial() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Dial() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+	smtpNewClient = smtp.NewClient
 }

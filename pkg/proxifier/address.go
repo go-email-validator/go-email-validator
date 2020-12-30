@@ -14,9 +14,14 @@ type Address struct {
 // interface{} consist of string.
 type GetAddress func(MapAddress, []interface{}) *Address
 
+var (
+	randSeed = rand.Seed
+	randIntn = rand.Intn
+)
+
 func GetRandomAddress(m MapAddress, addrs []interface{}) *Address {
-	rand.Seed(time.Now().UnixNano())
-	addr, _ := m.Get(addrs[rand.Intn(len(addrs))])
+	randSeed(time.Now().UnixNano())
+	addr, _ := m.Get(addrs[randIntn(len(addrs))])
 
 	return addr.(*Address)
 }
@@ -40,7 +45,7 @@ func CreateCircleAddress(i int) GetAddress {
 		}
 		i++
 
-		addrKey := addrs[len(addrs)-1]
+		addrKey := addrs[i-1]
 		addr, _ := m.Get(addrKey)
 
 		return addr.(*Address)
