@@ -27,7 +27,7 @@ func TestDisposableValidator_Validate(t *testing.T) {
 				d: mockContains{t: t, want: validEmail.Domain(), ret: false},
 			},
 			args: args{email: validEmail},
-			want: NewValidatorResult(true, nil, nil, DisposableValidatorName),
+			want: NewResult(true, nil, nil, DisposableValidatorName),
 		},
 		{
 			name: "invalid",
@@ -35,7 +35,7 @@ func TestDisposableValidator_Validate(t *testing.T) {
 				d: mockContains{t: t, want: validEmail.Domain(), ret: true},
 			},
 			args: args{email: validEmail},
-			want: NewValidatorResult(false, []error{DisposableError{}}, nil, DisposableValidatorName),
+			want: NewResult(false, []error{DisposableError{}}, nil, DisposableValidatorName),
 		},
 	}
 	for _, tt := range tests {

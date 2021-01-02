@@ -28,5 +28,5 @@ func (r roleValidator) Validate(email evmail.Address, _ ...ValidationResult) Val
 		err = RoleError{}
 	}
 
-	return NewValidatorResult(!hasRole, utils.Errs(err), nil, RoleValidatorName)
+	return NewResult(!hasRole, utils.Errs(err), nil, RoleValidatorName)
 }

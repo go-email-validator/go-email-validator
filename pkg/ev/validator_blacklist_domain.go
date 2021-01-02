@@ -28,5 +28,5 @@ func (w blackListValidator) Validate(email evmail.Address, _ ...ValidationResult
 		err = BlackListDomainsError{}
 	}
 
-	return NewValidatorResult(!isContains, utils.Errs(err), nil, BlackListDomainsValidatorName)
+	return NewResult(!isContains, utils.Errs(err), nil, BlackListDomainsValidatorName)
 }

@@ -56,6 +56,6 @@ func (v mxValidator) Validate(email evmail.Address, _ ...ValidationResult) Valid
 
 	return NewMXValidationResult(
 		mxs,
-		NewValidatorResult(err == nil, utils.Errs(err), nil, MXValidatorName).(*AValidationResult),
+		NewResult(err == nil, utils.Errs(err), nil, MXValidatorName).(*AValidationResult),
 	)
 }

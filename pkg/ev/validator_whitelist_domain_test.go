@@ -29,7 +29,7 @@ func Test_whiteListValidator_Validate(t *testing.T) {
 			args: args{
 				email: validEmail,
 			},
-			want: NewValidatorResult(true, nil, nil, WhiteListDomainValidatorName),
+			want: NewResult(true, nil, nil, WhiteListDomainValidatorName),
 		},
 		{
 			name: "email is not in white list",
@@ -39,7 +39,7 @@ func Test_whiteListValidator_Validate(t *testing.T) {
 			args: args{
 				email: validEmail,
 			},
-			want: NewValidatorResult(false, utils.Errs(WhiteListError{}), nil, WhiteListDomainValidatorName),
+			want: NewResult(false, utils.Errs(WhiteListError{}), nil, WhiteListDomainValidatorName),
 		},
 	}
 	for _, tt := range tests {

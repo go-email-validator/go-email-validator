@@ -2,12 +2,11 @@ package evsmtp
 
 import (
 	"errors"
-	"fmt"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evtests"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 	"github.com/go-email-validator/go-email-validator/pkg/proxifier"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"net"
 	"net/smtp"
 	"reflect"
@@ -20,7 +19,7 @@ func TestMain(m *testing.M) {
 
 func mx(domain string, t *testing.T) MXs {
 	mxs, err := LookupMX(domain)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	return mxs
 }
@@ -82,7 +81,7 @@ func Test_checker_Validate(t *testing.T) {
 			fields: fields{},
 			args:   args{},
 			wantErrs: utils.Errs(
-				NewError(ConnectionStage, nil),
+				ErrConnection,
 			),
 		},
 		{
@@ -95,7 +94,7 @@ func Test_checker_Validate(t *testing.T) {
 			},
 			wantErrs: utils.Errs(
 				NewError(ConnectionStage,
-					fmt.Errorf(ErrConnection, simpleError),
+					simpleError,
 				),
 			),
 		},

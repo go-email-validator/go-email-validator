@@ -3,7 +3,7 @@ package proxifier
 import (
 	"fmt"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evtests"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"golang.org/x/net/proxy"
 	"h12.io/socks"
 	"net"
@@ -349,8 +349,8 @@ func Test_smtpDialer_Dial(t *testing.T) {
 				dialer:  defaultMockDialer,
 				network: "",
 				smtpNewClient: func(conn net.Conn, host string) (*smtp.Client, error) {
-					assert.Equal(t, tcpConn, conn)
-					assert.Equal(t, addressFirst, host)
+					require.Equal(t, tcpConn, conn)
+					require.Equal(t, addressFirst, host)
 
 					return smtpClient, nil
 				},

@@ -30,5 +30,5 @@ func (s smtpValidator) Validate(email evmail.Address, results ...ValidationResul
 		errs = append(errs, DepsError{})
 	}
 
-	return NewValidatorResult(len(errs) == 0, errs, nil, SMTPValidatorName)
+	return NewResult(len(errs) == 0, errs, nil, SMTPValidatorName)
 }

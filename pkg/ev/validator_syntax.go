@@ -28,11 +28,11 @@ func (_ syntaxValidator) Validate(email evmail.Address, _ ...ValidationResult) V
 	_, err := mail.ParseAddress(email.String())
 
 	if err == nil {
-		return NewValidValidatorResult(SyntaxValidatorName)
+		return NewValidResult(SyntaxValidatorName)
 	}
 	return syntaxGetError()
 }
 
 func syntaxGetError() ValidationResult {
-	return NewValidatorResult(false, utils.Errs(SyntaxError{}), nil, SyntaxValidatorName)
+	return NewResult(false, utils.Errs(SyntaxError{}), nil, SyntaxValidatorName)
 }

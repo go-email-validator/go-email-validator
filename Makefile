@@ -11,6 +11,15 @@ go.test.unit:
 go.test:
 	$(GO_TEST) -race -covermode=atomic -func -coverprofile=$(COVERAGE_FILE)
 
+go.mocks: go.mocks.isntall go.mocks.gen
+
+go.mocks.isntall:
+	go get github.com/golang/mock/mockgen
+
+go.mocks.gen:
+	mockgen -source=pkg/ev/evcache/evcache.go -destination=test/mock/ev/evcache/evcache.go
+
+
 GO_COVER=go tool cover -func=$(COVERAGE_FILE)
 go.cover:
 	$(GO_COVER)

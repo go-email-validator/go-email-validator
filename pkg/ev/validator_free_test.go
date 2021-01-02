@@ -30,7 +30,7 @@ func Test_freeValidator_Validate(t *testing.T) {
 			args: args{
 				email: validEmail,
 			},
-			want: NewValidatorResult(true, nil, nil, FreeValidatorName),
+			want: NewResult(true, nil, nil, FreeValidatorName),
 		},
 		{
 			name: "email is free",
@@ -40,7 +40,7 @@ func Test_freeValidator_Validate(t *testing.T) {
 			args: args{
 				email: validEmail,
 			},
-			want: NewValidatorResult(false, utils.Errs(FreeError{}), nil, FreeValidatorName),
+			want: NewResult(false, utils.Errs(FreeError{}), nil, FreeValidatorName),
 		},
 	}
 	for _, tt := range tests {

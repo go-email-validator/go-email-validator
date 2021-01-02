@@ -3,11 +3,10 @@ package proxifier
 import (
 	"errors"
 	"fmt"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"net/url"
 	"reflect"
 	"testing"
-	"time"
 )
 
 var (
@@ -160,9 +159,12 @@ func TestGetRandomAddress(t *testing.T) {
 		addrs []interface{}
 	}
 
-	// Can failed because of slow computing
+	currentTime := int64(5)
+	timeUnixNano = func() int64 {
+		return currentTime
+	}
 	randSeed = func(seed int64) {
-		assert.Equal(t, time.Now().UnixNano()/10000, seed/10000)
+		require.Equal(t, currentTime, seed)
 	}
 
 	randIntn = func(n int) int {

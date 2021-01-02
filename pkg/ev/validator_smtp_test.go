@@ -4,7 +4,7 @@ import (
 	"github.com/emirpasic/gods/sets/hashset"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"testing"
 )
 
@@ -49,5 +49,5 @@ func TestSMTPValidator_Validate_WithoutMock(t *testing.T) {
 	validator := getSmtpValidator_Validate()
 
 	v := validator.Validate(email)
-	assert.True(t, v.IsValid())
+	require.True(t, v.IsValid())
 }

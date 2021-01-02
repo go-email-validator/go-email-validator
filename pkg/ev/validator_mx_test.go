@@ -4,7 +4,7 @@ import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"net"
 	"reflect"
 	"testing"
@@ -12,7 +12,7 @@ import (
 
 func mockLookupMX(t *testing.T, domainExpected string, ret evsmtp.MXs, err error) evsmtp.FuncLookupMX {
 	return func(domain string) ([]*net.MX, error) {
-		assert.Equal(t, domainExpected, domain)
+		require.Equal(t, domainExpected, domain)
 
 		return ret, err
 	}
@@ -44,7 +44,7 @@ func Test_mxValidator_Validate(t *testing.T) {
 			},
 			want: NewMXValidationResult(
 				mxs,
-				NewValidatorResult(true, nil, nil, MXValidatorName).(*AValidationResult),
+				NewResult(true, nil, nil, MXValidatorName).(*AValidationResult),
 			),
 		},
 		{
@@ -57,7 +57,7 @@ func Test_mxValidator_Validate(t *testing.T) {
 			},
 			want: NewMXValidationResult(
 				nil,
-				NewValidatorResult(false, utils.Errs(EmptyMXsError{}), nil, MXValidatorName).(*AValidationResult),
+				NewResult(false, utils.Errs(EmptyMXsError{}), nil, MXValidatorName).(*AValidationResult),
 			),
 		},
 		{
@@ -70,7 +70,7 @@ func Test_mxValidator_Validate(t *testing.T) {
 			},
 			want: NewMXValidationResult(
 				nil,
-				NewValidatorResult(false, utils.Errs(simpleError), nil, MXValidatorName).(*AValidationResult),
+				NewResult(false, utils.Errs(simpleError), nil, MXValidatorName).(*AValidationResult),
 			),
 		},
 		{
@@ -83,7 +83,7 @@ func Test_mxValidator_Validate(t *testing.T) {
 			},
 			want: NewMXValidationResult(
 				mxs,
-				NewValidatorResult(false, utils.Errs(simpleError), nil, MXValidatorName).(*AValidationResult),
+				NewResult(false, utils.Errs(simpleError), nil, MXValidatorName).(*AValidationResult),
 			),
 		},
 	}

@@ -3,7 +3,7 @@ package evsmtp
 import (
 	"bytes"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evtests"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"io"
 	"net/smtp"
 	"reflect"
@@ -52,7 +52,7 @@ type mockSendMail struct {
 }
 
 func (s *mockSendMail) SetClient(i interface{}) {
-	assert.Equal(s.t, s.do(smSetClient), i)
+	require.Equal(s.t, s.do(smSetClient), i)
 }
 
 func (s *mockSendMail) Client() interface{} {
@@ -130,7 +130,7 @@ func (w *mockWriter) Write(p []byte) (int, error) {
 }
 
 func (w *mockWriter) Close() error {
-	assert.Equal(w.s.t, w.buf.String(), w.want)
+	require.Equal(w.s.t, w.buf.String(), w.want)
 	w.s.do(smWCloseWriter)
 	return nil
 }

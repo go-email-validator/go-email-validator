@@ -33,7 +33,7 @@ func Test_banWordsUsernameValidator_Validate(t *testing.T) {
 			args: args{
 				email: validEmail,
 			},
-			want: NewValidatorResult(true, nil, nil, BanWordsUsernameValidatorName),
+			want: NewResult(true, nil, nil, BanWordsUsernameValidatorName),
 		},
 		{
 			name: "username is banned",
@@ -47,7 +47,7 @@ func Test_banWordsUsernameValidator_Validate(t *testing.T) {
 			args: args{
 				email: validEmail,
 			},
-			want: NewValidatorResult(false, utils.Errs(BanWordsUsernameError{}), nil, BanWordsUsernameValidatorName),
+			want: NewResult(false, utils.Errs(BanWordsUsernameError{}), nil, BanWordsUsernameValidatorName),
 		},
 	}
 	for _, tt := range tests {

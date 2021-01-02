@@ -11,10 +11,10 @@ import (
 )
 
 const (
-	ErrPrefix       = "evsmtp: "
-	ErrConnection   = ErrPrefix + "connection was not created \n %w"
-	DefaultEmail    = "user@example.org"
-	DefaultSMTPPort = 25
+	ErrPrefix        = "evsmtp: "
+	ErrConnectionMsg = ErrPrefix + "connection was not created \n %w"
+	DefaultEmail     = "user@example.org"
+	DefaultSMTPPort  = 25
 )
 
 type MXs = []*net.MX
@@ -22,6 +22,10 @@ type MXs = []*net.MX
 const (
 	RandomRCPTStage = CloseStage + 1
 	ConnectionStage = RandomRCPTStage + 1
+)
+
+var (
+	ErrConnection = NewError(ClientStage, errors.New(ErrConnectionMsg))
 )
 
 // Direct DialFunc smtp.Dial
@@ -102,13 +106,15 @@ func (c checker) Validate(mxs MXs, email evmail.Address) (errs []error) {
 			log.Logger().Error(err)
 		}
 	}
-	if client == nil {
-		if err != nil {
-			err = fmt.Errorf(ErrConnection, err)
-		}
 
+	if err != nil {
 		return append(errs, NewError(ConnectionStage, err))
 	}
+
+	if client == interface{}(nil) {
+		return append(errs, ErrConnection)
+	}
+
 	c.sendMail.SetClient(client)
 	defer func() {
 		err = c.sendMail.Close()

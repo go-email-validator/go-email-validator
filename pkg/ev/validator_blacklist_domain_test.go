@@ -29,7 +29,7 @@ func Test_blackListValidator_Validate(t *testing.T) {
 			args: args{
 				email: validEmail,
 			},
-			want: NewValidatorResult(true, nil, nil, BlackListDomainsValidatorName),
+			want: NewResult(true, nil, nil, BlackListDomainsValidatorName),
 		},
 		{
 			name: "domain is invalid",
@@ -39,7 +39,7 @@ func Test_blackListValidator_Validate(t *testing.T) {
 			args: args{
 				email: validEmail,
 			},
-			want: NewValidatorResult(false, utils.Errs(BlackListDomainsError{}), nil, BlackListDomainsValidatorName),
+			want: NewResult(false, utils.Errs(BlackListDomainsError{}), nil, BlackListDomainsValidatorName),
 		},
 	}
 	for _, tt := range tests {

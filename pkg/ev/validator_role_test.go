@@ -30,7 +30,7 @@ func Test_roleValidator_Validate(t *testing.T) {
 			args: args{
 				email: validEmail,
 			},
-			want: NewValidatorResult(true, nil, nil, RoleValidatorName),
+			want: NewResult(true, nil, nil, RoleValidatorName),
 		},
 		{
 			name: "email has role",
@@ -40,7 +40,7 @@ func Test_roleValidator_Validate(t *testing.T) {
 			args: args{
 				email: validEmail,
 			},
-			want: NewValidatorResult(false, utils.Errs(RoleError{}), nil, RoleValidatorName),
+			want: NewResult(false, utils.Errs(RoleError{}), nil, RoleValidatorName),
 		},
 	}
 	for _, tt := range tests {

@@ -93,6 +93,11 @@ Use function New...(...) to create structure instead of public.
 
 To add own validator, just realize [ev.Validator](pkg/ev/validator.go) interface. For validator without dependencies, you can use structure ev.AValidatorWithoutDeps
 
+## Decorator
+
+1. [WarningsDecorator](pkg/ev/decorator_warnings.go) allows moving errors to warnings and change result of `IsValid()` in [ValidationResult](pkg/ev/validator.go:29)
+1. [CacheDecorator](pkg/ev/decorator_cache.go) saves result of validator. For caching, you can implement `evcache.Interface` or use [gocache implementation](https://github.com/eko/gocache) by `evcache.NewCache`. 
+
 ## Addition
 
 1. For running workflow locally use [act](https://github.com/nektos/act)

@@ -19,8 +19,10 @@ var (
 	randIntn = rand.Intn
 )
 
+var timeUnixNano = time.Now().UnixNano
+
 func GetRandomAddress(m MapAddress, addrs []interface{}) *Address {
-	randSeed(time.Now().UnixNano())
+	randSeed(timeUnixNano())
 	addr, _ := m.Get(addrs[randIntn(len(addrs))])
 
 	return addr.(*Address)

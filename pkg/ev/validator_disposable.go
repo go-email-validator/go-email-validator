@@ -28,5 +28,5 @@ func (d disposableValidator) Validate(email evmail.Address, _ ...ValidationResul
 		err = DisposableError{}
 	}
 
-	return NewValidatorResult(!isDisposable, utils.Errs(err), nil, DisposableValidatorName)
+	return NewResult(!isDisposable, utils.Errs(err), nil, DisposableValidatorName)
 }

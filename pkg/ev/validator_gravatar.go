@@ -45,9 +45,9 @@ func (g gravatarValidator) Validate(email evmail.Address, results ...ValidationR
 	}
 	defer resp.Body.Close()
 
-	return NewValidValidatorResult(GravatarValidatorName)
+	return NewValidResult(GravatarValidatorName)
 }
 
 func gravatarGetError(err error) ValidationResult {
-	return NewValidatorResult(false, utils.Errs(err), nil, GravatarValidatorName)
+	return NewResult(false, utils.Errs(err), nil, GravatarValidatorName)
 }

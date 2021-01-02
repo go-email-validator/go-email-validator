@@ -3,7 +3,7 @@ package ev
 import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evtests"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"reflect"
 	"testing"
 	"time"
@@ -58,7 +58,7 @@ func TestDepValidator_Validate_Independent(t *testing.T) {
 	)
 
 	v := depValidator.Validate(email)
-	assert.False(t, v.IsValid())
+	require.False(t, v.IsValid())
 }
 
 func TestDepValidator_Validate_Dependent(t *testing.T) {
@@ -85,7 +85,7 @@ func TestDepValidator_Validate_Dependent(t *testing.T) {
 	)
 
 	v := depValidator.Validate(email)
-	assert.True(t, v.IsValid())
+	require.True(t, v.IsValid())
 }
 
 func TestDepValidator_Validate_Full(t *testing.T) {
@@ -95,7 +95,7 @@ func TestDepValidator_Validate_Full(t *testing.T) {
 	depValidator := NewDepBuilder(nil).Build()
 
 	v := depValidator.Validate(email)
-	assert.True(t, v.IsValid())
+	require.True(t, v.IsValid())
 }
 
 func Test_depValidationResult_Errors(t *testing.T) {

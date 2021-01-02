@@ -33,5 +33,5 @@ func (r freeValidator) Validate(email evmail.Address, _ ...ValidationResult) Val
 		err = FreeError{}
 	}
 
-	return NewValidatorResult(!isFree, utils.Errs(err), nil, FreeValidatorName)
+	return NewResult(!isFree, utils.Errs(err), nil, FreeValidatorName)
 }

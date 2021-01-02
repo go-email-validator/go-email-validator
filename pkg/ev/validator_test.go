@@ -5,7 +5,7 @@ import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evtests"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"reflect"
 	"sort"
 	"strings"
@@ -20,6 +20,8 @@ var (
 	inValidMockValidator Validator = mockValidator{result: false}
 	simpleError                    = errors.New("simpleError")
 	simpleError2                   = errors.New("simpleError2")
+	validResult                    = NewResult(true, nil, nil, OtherValidator)
+	invalidResult                  = NewResult(false, utils.Errs(newMockError()), nil, OtherValidator)
 )
 
 func sortErrors(errs []error) []error {
@@ -37,7 +39,7 @@ type mockContains struct {
 }
 
 func (m mockContains) Contains(value interface{}) bool {
-	assert.Equal(m.t, value, m.want)
+	require.Equal(m.t, value, m.want)
 
 	return m.ret
 }
@@ -49,7 +51,7 @@ type mockInString struct {
 }
 
 func (m mockInString) Contains(value string) bool {
-	assert.Equal(m.t, value, m.want)
+	require.Equal(m.t, value, m.want)
 
 	return m.ret
 }
@@ -70,7 +72,7 @@ func newMockValidator(result bool) mockValidator {
 
 type mockValidator struct {
 	result bool
-	AValidatorWithoutDeps
+	deps   []ValidatorName
 }
 
 func (m mockValidator) Validate(_ evmail.Address, _ ...ValidationResult) ValidationResult {
@@ -79,7 +81,11 @@ func (m mockValidator) Validate(_ evmail.Address, _ ...ValidationResult) Validat
 		err = newMockError()
 	}
 
-	return NewValidatorResult(m.result, utils.Errs(err), nil, OtherValidator)
+	return NewResult(m.result, utils.Errs(err), nil, OtherValidator)
+}
+
+func (m mockValidator) GetDeps() []ValidatorName {
+	return m.deps
 }
 
 type mockValidationResult struct {
@@ -123,25 +129,25 @@ func TestMockValidator(t *testing.T) {
 	}{
 		{
 			validator: newMockValidator(true),
-			expected:  NewValidatorResult(true, nil, nil, OtherValidator),
+			expected:  NewResult(true, nil, nil, OtherValidator),
 		},
 		{
 			validator: newMockValidator(false),
-			expected:  NewValidatorResult(false, utils.Errs(newMockError()), nil, OtherValidator),
+			expected:  NewResult(false, utils.Errs(newMockError()), nil, OtherValidator),
 		},
 	}
 
 	var emptyEmail evmail.Address
 	for _, c := range cases {
 		actual := c.validator.Validate(emptyEmail)
-		assert.Equal(t, c.expected, actual)
+		require.Equal(t, c.expected, actual)
 	}
 }
 
 func TestAValidatorWithoutDeps(t *testing.T) {
 	validator := AValidatorWithoutDeps{}
 
-	assert.Equal(t, emptyDeps, validator.GetDeps())
+	require.Equal(t, emptyDeps, validator.GetDeps())
 }
 
 func TestNewValidatorResult(t *testing.T) {
@@ -189,8 +195,8 @@ func TestNewValidatorResult(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewValidatorResult(tt.args.isValid, tt.args.errors, tt.args.warnings, tt.args.name); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewValidatorResult() = %v, want %v", got, tt.want)
+			if got := NewResult(tt.args.isValid, tt.args.errors, tt.args.warnings, tt.args.name); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewResult() = %v, want %v", got, tt.want)
 			}
 		})
 	}

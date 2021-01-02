@@ -28,5 +28,5 @@ func (w banWordsUsernameValidator) Validate(email evmail.Address, _ ...Validatio
 		err = BanWordsUsernameError{}
 	}
 
-	return NewValidatorResult(!isContains, utils.Errs(err), nil, BanWordsUsernameValidatorName)
+	return NewResult(!isContains, utils.Errs(err), nil, BanWordsUsernameValidatorName)
 }

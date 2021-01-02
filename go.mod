@@ -4,7 +4,9 @@ go 1.15
 
 require (
 	github.com/FGRibreau/mailchecker/v4 v4.0.1
+	github.com/eko/gocache v1.1.0
 	github.com/emirpasic/gods v1.12.0
+	github.com/golang/mock v1.4.4
 	github.com/sethvargo/go-password v0.2.0
 	github.com/sirupsen/logrus v1.7.0
 	github.com/stretchr/testify v1.6.1
