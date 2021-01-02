@@ -119,6 +119,7 @@ For example:
   * Add functional tests
   * Find way to compare functions in tests
 * Add the ability to work SMTP with other ports
+  Add DKIM checking
 * Add regexp syntax validation
 * Add linter in pre-hook and ci
 * Copy features from [truemail](https://github.com/truemail-rb/truemail)

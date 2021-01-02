@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp/smtp_client"
 	"github.com/go-email-validator/go-email-validator/pkg/log"
 	"github.com/sethvargo/go-password/password"
 	"net"
@@ -28,10 +29,11 @@ var (
 	ErrConnection = NewError(ClientStage, errors.New(ErrConnectionMsg))
 )
 
-// Direct DialFunc smtp.Dial
-type DialFunc func(addr string) (interface{}, error)
+// Create SMTPClient
+type DialFunc func(addr string) (smtp_client.SMTPClient, error)
 
-func Dial(addr string) (interface{}, error) {
+// Default SMTPClient, smtp.Client
+func Dial(addr string) (smtp_client.SMTPClient, error) {
 	return smtp.Dial(addr)
 }
 
@@ -39,6 +41,7 @@ type Checker interface {
 	Validate(mxs MXs, email evmail.Address) []error
 }
 
+// Generate random email for checking of Catching All emails by RCPTs
 type RandomEmail func(domain string) (evmail.Address, error)
 
 func randomEmail(domain string) (evmail.Address, error) {
@@ -111,7 +114,7 @@ func (c checker) Validate(mxs MXs, email evmail.Address) (errs []error) {
 		return append(errs, NewError(ConnectionStage, err))
 	}
 
-	if client == interface{}(nil) {
+	if client == nil {
 		return append(errs, ErrConnection)
 	}
 
@@ -139,14 +142,14 @@ func (c checker) Validate(mxs MXs, email evmail.Address) (errs []error) {
 	}
 
 	commonEmailRCPT := func() {
-		if err = c.sendMail.RCPT(email.String()); err != nil {
-			errs = append(errs, NewError(RCPTStage, err))
+		if errsRCPTs := c.sendMail.RCPTs([]string{email.String()}); len(errsRCPTs) > 0 {
+			errs = append(errs, NewError(RCPTsStage, errsRCPTs[email.String()]))
 		}
 	}
 	rEmail, err := c.randomEmail(email.Domain())
 	if err == nil {
-		if err = c.sendMail.RCPT(rEmail.String()); err != nil {
-			errs = append(errs, NewError(RandomRCPTStage, err))
+		if errsRCPTs := c.sendMail.RCPTs([]string{rEmail.String()}); len(errsRCPTs) > 0 {
+			errs = append(errs, NewError(RandomRCPTStage, errsRCPTs[rEmail.String()]))
 			commonEmailRCPT()
 		}
 	} else {

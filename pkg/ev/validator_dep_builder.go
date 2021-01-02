@@ -21,7 +21,7 @@ func GetDefaultFactories() ValidatorMap {
 			smtpValidator{
 				checker: evsmtp.NewChecker(evsmtp.CheckerDTO{
 					DialFunc:  evsmtp.Dial,
-					SendMail:  evsmtp.NewSendMail(),
+					SendMail:  evsmtp.NewSendMail(nil),
 					FromEmail: evmail.FromString(evsmtp.DefaultEmail),
 				}),
 			},

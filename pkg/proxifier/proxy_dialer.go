@@ -2,6 +2,7 @@ package proxifier
 
 import (
 	"errors"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp/smtp_client"
 	"golang.org/x/net/proxy"
 	"h12.io/socks"
 	"net"
@@ -51,7 +52,7 @@ func (d *dialer) Dial(network, addr string) (c net.Conn, err error) {
 }
 
 type SMTPDialler interface {
-	Dial(addr string) (interface{}, error)
+	Dial(addr string) (smtp_client.SMTPClient, error)
 }
 
 func ProxySmtpDialer(addrs []string) (SMTPDialler, []error) {
@@ -77,7 +78,7 @@ type smtpDialer struct {
 
 var smtpNewClient = smtp.NewClient
 
-func (p *smtpDialer) Dial(addr string) (interface{}, error) {
+func (p *smtpDialer) Dial(addr string) (smtp_client.SMTPClient, error) {
 	conn, err := p.dialer.Dial(p.network, addr)
 	if err != nil {
 		return nil, err

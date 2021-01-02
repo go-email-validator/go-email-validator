@@ -3,6 +3,7 @@ package evsmtp
 import (
 	"errors"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp/smtp_client"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evtests"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 	"github.com/go-email-validator/go-email-validator/pkg/proxifier"
@@ -24,23 +25,24 @@ func mx(domain string, t *testing.T) MXs {
 	return mxs
 }
 
-func dialFunc(client interface{}, err error) DialFunc {
-	return func(addr string) (interface{}, error) {
+func dialFunc(client smtp_client.SMTPClient, err error) DialFunc {
+	return func(addr string) (smtp_client.SMTPClient, error) {
 		return client, err
 	}
 }
 
 var (
-	simpleError  = errors.New("simpleError")
-	randomError  = errors.New("randomError")
-	mxs          = MXs{&net.MX{}}
-	localName    = "localName"
-	simpleClient = "simpleClient"
-	emailFromStr = "email@from.com"
-	emailFrom    = evmail.FromString(emailFromStr)
-	emailToStr   = "email@to.com"
-	emailTo      = evmail.FromString(emailToStr)
-	rAddr        = randomAddress(emailTo)
+	simpleError    = errors.New("simpleError")
+	randomError    = errors.New("randomError")
+	mxs            = MXs{&net.MX{}}
+	localName      = "localName"
+	emptyLocalName = ""
+	simpleClient   = &smtp.Client{}
+	emailFromStr   = "email@from.com"
+	emailFrom      = evmail.FromString(emailFromStr)
+	emailToStr     = "email@to.com"
+	emailTo        = evmail.FromString(emailToStr)
+	rAddr          = randomAddress(emailTo)
 )
 
 func randomAddress(email evmail.Address) evmail.Address {
@@ -168,8 +170,8 @@ func Test_checker_Validate(t *testing.T) {
 						ret:     nil,
 					}, false),
 						sendMailWant{
-							stage:   smRcpt,
-							message: smRcpt + emailTo.String(),
+							stage:   smRCPTs,
+							message: smRCPTs + emailTo.String(),
 							ret:     simpleError,
 						},
 						quitStageWant,
@@ -184,23 +186,23 @@ func Test_checker_Validate(t *testing.T) {
 				email: emailTo,
 			},
 			wantErrs: utils.Errs(
-				NewError(RCPTStage, simpleError),
+				NewError(RCPTsStage, simpleError),
 			),
 		},
 		{
-			name: "Problem with RCPT Random email",
+			name: "Problem with RCPTs Random email",
 			fields: fields{
 				dialFunc: dialFunc(simpleClient, nil),
 				sendMail: &mockSendMail{
 					t: t,
 					want: append(failWant(&sendMailWant{
-						stage:   smRcpt,
-						message: smRcpt + rAddr.String(),
+						stage:   smRCPTs,
+						message: smRCPTs + rAddr.String(),
 						ret:     simpleError,
 					}, false),
 						sendMailWant{
-							stage:   smRcpt,
-							message: smRcpt + emailTo.String(),
+							stage:   smRCPTs,
+							message: smRCPTs + emailTo.String(),
 							ret:     simpleError,
 						},
 						quitStageWant,
@@ -216,7 +218,7 @@ func Test_checker_Validate(t *testing.T) {
 			},
 			wantErrs: utils.Errs(
 				NewError(RandomRCPTStage, simpleError),
-				NewError(RCPTStage, simpleError),
+				NewError(RCPTsStage, simpleError),
 			),
 		},
 		{
@@ -269,7 +271,8 @@ func Test_checker_Validate(t *testing.T) {
 				LocalName:   tt.fields.localName,
 				RandomEmail: tt.fields.randomEmail,
 			})
-			if gotErrs := c.Validate(tt.args.mx, tt.args.email); !reflect.DeepEqual(gotErrs, tt.wantErrs) {
+			gotErrs := c.Validate(tt.args.mx, tt.args.email)
+			if !reflect.DeepEqual(gotErrs, tt.wantErrs) {
 				t.Errorf("Validate() = %v, want %v", gotErrs, tt.wantErrs)
 			}
 		})
@@ -323,7 +326,7 @@ func TestChecker_Validate_WithProxy(t *testing.T) {
 			fields: fields{
 				GetConn:   prxyGetter.Dial, // DirectDial,
 				Auth:      nil,
-				SendMail:  NewSendMail(),
+				SendMail:  NewSendMail(nil),
 				FromEmail: emailFrom,
 			},
 			args: args{

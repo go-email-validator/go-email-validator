@@ -3,6 +3,7 @@ package evsmtp
 import (
 	"crypto/tls"
 	"errors"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp/smtp_client"
 	"io"
 	"net/smtp"
 )
@@ -15,7 +16,6 @@ const (
 	AuthStage
 	MailStage
 	RCPTsStage
-	RCPTStage
 	DataStage
 	WriteStage
 	QuitStage
@@ -28,8 +28,7 @@ type SendMail interface {
 	Hello(localName string) error
 	Auth(a smtp.Auth) error
 	Mail(from string) error
-	RCPTs(addr []string) error
-	RCPT(addr string) error
+	RCPTs(addrs []string) map[string]error
 	Data() (io.WriteCloser, error)
 	Write(w io.WriteCloser, msg []byte) error
 	Quit() error
@@ -38,17 +37,19 @@ type SendMail interface {
 
 var testHookStartTLS func(*tls.Config)
 
-func NewSendMail() SendMail {
-	return &sendMail{}
+func NewSendMail(tlsConfig *tls.Config) SendMail {
+	return &sendMail{
+		tlsConfig: tlsConfig,
+	}
 }
 
 type sendMail struct {
-	client    *smtp.Client
-	TLSConfig *tls.Config
+	client    smtp_client.SMTPClient
+	tlsConfig *tls.Config
 }
 
 func (s *sendMail) SetClient(client interface{}) {
-	s.client = client.(*smtp.Client)
+	s.client = client.(smtp_client.SMTPClient)
 }
 
 func (s *sendMail) Client() interface{} {
@@ -56,18 +57,15 @@ func (s *sendMail) Client() interface{} {
 }
 
 func (s *sendMail) Hello(localName string) error {
-	if err := s.client.Hello(localName); err != nil && err.Error() != ErrorHelloAfter {
-		return err
-	}
-	return nil
+	return s.client.Hello(localName)
 }
 
 func (s *sendMail) Auth(a smtp.Auth) error {
-	if ok, _ := s.client.Extension("STARTTLS"); ok && s.TLSConfig != nil {
+	if ok, _ := s.client.Extension("STARTTLS"); ok && s.tlsConfig != nil {
 		if testHookStartTLS != nil {
-			testHookStartTLS(s.TLSConfig)
+			testHookStartTLS(s.tlsConfig)
 		}
-		if err := s.client.StartTLS(s.TLSConfig); err != nil {
+		if err := s.client.StartTLS(s.tlsConfig); err != nil {
 			return err
 		}
 	}
@@ -87,18 +85,16 @@ func (s *sendMail) Mail(from string) error {
 	return s.client.Mail(from)
 }
 
-func (s *sendMail) RCPTs(addr []string) error {
-	for _, addr := range addr {
+func (s *sendMail) RCPTs(addrs []string) map[string]error {
+	errs := make(map[string]error)
+
+	for _, addr := range addrs {
 		if err := s.client.Rcpt(addr); err != nil {
-			return err
+			errs[addr] = err
 		}
 	}
 
-	return nil
-}
-
-func (s *sendMail) RCPT(addr string) error {
-	return s.client.Rcpt(addr)
+	return errs
 }
 
 func (s *sendMail) Data() (io.WriteCloser, error) {

@@ -2,5 +2,5 @@ package main
 
 func main() {
 	rbeaRolesUpdate(RoleURL, RBEARolePath)
-	willwhiteFreeUpdate(FreeURL, WillWhiteFreePath)
+	willwhiteFreeUpdate(freeURL, willWhiteFreePath)
 }

@@ -18,8 +18,7 @@ const (
 	smHelloLocalhost = "Hello localhost"
 	smAuth           = "Auth"
 	smMail           = "Mail "
-	smRcpts          = "Rcpts "
-	smRcpt           = "Rcpt "
+	smRCPTs          = "Rcpts "
 	smData           = "Data"
 	smWrite          = "Write"
 	smQuit           = "Quit"
@@ -29,22 +28,25 @@ const (
 )
 
 var (
-	testUser = "testUser"
-	testPwd  = "testPwd"
-	testHost = "testHost"
-	testAuth = smtp.PlainAuth("", testUser, testPwd, testHost)
-	testMsg  = "msg"
+	testUser           = "testUser"
+	testPwd            = "testPwd"
+	testHost           = "testHost"
+	testAuth           = smtp.PlainAuth("", testUser, testPwd, testHost)
+	testMsg            = "msg"
+	mockWriterInstance = &mockWriter{}
 )
 
 func stringsJoin(strs []string) string {
 	return strings.Join(strs, ",")
 }
 
+// TODO create mock by gomock
 type sendMailWant struct {
 	stage   string
 	message string
 	ret     interface{}
 }
+
 type mockSendMail struct {
 	t    *testing.T
 	i    int
@@ -75,12 +77,16 @@ func (s *mockSendMail) Mail(from string) error {
 	return evtests.ToError(s.do(smMail + from))
 }
 
-func (s *mockSendMail) RCPTs(addr []string) error {
-	return evtests.ToError(s.do(smRcpts + stringsJoin(addr)))
-}
+func (s *mockSendMail) RCPTs(addr []string) map[string]error {
+	err := s.do(smRCPTs + stringsJoin(addr))
 
-func (s *mockSendMail) RCPT(addr string) error {
-	return evtests.ToError(s.do(smRcpt + addr))
+	if err == nil {
+		return nil
+	}
+
+	return map[string]error{
+		addr[0]: evtests.ToError(err),
+	}
 }
 
 func (s *mockSendMail) Data() (io.WriteCloser, error) {
@@ -151,8 +157,8 @@ var defaultWantMap = map[string]sendMailWant{
 		message: smMail + emailFrom.String(),
 		ret:     nil,
 	},
-	smRcpt: {
-		message: smRcpt + rAddr.String(),
+	smRCPTs: {
+		message: smRCPTs + rAddr.String(),
 		ret:     nil,
 	},
 }
@@ -172,7 +178,7 @@ var wantSuccessList = []string{
 	smHello,
 	smAuth,
 	smMail,
-	smRcpt, // only random email call rcpt
+	smRCPTs, // only random email call rcpt
 	smQuit,
 }
 

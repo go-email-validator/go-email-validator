@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	FreeURL           = "https://raw.githubusercontent.com/willwhite/freemail/master/data/free.txt"
-	WillWhiteFreePath = "pkg/ev/free/willwhite_free.go"
+	freeURL           = "https://raw.githubusercontent.com/willwhite/freemail/master/data/free.txt"
+	willWhiteFreePath = "pkg/ev/free/willwhite_free.go"
 )
 
 func willwhiteFreeUpdate(url, path string) {
