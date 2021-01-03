@@ -16,6 +16,7 @@ var (
 	emptyEmail                     = evmail.NewEmailAddress("", "")
 	emptyErrors                    = make([]error, 0)
 	validEmail                     = evmail.FromString(validEmailString)
+	invalidEmail                   = evmail.FromString("some%..@invalid.%.email")
 	validMockValidator   Validator = mockValidator{result: true}
 	inValidMockValidator Validator = mockValidator{result: false}
 	simpleError                    = errors.New("simpleError")

@@ -12,7 +12,9 @@
 
 username@domain.part
 
-* [syntaxValidator](pkg/ev/validator_syntax.go) uses mail.ParseAddress from built-in library
+* [syntaxValidator](pkg/ev/validator_syntax.go)
+  1. `NewSyntaxValidator()` - mail.ParseAddress from built-in library
+  1. `NewSyntaxRegexValidator(emailRegex *regexp.Regexp)` - validation based on regular expression
 * [disposableValidator](pkg/ev/validator_disposable.go) based
   on [mailchecker](https://github.com/FGRibreau/mailchecker) by default (set is replaceable)
 * [roleValidator](pkg/ev/validator_role.go) bases on [role-based-email-addresses](https://github.com/mixmaxhq/role-based-email-addresses) by default (set is replaceable)
@@ -119,8 +121,8 @@ For example:
   * Add functional tests
   * Find way to compare functions in tests
 * Add the ability to work SMTP with other ports
-  Add DKIM checking
-* Add regexp syntax validation
+* Add DKIM checking
+* Add binary release 
 * Add linter in pre-hook and ci
 * Copy features from [truemail](https://github.com/truemail-rb/truemail)
     * [Extend MX](https://truemail-rb.org/truemail-gem/#/validations-layers?id=mx-validation)

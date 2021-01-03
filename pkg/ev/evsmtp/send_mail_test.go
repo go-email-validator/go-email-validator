@@ -388,29 +388,64 @@ func Test_sendMail_Quit(t *testing.T) {
 }
 
 func Test_sendMail_RCPTs(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	addrs := []string{emailToStr, emailFromStr}
 	type fields struct {
-		client    smtp_client.SMTPClient
+		client    func() smtp_client.SMTPClient
 		TLSConfig *tls.Config
 	}
 	type args struct {
-		addr []string
+		addrs []string
 	}
 	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		wantErr bool
+		name   string
+		fields fields
+		args   args
+		want   map[string]error
 	}{
-		// TODO: Add test cases.
+		{
+			name: "success",
+			fields: fields{
+				client: func() smtp_client.SMTPClient {
+					smtpMock := mock_smtp_client.NewMockSMTPClient(ctrl)
+					firstCall := smtpMock.EXPECT().Rcpt(emailToStr).Return(nil).Times(1)
+					smtpMock.EXPECT().Rcpt(emailFromStr).After(firstCall).Return(nil).Times(1)
+
+					return smtpMock
+				},
+			},
+			args: args{
+				addrs: addrs,
+			},
+			want: make(map[string]error),
+		},
+		{
+			name: "error",
+			fields: fields{
+				client: func() smtp_client.SMTPClient {
+					smtpMock := mock_smtp_client.NewMockSMTPClient(ctrl)
+					firstCall := smtpMock.EXPECT().Rcpt(emailToStr).Return(simpleError).Times(1)
+					smtpMock.EXPECT().Rcpt(emailFromStr).After(firstCall).Return(nil).Times(1)
+
+					return smtpMock
+				},
+			},
+			args: args{
+				addrs: addrs,
+			},
+			want: map[string]error{emailToStr: simpleError},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &sendMail{
-				client:    tt.fields.client,
+				client:    tt.fields.client(),
 				tlsConfig: tt.fields.TLSConfig,
 			}
-			if err := s.RCPTs(tt.args.addr); (err != nil) != tt.wantErr {
-				t.Errorf("RCPTs() error = %v, wantErr %v", err, tt.wantErr)
+			if got := s.RCPTs(tt.args.addrs); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("RCPTs() got = %v, want %v", got, tt.want)
 			}
 		})
 	}
