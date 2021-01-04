@@ -21,7 +21,7 @@ username@domain.part
 * [mxValidator](pkg/ev/validator_mx.go)
 * [smtpValidator](pkg/ev/validator_smtp.go)
 
-    to use proxy connection DialFunc need to be changed for [Checker](pkg/ev/evsmtp/smtp.go). For example by [ProxyDialer](pkg/proxifier/proxy_dialer.go)
+    to use proxy connection DialFunc, need to be changed for [Checker](pkg/ev/evsmtp/smtp.go). For example by [ProxyDialer](pkg/proxifier/proxy_dialer.go)
 * [banWordsUsernameValidator](pkg/ev/validator_banwords_username.go) looks for banned words in username
 * [blackListEmailsValidator](pkg/ev/validator_blacklist_email.go) blocks emails from list
 * [blackListValidator](pkg/ev/validator_blacklist_domain.go) blocks emails with domain from black list
@@ -121,8 +121,9 @@ For example:
   * Add functional tests
   * Find way to compare functions in tests
 * Add the ability to work SMTP with other ports
-* Add DKIM checking
 * Add binary release 
+* Add misspelled email
+* Add DKIM checking
 * Add linter in pre-hook and ci
 * Copy features from [truemail](https://github.com/truemail-rb/truemail)
     * [Extend MX](https://truemail-rb.org/truemail-gem/#/validations-layers?id=mx-validation)

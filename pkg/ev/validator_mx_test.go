@@ -4,6 +4,7 @@ import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
+	mock_evmail "github.com/go-email-validator/go-email-validator/test/mock/ev/evmail"
 	"github.com/stretchr/testify/require"
 	"net"
 	"reflect"
@@ -98,7 +99,7 @@ func Test_mxValidator_Validate(t *testing.T) {
 }
 
 func BenchmarkSMTPValidator_Validate_MX(b *testing.B) {
-	email := evmail.FromString(validEmailString)
+	email := evmail.FromString(mock_evmail.ValidEmailString)
 
 	depValidator := NewDepValidator(
 		map[ValidatorName]Validator{

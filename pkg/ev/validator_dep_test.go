@@ -3,6 +3,7 @@ package ev
 import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evtests"
+	mock_evmail "github.com/go-email-validator/go-email-validator/test/mock/ev/evmail"
 	"github.com/stretchr/testify/require"
 	"reflect"
 	"testing"
@@ -34,7 +35,7 @@ func (t testSleep) Validate(_ evmail.Address, results ...ValidationResult) Valid
 }
 
 func TestDepValidator_Validate_Independent(t *testing.T) {
-	email := GetValidTestEmail()
+	email := mock_evmail.GetValidTestEmail()
 	strings := emptyDeps
 
 	depValidator := NewDepValidator(
@@ -62,7 +63,7 @@ func TestDepValidator_Validate_Independent(t *testing.T) {
 }
 
 func TestDepValidator_Validate_Dependent(t *testing.T) {
-	email := GetValidTestEmail()
+	email := mock_evmail.GetValidTestEmail()
 	strings := emptyDeps
 
 	depValidator := NewDepValidator(map[ValidatorName]Validator{
@@ -91,7 +92,7 @@ func TestDepValidator_Validate_Dependent(t *testing.T) {
 func TestDepValidator_Validate_Full(t *testing.T) {
 	evtests.FunctionalSkip(t)
 
-	email := evmail.FromString(validEmailString)
+	email := evmail.FromString(mock_evmail.ValidEmailString)
 	depValidator := NewDepBuilder(nil).Build()
 
 	v := depValidator.Validate(email)

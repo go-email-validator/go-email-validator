@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"github.com/joho/godotenv"
+	"log"
 	"reflect"
 )
 
@@ -26,4 +28,16 @@ type Err struct {
 
 func (e Err) Error() string {
 	return e.s
+}
+
+func LoadEnv(env string) {
+	filenames := make([]string, 0)
+
+	if env != "" {
+		filenames = append(filenames, env)
+	}
+
+	if err := godotenv.Load(filenames...); err != nil {
+		log.Print("No .env file found")
+	}
 }

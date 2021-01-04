@@ -158,7 +158,7 @@ var defaultWantMap = map[string]sendMailWant{
 		ret:     nil,
 	},
 	smRCPTs: {
-		message: smRCPTs + rAddr.String(),
+		message: smRCPTs + randomAddress.String(),
 		ret:     nil,
 	},
 }

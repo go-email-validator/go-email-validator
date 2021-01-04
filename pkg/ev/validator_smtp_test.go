@@ -4,6 +4,7 @@ import (
 	"github.com/emirpasic/gods/sets/hashset"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp"
+	mock_evmail "github.com/go-email-validator/go-email-validator/test/mock/ev/evmail"
 	"github.com/stretchr/testify/require"
 	"testing"
 )
@@ -35,7 +36,7 @@ func getSmtpValidator_Validate() Validator {
 }
 
 func BenchmarkSMTPValidator_Validate(b *testing.B) {
-	email := evmail.FromString(validEmailString)
+	email := evmail.FromString(mock_evmail.ValidEmailString)
 	validator := getSmtpValidator_Validate()
 
 	b.ResetTimer()
@@ -45,7 +46,7 @@ func BenchmarkSMTPValidator_Validate(b *testing.B) {
 }
 
 func TestSMTPValidator_Validate_WithoutMock(t *testing.T) {
-	email := evmail.FromString(validEmailString)
+	email := evmail.FromString(mock_evmail.ValidEmailString)
 	validator := getSmtpValidator_Validate()
 
 	v := validator.Validate(email)

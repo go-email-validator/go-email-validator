@@ -14,6 +14,8 @@ jobs:
         os: [ ubuntu-latest ] # , macos-latest, windows-latest
     runs-on: ${{ matrix.os }}
     steps:
+      - if: ${{ always() }}
+        run: docker ps
       - name: Install Go
         uses: actions/setup-go@v2
         with:
@@ -30,8 +32,15 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
+      - name: socks5
+        run: docker run --name proxy -dit --rm -p 1080:1080 -e 'SSS_USERNAME=username' -e 'SSS_PASSWORD=password' dijedodol/simple-socks5-server || sleep 2.5
       - name: Full test
         run: make go.test
+        env:
+          PROXIES: "socks5://username:password@127.0.0.1:1080"
+      - name: socks5 stop
+        if: ${{ always() }}
+        run: docker stop proxy
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         with:

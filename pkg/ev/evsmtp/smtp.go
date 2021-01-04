@@ -34,7 +34,8 @@ type DialFunc func(addr string) (smtp_client.SMTPClient, error)
 
 // Default SMTPClient, smtp.Client
 func Dial(addr string) (smtp_client.SMTPClient, error) {
-	return smtp.Dial(addr)
+	client, err := smtp.Dial(addr)
+	return client, err
 }
 
 type Checker interface {
@@ -58,6 +59,7 @@ type CheckerDTO struct {
 	FromEmail   evmail.Address
 	LocalName   string
 	RandomEmail RandomEmail
+	Port        int
 }
 
 func NewChecker(dto CheckerDTO) Checker {
@@ -69,6 +71,10 @@ func NewChecker(dto CheckerDTO) Checker {
 		dto.RandomEmail = randomEmail
 	}
 
+	if dto.Port == 0 {
+		dto.Port = DefaultSMTPPort
+	}
+
 	return checker{
 		dialFunc:    dto.DialFunc,
 		Auth:        nil,
@@ -76,6 +82,7 @@ func NewChecker(dto CheckerDTO) Checker {
 		fromEmail:   dto.FromEmail,
 		localName:   dto.LocalName,
 		randomEmail: dto.RandomEmail,
+		port:        dto.Port,
 	}
 }
 
@@ -90,6 +97,7 @@ type checker struct {
 	fromEmail   evmail.Address
 	localName   string
 	randomEmail RandomEmail
+	port        int
 }
 
 // TODO improve logging, add fields and context
@@ -101,7 +109,7 @@ func (c checker) Validate(mxs MXs, email evmail.Address) (errs []error) {
 	var e *net.OpError
 
 	for _, mx := range mxs {
-		host = fmt.Sprintf("%v:%v", mx.Host, DefaultSMTPPort)
+		host = fmt.Sprintf("%v:%v", mx.Host, c.port)
 		if client, err = c.dialFunc(host); err == nil {
 			break
 		}
@@ -119,7 +127,11 @@ func (c checker) Validate(mxs MXs, email evmail.Address) (errs []error) {
 	}
 
 	c.sendMail.SetClient(client)
+	needClose := true
 	defer func() {
+		if !needClose {
+			return
+		}
 		err = c.sendMail.Close()
 		if err != nil {
 			log.Logger().Error(err)
@@ -146,10 +158,10 @@ func (c checker) Validate(mxs MXs, email evmail.Address) (errs []error) {
 			errs = append(errs, NewError(RCPTsStage, errsRCPTs[email.String()]))
 		}
 	}
-	rEmail, err := c.randomEmail(email.Domain())
+	randomEmail, err := c.randomEmail(email.Domain())
 	if err == nil {
-		if errsRCPTs := c.sendMail.RCPTs([]string{rEmail.String()}); len(errsRCPTs) > 0 {
-			errs = append(errs, NewError(RandomRCPTStage, errsRCPTs[rEmail.String()]))
+		if errsRCPTs := c.sendMail.RCPTs([]string{randomEmail.String()}); len(errsRCPTs) > 0 {
+			errs = append(errs, NewError(RandomRCPTStage, errsRCPTs[randomEmail.String()]))
 			commonEmailRCPT()
 		}
 	} else {
@@ -157,6 +169,7 @@ func (c checker) Validate(mxs MXs, email evmail.Address) (errs []error) {
 		commonEmailRCPT()
 	}
 
+	needClose = false
 	if err = c.sendMail.Quit(); err != nil {
 		errs = append(errs, NewError(QuitStage, err))
 	}

@@ -5,6 +5,7 @@ import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evtests"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
+	mock_evmail "github.com/go-email-validator/go-email-validator/test/mock/ev/evmail"
 	"github.com/stretchr/testify/require"
 	"reflect"
 	"sort"
@@ -15,7 +16,7 @@ import (
 var (
 	emptyEmail                     = evmail.NewEmailAddress("", "")
 	emptyErrors                    = make([]error, 0)
-	validEmail                     = evmail.FromString(validEmailString)
+	validEmail                     = evmail.FromString(mock_evmail.ValidEmailString)
 	invalidEmail                   = evmail.FromString("some%..@invalid.%.email")
 	validMockValidator   Validator = mockValidator{result: true}
 	inValidMockValidator Validator = mockValidator{result: false}
