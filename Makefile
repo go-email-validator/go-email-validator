@@ -9,15 +9,15 @@ MOCK_PATTERN=mock_.*.go
 
 go.test.unit:
 	$(GO_TEST) -race -covermode=atomic -coverprofile=$(COVERAGE_TMP_FILE)
-	rm $(COVERAGE_UNIT_FILE)
+	rm $(COVERAGE_UNIT_FILE) || true
 	cat $(COVERAGE_TMP_FILE) | grep -v $(MOCK_PATTERN) > $(COVERAGE_UNIT_FILE)
-	rm $(COVERAGE_TMP_FILE)
+	rm $(COVERAGE_TMP_FILE) || true
 
 go.test:
 	$(GO_TEST) -race -covermode=atomic -func -coverprofile=$(COVERAGE_TMP_FILE)
-	rm $(COVERAGE_FILE)
+	rm $(COVERAGE_FILE) || true
 	cat $(COVERAGE_TMP_FILE) | grep -v $(MOCK_PATTERN) > $(COVERAGE_FILE)
-	rm $(COVERAGE_TMP_FILE)
+	rm $(COVERAGE_TMP_FILE) || true
 
 go.mocks: go.mocks.isntall go.mocks.gen
 

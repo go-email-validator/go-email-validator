@@ -18,6 +18,7 @@ Thumbs.db
 # cover code
 coverage.out
 coverage.unit.out
+coverage.out.tmp
 
 # Environment variables
 .env
