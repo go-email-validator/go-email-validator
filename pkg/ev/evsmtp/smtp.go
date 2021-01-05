@@ -3,6 +3,7 @@ package evsmtp
 import (
 	"errors"
 	"fmt"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evcache"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp/smtp_client"
 	"github.com/go-email-validator/go-email-validator/pkg/log"
@@ -40,6 +41,11 @@ func Dial(addr string) (smtp_client.SMTPClient, error) {
 
 type Checker interface {
 	Validate(mxs MXs, email evmail.Address) []error
+}
+
+type CheckerWithRandomRCPT interface {
+	Checker
+	RandomRCPT(email evmail.Address) (errs []error)
 }
 
 // Generate random email for checking of Catching All emails by RCPTs
@@ -153,20 +159,11 @@ func (c checker) Validate(mxs MXs, email evmail.Address) (errs []error) {
 		return
 	}
 
-	commonEmailRCPT := func() {
+	if errsRandomRCPTs := c.RandomRCPT(email); len(errsRandomRCPTs) > 0 {
+		errs = append(errs, errsRandomRCPTs...)
 		if errsRCPTs := c.sendMail.RCPTs([]string{email.String()}); len(errsRCPTs) > 0 {
 			errs = append(errs, NewError(RCPTsStage, errsRCPTs[email.String()]))
 		}
-	}
-	randomEmail, err := c.randomEmail(email.Domain())
-	if err == nil {
-		if errsRCPTs := c.sendMail.RCPTs([]string{randomEmail.String()}); len(errsRCPTs) > 0 {
-			errs = append(errs, NewError(RandomRCPTStage, errsRCPTs[randomEmail.String()]))
-			commonEmailRCPT()
-		}
-	} else {
-		log.Logger().Error(NewError(RandomRCPTStage, err))
-		commonEmailRCPT()
 	}
 
 	needClose = false
@@ -175,4 +172,58 @@ func (c checker) Validate(mxs MXs, email evmail.Address) (errs []error) {
 	}
 
 	return
+}
+
+func (c checker) RandomRCPT(email evmail.Address) (errs []error) {
+	randomEmail, err := c.randomEmail(email.Domain())
+	if err != nil {
+		log.Logger().Error(NewError(RandomRCPTStage, err))
+		return append(errs, NewError(RandomRCPTStage, err))
+	}
+
+	if errsRCPTs := c.sendMail.RCPTs([]string{randomEmail.String()}); len(errsRCPTs) > 0 {
+		return append(errs, NewError(RandomRCPTStage, errsRCPTs[randomEmail.String()]))
+	}
+
+	return
+}
+
+type RandomCacheKeyGetter func(email evmail.Address) interface{}
+
+func DefaultRandomCacheKeyGetter(email evmail.Address) interface{} {
+	return email.Domain()
+}
+
+// Create Checker with caching of RandomRCPT calling
+func NewCheckerCacheRandomRCPT(checker CheckerWithRandomRCPT, cache evcache.Interface, getKey RandomCacheKeyGetter) Checker {
+	if getKey == nil {
+		getKey = DefaultRandomCacheKeyGetter
+	}
+
+	return &checkerCacheRandomRCPT{
+		CheckerWithRandomRCPT: checker,
+		cache:                 cache,
+		getKey:                getKey,
+	}
+}
+
+type checkerCacheRandomRCPT struct {
+	CheckerWithRandomRCPT
+	cache  evcache.Interface
+	getKey RandomCacheKeyGetter
+}
+
+func (c checkerCacheRandomRCPT) RandomRCPT(email evmail.Address) (errs []error) {
+	key := c.getKey(email)
+	resultInterface, err := c.cache.Get(key)
+	if err == nil && resultInterface != nil {
+		errs = resultInterface.([]error)
+	} else {
+		errs = c.CheckerWithRandomRCPT.RandomRCPT(email)
+		if err = c.cache.Set(key, errs); err != nil {
+			log.Logger().Error(err)
+		}
+	}
+
+	return errs
 }
