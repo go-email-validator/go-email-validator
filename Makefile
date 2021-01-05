@@ -5,15 +5,17 @@ GO_TEST=go test ./pkg/...
 COVERAGE_UNIT_FILE="coverage.unit.out"
 COVERAGE_FILE="coverage.out"
 COVERAGE_TMP_FILE="coverage.out.tmp"
-MOCK_PATTERN="/mock_*.go"
+MOCK_PATTERN=mock_.*.go
 
 go.test.unit:
 	$(GO_TEST) -race -covermode=atomic -coverprofile=$(COVERAGE_TMP_FILE)
+	rm $(COVERAGE_UNIT_FILE)
 	cat $(COVERAGE_TMP_FILE) | grep -v $(MOCK_PATTERN) > $(COVERAGE_UNIT_FILE)
 	rm $(COVERAGE_TMP_FILE)
 
 go.test:
 	$(GO_TEST) -race -covermode=atomic -func -coverprofile=$(COVERAGE_TMP_FILE)
+	rm $(COVERAGE_FILE)
 	cat $(COVERAGE_TMP_FILE) | grep -v $(MOCK_PATTERN) > $(COVERAGE_FILE)
 	rm $(COVERAGE_TMP_FILE)
 
