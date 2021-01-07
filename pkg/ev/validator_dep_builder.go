@@ -4,22 +4,15 @@ import (
 	"github.com/emirpasic/gods/sets/hashset"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/contains"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/disposable"
-	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/role"
 )
 
 type DefaultValidatorFactory func() Validator
 
-func GetDefaultSMTPValidator() Validator {
+func GetDefaultSMTPValidator(dto evsmtp.CheckerDTO) Validator {
 	return NewWarningsDecorator(
-		smtpValidator{
-			checker: evsmtp.NewChecker(evsmtp.CheckerDTO{
-				DialFunc:  evsmtp.Dial,
-				SendMail:  evsmtp.NewSendMail(nil),
-				FromEmail: evmail.FromString(evsmtp.DefaultEmail),
-			}),
-		},
+		NewSMTPValidator(evsmtp.NewChecker(dto)),
 		NewIsWarning(hashset.New(evsmtp.RandomRCPTStage), func(warningMap WarningSet) IsWarning {
 			return func(err error) bool {
 				errSMTP, ok := err.(evsmtp.Error)
@@ -38,7 +31,7 @@ func GetDefaultFactories() ValidatorMap {
 		DisposableValidatorName: NewDisposableValidator(contains.NewFunc(disposable.MailChecker)),
 		SyntaxValidatorName:     NewSyntaxValidator(),
 		MXValidatorName:         DefaultNewMXValidator(),
-		SMTPValidatorName:       GetDefaultSMTPValidator(),
+		SMTPValidatorName:       GetDefaultSMTPValidator(evsmtp.CheckerDTO{}),
 	}
 }
 

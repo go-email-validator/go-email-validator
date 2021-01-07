@@ -17,6 +17,7 @@ const (
 	ErrConnectionMsg = ErrPrefix + "connection was not created \n %w"
 	DefaultEmail     = "user@example.org"
 	DefaultSMTPPort  = 25
+	DefaultLocalName = "localhost"
 )
 
 type MXs = []*net.MX
@@ -27,7 +28,8 @@ const (
 )
 
 var (
-	ErrConnection = NewError(ClientStage, errors.New(ErrConnectionMsg))
+	ErrConnection    = NewError(ClientStage, errors.New(ErrConnectionMsg))
+	DefaultFromEmail = evmail.FromString(DefaultEmail)
 )
 
 // Create SMTPClient
@@ -69,8 +71,20 @@ type CheckerDTO struct {
 }
 
 func NewChecker(dto CheckerDTO) Checker {
+	if dto.DialFunc == nil {
+		dto.DialFunc = Dial
+	}
+
+	if dto.SendMail == nil {
+		dto.SendMail = NewSendMail(nil)
+	}
+
+	if dto.FromEmail == nil {
+		dto.FromEmail = DefaultFromEmail
+	}
+
 	if dto.LocalName == "" {
-		dto.LocalName = "localhost"
+		dto.LocalName = DefaultLocalName
 	}
 
 	if dto.RandomEmail == nil {
