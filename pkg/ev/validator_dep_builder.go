@@ -11,30 +11,34 @@ import (
 
 type DefaultValidatorFactory func() Validator
 
+func GetDefaultSMTPValidator() Validator {
+	return NewWarningsDecorator(
+		smtpValidator{
+			checker: evsmtp.NewChecker(evsmtp.CheckerDTO{
+				DialFunc:  evsmtp.Dial,
+				SendMail:  evsmtp.NewSendMail(nil),
+				FromEmail: evmail.FromString(evsmtp.DefaultEmail),
+			}),
+		},
+		NewIsWarning(hashset.New(evsmtp.RandomRCPTStage), func(warningMap WarningSet) IsWarning {
+			return func(err error) bool {
+				errSMTP, ok := err.(evsmtp.Error)
+				if !ok {
+					return false
+				}
+				return warningMap.Contains(errSMTP.Stage())
+			}
+		}),
+	)
+}
+
 func GetDefaultFactories() ValidatorMap {
 	return ValidatorMap{
 		RoleValidatorName:       NewRoleValidator(role.NewRBEASetRole()),
 		DisposableValidatorName: NewDisposableValidator(contains.NewFunc(disposable.MailChecker)),
 		SyntaxValidatorName:     NewSyntaxValidator(),
 		MXValidatorName:         DefaultNewMXValidator(),
-		SMTPValidatorName: NewWarningsDecorator(
-			smtpValidator{
-				checker: evsmtp.NewChecker(evsmtp.CheckerDTO{
-					DialFunc:  evsmtp.Dial,
-					SendMail:  evsmtp.NewSendMail(nil),
-					FromEmail: evmail.FromString(evsmtp.DefaultEmail),
-				}),
-			},
-			NewIsWarning(hashset.New(evsmtp.RandomRCPTStage), func(warningMap WarningSet) IsWarning {
-				return func(err error) bool {
-					errSMTP, ok := err.(evsmtp.Error)
-					if !ok {
-						return false
-					}
-					return warningMap.Contains(errSMTP.Stage())
-				}
-			}),
-		),
+		SMTPValidatorName:       GetDefaultSMTPValidator(),
 	}
 }
 
@@ -54,6 +58,14 @@ func (d *DepBuilder) Set(name ValidatorName, validator Validator) *DepBuilder {
 	d.validators[name] = validator
 
 	return d
+}
+
+func (d *DepBuilder) Get(name ValidatorName) Validator {
+	if d.Has(name) {
+		return d.validators[name]
+	}
+
+	return nil
 }
 
 func (d *DepBuilder) Has(names ...ValidatorName) bool {

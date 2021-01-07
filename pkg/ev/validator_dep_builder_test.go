@@ -146,3 +146,49 @@ func TestDepBuilder_Set(t *testing.T) {
 		})
 	}
 }
+
+func TestDepBuilder_Get(t *testing.T) {
+	type fields struct {
+		validators ValidatorMap
+	}
+	type args struct {
+		name ValidatorName
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   Validator
+	}{
+		{
+			name: "has",
+			fields: fields{
+				validators: ValidatorMap{mockValidatorName: newMockValidator(false)},
+			},
+			args: args{
+				name: mockValidatorName,
+			},
+			want: newMockValidator(false),
+		},
+		{
+			name: "has not",
+			fields: fields{
+				validators: ValidatorMap{},
+			},
+			args: args{
+				name: mockValidatorName,
+			},
+			want: nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			d := &DepBuilder{
+				validators: tt.fields.validators,
+			}
+			if got := d.Get(tt.args.name); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Get() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

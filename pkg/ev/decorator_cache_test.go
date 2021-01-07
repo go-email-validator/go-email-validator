@@ -14,9 +14,7 @@ func Test_cacheDecorator_Validate(t *testing.T) {
 	defer ctrl.Finish()
 
 	results := make([]ValidationResult, 0)
-	key := []interface{}{validEmail, results}
-	var resultsNil []ValidationResult = nil
-	keyNilResults := []interface{}{validEmail, resultsNil}
+	key := validEmail.String()
 
 	type fields struct {
 		validator Validator
@@ -44,7 +42,7 @@ func Test_cacheDecorator_Validate(t *testing.T) {
 
 					return cacheMock
 				},
-				getKey: ComplexCacheKeyGetter,
+				getKey: EmailCacheKeyGetter,
 			},
 			args: args{
 				email:   validEmail,
@@ -77,11 +75,11 @@ func Test_cacheDecorator_Validate(t *testing.T) {
 				validator: validMockValidator,
 				cache: func() evcache.Interface {
 					cacheMock := mock_evcache.NewMockInterface(ctrl)
-					cacheMock.EXPECT().Get(keyNilResults).Return(validResult, nil).Times(1)
+					cacheMock.EXPECT().Get(key).Return(validResult, nil).Times(1)
 
 					return cacheMock
 				},
-				getKey: ComplexCacheKeyGetter,
+				getKey: EmailCacheKeyGetter,
 			},
 			args: args{
 				email:   validEmail,
