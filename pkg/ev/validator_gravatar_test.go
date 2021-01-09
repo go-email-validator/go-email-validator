@@ -2,6 +2,7 @@ package ev
 
 import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evtests"
 	"reflect"
 	"testing"
 )
@@ -10,6 +11,8 @@ const GravatarExistEmail = "beau@dentedreality.com.au"
 
 // TODO mocking Gravatar
 func Test_gravatarValidator_Validate(t *testing.T) {
+	evtests.FunctionalSkip(t)
+
 	type args struct {
 		email   evmail.Address
 		results []ValidationResult

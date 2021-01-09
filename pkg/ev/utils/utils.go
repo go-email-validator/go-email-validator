@@ -41,3 +41,7 @@ func LoadEnv(env string) {
 		log.Print("No .env file found")
 	}
 }
+
+func StructName(strct interface{}) string {
+	return reflect.ValueOf(strct).Type().String()
+}

@@ -8,6 +8,7 @@ import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp/smtp_client"
 	"github.com/go-email-validator/go-email-validator/pkg/log"
 	"github.com/sethvargo/go-password/password"
+	"github.com/sirupsen/logrus"
 	"net"
 	"net/smtp"
 )
@@ -120,21 +121,16 @@ type checker struct {
 	port        int
 }
 
-// TODO improve logging, add fields and context
 func (c checker) Validate(mxs MXs, email evmail.Address) (errs []error) {
 	var client interface{}
 	var err error
 	errs = make([]error, 0)
 	var host string
-	var e *net.OpError
 
 	for _, mx := range mxs {
 		host = fmt.Sprintf("%v:%v", mx.Host, c.port)
 		if client, err = c.dialFunc(host); err == nil {
 			break
-		}
-		if !errors.As(err, &e) {
-			log.Logger().Error(err)
 		}
 	}
 
@@ -152,9 +148,11 @@ func (c checker) Validate(mxs MXs, email evmail.Address) (errs []error) {
 		if !needClose {
 			return
 		}
-		err = c.sendMail.Close()
-		if err != nil {
-			log.Logger().Error(err)
+		if err = c.sendMail.Close(); err != nil {
+			log.Logger().WithFields(logrus.Fields{
+				"email": email.String(),
+				"mxs":   mxs,
+			}).Errorf("sendMail.Close %v", err)
 		}
 	}()
 
@@ -191,8 +189,11 @@ func (c checker) Validate(mxs MXs, email evmail.Address) (errs []error) {
 func (c checker) RandomRCPT(email evmail.Address) (errs []error) {
 	randomEmail, err := c.randomEmail(email.Domain())
 	if err != nil {
-		log.Logger().Error(NewError(RandomRCPTStage, err))
-		return append(errs, NewError(RandomRCPTStage, err))
+		randomEmailErr := NewError(RandomRCPTStage, err)
+		log.Logger().WithFields(logrus.Fields{
+			"email": email.String(),
+		}).Errorf("generate random email: %v", randomEmailErr)
+		return append(errs, randomEmailErr)
 	}
 
 	if errsRCPTs := c.sendMail.RCPTs([]string{randomEmail.String()}); len(errsRCPTs) > 0 {
@@ -235,7 +236,10 @@ func (c checkerCacheRandomRCPT) RandomRCPT(email evmail.Address) (errs []error) 
 	} else {
 		errs = c.CheckerWithRandomRCPT.RandomRCPT(email)
 		if err = c.cache.Set(key, errs); err != nil {
-			log.Logger().Error(err)
+			log.Logger().WithFields(logrus.Fields{
+				"email": email.String(),
+				"key":   key,
+			}).Errorf("cache RandomRCPT: %s", err)
 		}
 	}
 

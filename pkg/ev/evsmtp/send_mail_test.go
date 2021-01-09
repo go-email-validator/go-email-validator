@@ -65,8 +65,6 @@ func Test_sendMail_Auth(t *testing.T) {
 }
 
 func Test_sendMail_Client(t *testing.T) {
-	simpleClient := &smtp.Client{}
-
 	type fields struct {
 		client    smtp_client.SMTPClient
 		TLSConfig *tls.Config

@@ -2,7 +2,7 @@
 [![codecov](https://codecov.io/gh/go-email-validator/go-email-validator/branch/master/graph/badge.svg?token=BC864E3W3X)](https://codecov.io/gh/go-email-validator/go-email-validator)
 [![Go Report](https://goreportcard.com/badge/github.com/go-email-validator/go-email-validator)](https://goreportcard.com/report/github.com/go-email-validator/go-email-validator)
 
-## Library under development (Interfaces may change slightly)
+## Library under development (Interfaces may be changed slightly)
 
 ## Install
 
@@ -23,8 +23,8 @@ username@domain.part
 
     to use proxy connection DialFunc, need to be changed for [Checker](pkg/ev/evsmtp/smtp.go). For example by [ProxyDialer](pkg/proxifier/proxy_dialer.go)
 * [banWordsUsernameValidator](pkg/ev/validator_banwords_username.go) looks for banned words in username
-* [blackListEmailsValidator](pkg/ev/validator_blacklist_email.go) blocks emails from list
-* [blackListValidator](pkg/ev/validator_blacklist_domain.go) blocks emails with domain from black list
+* [blackListEmailsValidator](pkg/ev/validator_blacklist_email.go) blocked emails from list
+* [blackListValidator](pkg/ev/validator_blacklist_domain.go) blocked emails with domains from black list
 * [whiteListValidator](pkg/ev/validator_whitelist_domain.go) accepts only emails from white list
 * [gravatarValidator](pkg/ev/validator_gravatar.go) check existing of user on gravatar.com
 
@@ -93,12 +93,21 @@ Use function New...(...) to create structure instead of public.
 
 ## How to extend
 
-To add own validator, just realize [ev.Validator](pkg/ev/validator.go) interface. For validator without dependencies, you can use structure ev.AValidatorWithoutDeps
+To add own validator, just implement [ev.Validator](pkg/ev/validator.go) interface. For validator without dependencies, you can use structure ev.AValidatorWithoutDeps
 
-## Decorator
+## Decorators
 
-1. [WarningsDecorator](pkg/ev/decorator_warnings.go) allows moving errors to warnings and change result of `IsValid()` in [ValidationResult](pkg/ev/validator.go:29)
-1. [CacheDecorator](pkg/ev/decorator_cache.go) saves result of validator. For caching, you can implement `evcache.Interface` or use [gocache implementation](https://github.com/eko/gocache) by `evcache.NewCache`. 
+1. [WarningsDecorator](pkg/ev/decorator_warnings.go) allows moving errors to warnings and change result of `IsValid()` in [ValidationResult](pkg/ev/validator.go).
+1. Cache based on evcahce.Interface, default realization is done for gocache.
+    * [CacheDecorator](pkg/ev/decorator_cache.go) saves result of validator. For caching, you can implement `evcache.Interface` or use [gocache implementation](https://github.com/eko/gocache) by `evcache.NewCache`. 
+    * [checkerCacheRandomRCPT](pkg/ev/evsmtp/smtp.go) for caching of RandomRCPTs request.
+
+## Logger
+
+Package use [logrus](https://github.com/sirupsen/logrus).
+
+To use logging see in [log package](pkg/log).
+Default level is logrus.ErrorLevel.
 
 ## Addition
 

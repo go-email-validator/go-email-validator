@@ -161,3 +161,29 @@ func TestEmailCacheKeyGetter(t *testing.T) {
 		})
 	}
 }
+
+func TestDomainCacheKeyGetter(t *testing.T) {
+	type args struct {
+		email evmail.Address
+	}
+	tests := []struct {
+		name string
+		args args
+		want interface{}
+	}{
+		{
+			name: "success",
+			args: args{
+				email: validEmail,
+			},
+			want: validEmail.Domain(),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := DomainCacheKeyGetter(tt.args.email); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("DomainCacheKeyGetter() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

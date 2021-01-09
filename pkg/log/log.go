@@ -6,7 +6,8 @@ import "github.com/sirupsen/logrus"
 var logger logrus.FieldLogger
 
 func init() {
-	logger = logrus.StandardLogger()
+	logrus.StandardLogger().SetLevel(logrus.ErrorLevel)
+	SetLogger(logrus.StandardLogger())
 }
 
 func SetLogger(l logrus.FieldLogger) {
