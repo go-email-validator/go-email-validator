@@ -3,6 +3,7 @@ package ev
 import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
+	"github.com/vmihailenco/msgpack"
 )
 
 type ValidatorName string
@@ -72,6 +73,14 @@ func (a *AValidationResult) HasWarnings() bool {
 
 func (a *AValidationResult) ValidatorName() ValidatorName {
 	return a.name
+}
+
+func (a *AValidationResult) EncodeMsgpack(enc *msgpack.Encoder) error {
+	return enc.EncodeMulti(a.isValid, a.errors, a.warnings, a.name)
+}
+
+func (a *AValidationResult) DecodeMsgpack(dec *msgpack.Decoder) error {
+	return dec.DecodeMulti(&a.isValid, &a.errors, &a.warnings, &a.name)
 }
 
 type validationResult = AValidationResult

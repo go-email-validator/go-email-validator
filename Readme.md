@@ -102,6 +102,8 @@ To add own validator, just implement [ev.Validator](pkg/ev/validator.go) interfa
     * [CacheDecorator](pkg/ev/decorator_cache.go) saves result of validator. For caching, you can implement `evcache.Interface` or use [gocache implementation](https://github.com/eko/gocache) by `evcache.NewCache`. 
     * [checkerCacheRandomRCPT](pkg/ev/evsmtp/smtp.go) for caching of RandomRCPTs request.
 
+**Notice**, to use [msgpack](https://github.com/vmihailenco/msgpack) you should have exported fields or implement custom encoding/decoding ([doc](https://msgpack.uptrace.dev/#custom-encodingdecoding))
+
 ## Logger
 
 Package use [logrus](https://github.com/sirupsen/logrus).
@@ -129,8 +131,8 @@ For example:
 * Tests
   * Add functional tests
   * Find way to compare functions in tests
-* Add the ability to work SMTP with other ports
-* Add binary release 
+* Add binary release
+* Check in spamhaus
 * Add misspelled email
 * Add DKIM checking
 * Add linter in pre-hook and ci
