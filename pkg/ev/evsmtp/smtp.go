@@ -8,7 +8,7 @@ import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp/smtp_client"
 	"github.com/go-email-validator/go-email-validator/pkg/log"
 	"github.com/sethvargo/go-password/password"
-	"github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 	"net"
 	"net/smtp"
 )
@@ -149,10 +149,10 @@ func (c checker) Validate(mxs MXs, email evmail.Address) (errs []error) {
 			return
 		}
 		if err = c.sendMail.Close(); err != nil {
-			log.Logger().WithFields(logrus.Fields{
-				"email": email.String(),
-				"mxs":   mxs,
-			}).Errorf("sendMail.Close %v", err)
+			log.Logger().Error(fmt.Sprintf("sendMail.Close %v", err),
+				zap.String("email", email.String()),
+				zap.String("mxs", fmt.Sprint(mxs)),
+			)
 		}
 	}()
 
@@ -190,9 +190,9 @@ func (c checker) RandomRCPT(email evmail.Address) (errs []error) {
 	randomEmail, err := c.randomEmail(email.Domain())
 	if err != nil {
 		randomEmailErr := NewError(RandomRCPTStage, err)
-		log.Logger().WithFields(logrus.Fields{
-			"email": email.String(),
-		}).Errorf("generate random email: %v", randomEmailErr)
+		log.Logger().Error(fmt.Sprintf("generate random email: %v", randomEmailErr),
+			zap.String("email", email.String()),
+		)
 		return append(errs, randomEmailErr)
 	}
 
@@ -236,10 +236,10 @@ func (c checkerCacheRandomRCPT) RandomRCPT(email evmail.Address) (errs []error) 
 	} else {
 		errs = c.CheckerWithRandomRCPT.RandomRCPT(email)
 		if err = c.cache.Set(key, errs); err != nil {
-			log.Logger().WithFields(logrus.Fields{
-				"email": email.String(),
-				"key":   key,
-			}).Errorf("cache RandomRCPT: %s", err)
+			log.Logger().Error(fmt.Sprintf("cache RandomRCPT: %s", err),
+				zap.String("email", email.String()),
+				zap.String("key", fmt.Sprint(key)),
+			)
 		}
 	}
 

@@ -9,8 +9,9 @@ require (
 	github.com/golang/mock v1.4.4
 	github.com/joho/godotenv v1.3.0
 	github.com/sethvargo/go-password v0.2.0
-	github.com/sirupsen/logrus v1.7.0
 	github.com/stretchr/testify v1.6.1
+	go.uber.org/multierr v1.6.0 // indirect
+	go.uber.org/zap v1.16.0
 	golang.org/x/net v0.0.0-20201224014010-6772e930b67b
 	h12.io/socks v1.0.2
 )
