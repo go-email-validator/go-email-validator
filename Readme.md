@@ -99,7 +99,7 @@ To add own validator, just implement [ev.Validator](pkg/ev/validator.go) interfa
 
 1. [WarningsDecorator](pkg/ev/decorator_warnings.go) allows moving errors to warnings and change result of `IsValid()` in [ValidationResult](pkg/ev/validator.go).
 1. Cache based on evcahce.Interface, default realization is done for gocache.
-    * [CacheDecorator](pkg/ev/decorator_cache.go) saves result of validator. For caching, you can implement `evcache.Interface` or use [gocache implementation](https://github.com/eko/gocache) by `evcache.NewCache`. 
+    * [CacheDecorator](pkg/ev/decorator_cache.go) saves result of validator. For caching, you can implement `evcache.Interface` or use [gocache implementation](https://github.com/eko/gocache) by `evcache.NewCache`. See [Test_Cache](pkg/ev/decorator_cache_test.go) as example.
     * [checkerCacheRandomRCPT](pkg/ev/evsmtp/smtp.go) for caching of RandomRCPTs request. See Test_checkerCacheRandomRCPT_RandomRCPT_RealCache as example.
 
 **Notice**, to use [msgpack](https://github.com/vmihailenco/msgpack) you should have exported fields or implement custom encoding/decoding ([doc](https://msgpack.uptrace.dev/#custom-encodingdecoding))

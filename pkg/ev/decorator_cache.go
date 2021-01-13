@@ -46,7 +46,7 @@ func (c *cacheDecorator) Validate(email evmail.Address, results ...ValidationRes
 	key := c.getKey(email, results...)
 	resultInterface, err := c.cache.Get(key)
 	if err == nil && resultInterface != nil {
-		result = resultInterface.(ValidationResult)
+		result = *resultInterface.(*ValidationResult)
 	} else {
 		result = c.validator.Validate(email, results...)
 		if err := c.cache.Set(key, result); err != nil {

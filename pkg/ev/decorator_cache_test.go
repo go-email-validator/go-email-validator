@@ -107,7 +107,6 @@ func Test_cacheDecorator_Validate(t *testing.T) {
 }
 
 func Test_cacheDecorator_GetDeps(t *testing.T) {
-
 	deps := []ValidatorName{OtherValidator}
 
 	type fields struct {
