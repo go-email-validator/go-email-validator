@@ -13,13 +13,13 @@ type ValidatorMap map[ValidatorName]Validator
 
 // NewDepsError creates DepsError
 func NewDepsError() error {
-	return DepsError{}
+	return &DepsError{}
 }
 
 // DepsError is DepValidatorName error
 type DepsError struct{}
 
-func (DepsError) Error() string {
+func (*DepsError) Error() string {
 	return "DepsError"
 }
 
