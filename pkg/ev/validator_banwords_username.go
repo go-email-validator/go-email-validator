@@ -8,8 +8,10 @@ import (
 
 const BanWordsUsernameValidatorName ValidatorName = "BanWordsUsername"
 
-type BanWordsUsernameError struct {
-	utils.Err
+type BanWordsUsernameError struct{}
+
+func (BanWordsUsernameError) Error() string {
+	return "BanWordsUsernameError"
 }
 
 func NewBanWordsUsername(inStrings contains.InStrings) Validator {

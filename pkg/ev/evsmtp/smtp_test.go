@@ -8,12 +8,12 @@ import (
 	"github.com/eko/gocache/store"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evcache"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
-	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp/smtp_client"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp/smtpclient"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evtests"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 	"github.com/go-email-validator/go-email-validator/pkg/proxifier"
-	mock_evcache "github.com/go-email-validator/go-email-validator/test/mock/ev/evcache"
-	mock_evmail "github.com/go-email-validator/go-email-validator/test/mock/ev/evmail"
+	mockevcache "github.com/go-email-validator/go-email-validator/test/mock/ev/evcache"
+	mockevmail "github.com/go-email-validator/go-email-validator/test/mock/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/test/mock/ev/evsmtp"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
@@ -34,15 +34,15 @@ func TestMain(m *testing.M) {
 	evtests.TestMain(m)
 }
 
-func dialFunc(client smtp_client.SMTPClient, err error) DialFunc {
-	return func(addr string) (smtp_client.SMTPClient, error) {
+func dialFunc(client smtpclient.SMTPClient, err error) DialFunc {
+	return func(addr string) (smtpclient.SMTPClient, error) {
 		return client, err
 	}
 }
 
 var (
-	simpleError    = errors.New("simpleError")
-	randomError    = errors.New("randomError")
+	errorSimple    = errors.New("errorSimple")
+	errorRandom    = errors.New("errorRandom")
 	mxs            = MXs{&net.MX{Host: "127.0.0.1"}}
 	localName      = "localName"
 	emptyLocalName = ""
@@ -52,7 +52,7 @@ var (
 	emailToStr     = "email@to.com"
 	emailTo        = evmail.FromString(emailToStr)
 	randomAddress  = getRandomAddress(emailTo)
-	validEmail     = mock_evmail.GetValidTestEmail()
+	validEmail     = mockevmail.GetValidTestEmail()
 	getMockKey     = func(t *testing.T, wantEmail evmail.Address, ret interface{}) func(email evmail.Address) interface{} {
 		return func(email evmail.Address) interface{} {
 			require.Equal(t, wantEmail, email)
@@ -85,7 +85,7 @@ func getSMTPProxy(dialerFunc proxifier.ProxyDialerFunc, proxies ...string) proxi
 	return proxifier.NewSMTPDialer(proxifier.NewProxyDialer(proxyList, dialerFunc), "")
 }
 
-func getLocalIP() string {
+func localIP() string {
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
 		return ""
@@ -131,14 +131,14 @@ func Test_checker_Validate(t *testing.T) {
 		{
 			name: "cannot connection to mx",
 			fields: fields{
-				dialFunc: dialFunc(nil, simpleError),
+				dialFunc: dialFunc(nil, errorSimple),
 			},
 			args: args{
 				mx: mxs,
 			},
 			wantErrs: utils.Errs(
 				NewError(ConnectionStage,
-					simpleError,
+					errorSimple,
 				),
 			),
 		},
@@ -148,7 +148,7 @@ func Test_checker_Validate(t *testing.T) {
 				dialFunc: dialFunc(simpleClient, nil),
 				sendMail: &mockSendMail{
 					t:    t,
-					want: failWant(&sendMailWant{stage: smHello, message: smHello + localName, ret: simpleError}, true),
+					want: failWant(&sendMailWant{stage: smHello, message: smHello + localName, ret: errorSimple}, true),
 				},
 				localName: localName,
 			},
@@ -156,7 +156,7 @@ func Test_checker_Validate(t *testing.T) {
 				mx: mxs,
 			},
 			wantErrs: utils.Errs(
-				NewError(HelloStage, simpleError),
+				NewError(HelloStage, errorSimple),
 			),
 		},
 		{
@@ -168,7 +168,7 @@ func Test_checker_Validate(t *testing.T) {
 					want: failWant(&sendMailWant{
 						stage:   smAuth,
 						message: smAuth,
-						ret:     []interface{}{nil, simpleError},
+						ret:     []interface{}{nil, errorSimple},
 					}, true),
 				},
 			},
@@ -176,7 +176,7 @@ func Test_checker_Validate(t *testing.T) {
 				mx: mxs,
 			},
 			wantErrs: utils.Errs(
-				NewError(AuthStage, simpleError),
+				NewError(AuthStage, errorSimple),
 			),
 		},
 		{
@@ -188,7 +188,7 @@ func Test_checker_Validate(t *testing.T) {
 					want: failWant(&sendMailWant{
 						stage:   smMail,
 						message: smMail + emailFrom.String(),
-						ret:     simpleError,
+						ret:     errorSimple,
 					}, true),
 				},
 				fromEmail: emailFrom,
@@ -197,7 +197,7 @@ func Test_checker_Validate(t *testing.T) {
 				mx: mxs,
 			},
 			wantErrs: utils.Errs(
-				NewError(MailStage, simpleError),
+				NewError(MailStage, errorSimple),
 			),
 		},
 		{
@@ -214,22 +214,22 @@ func Test_checker_Validate(t *testing.T) {
 						sendMailWant{
 							stage:   smRCPTs,
 							message: smRCPTs + emailTo.String(),
-							ret:     simpleError,
+							ret:     errorSimple,
 						},
 						quitStageWant,
 						closeStageWant,
 					),
 				},
 				fromEmail:   emailFrom,
-				randomEmail: mockRandomEmail(t, randomAddress, randomError),
+				randomEmail: mockRandomEmail(t, randomAddress, errorRandom),
 			},
 			args: args{
 				mx:    mxs,
 				email: emailTo,
 			},
 			wantErrs: utils.Errs(
-				NewError(RandomRCPTStage, randomError),
-				NewError(RCPTsStage, simpleError),
+				NewError(RandomRCPTStage, errorRandom),
+				NewError(RCPTsStage, errorSimple),
 			),
 		},
 		{
@@ -241,12 +241,12 @@ func Test_checker_Validate(t *testing.T) {
 					want: append(failWant(&sendMailWant{
 						stage:   smRCPTs,
 						message: smRCPTs + randomAddress.String(),
-						ret:     simpleError,
+						ret:     errorSimple,
 					}, false),
 						sendMailWant{
 							stage:   smRCPTs,
 							message: smRCPTs + emailTo.String(),
-							ret:     simpleError,
+							ret:     errorSimple,
 						},
 						quitStageWant,
 						closeStageWant,
@@ -260,8 +260,8 @@ func Test_checker_Validate(t *testing.T) {
 				email: emailTo,
 			},
 			wantErrs: utils.Errs(
-				NewError(RandomRCPTStage, simpleError),
-				NewError(RCPTsStage, simpleError),
+				NewError(RandomRCPTStage, errorSimple),
+				NewError(RCPTsStage, errorSimple),
 			),
 		},
 		{
@@ -273,7 +273,7 @@ func Test_checker_Validate(t *testing.T) {
 					want: failWant(&sendMailWant{
 						stage:   smQuit,
 						message: smQuit,
-						ret:     simpleError,
+						ret:     errorSimple,
 					}, true),
 				},
 				fromEmail:   emailFrom,
@@ -284,7 +284,7 @@ func Test_checker_Validate(t *testing.T) {
 				email: emailTo,
 			},
 			wantErrs: utils.Errs(
-				NewError(QuitStage, simpleError),
+				NewError(QuitStage, errorSimple),
 			),
 		},
 		{
@@ -351,7 +351,7 @@ func TestChecker_Validate_WithProxy_Local(t *testing.T) {
 		return
 	}
 
-	localIp := getLocalIP()
+	lIP := localIP()
 
 	invalidProxies := []string{
 		"socks5://0.0.0.0:0", //invalid
@@ -421,7 +421,7 @@ func TestChecker_Validate_WithProxy_Local(t *testing.T) {
 			},
 			args: args{
 				mxs: MXs{&net.MX{
-					Host: localIp,
+					Host: lIP,
 				}},
 				email: emailTest,
 			},
@@ -451,7 +451,7 @@ func TestChecker_Validate_WithProxy_Local(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			addr, done := mock_evsmtp.Server(t, tt.fields.Server, time.Second)
+			addr, done := mockevsmtp.Server(t, tt.fields.Server, time.Second)
 
 			if tt.fields.Port == 0 {
 				u, _ := url.Parse("http://" + addr)
@@ -472,7 +472,7 @@ func TestChecker_Validate_WithProxy_Local(t *testing.T) {
 			gotErrs := c.Validate(tt.args.mxs, tt.args.email)
 			actualClient := <-done
 
-			wantSMTP := strings.Join(tt.wantSMTP, mock_evsmtp.Separator)
+			wantSMTP := strings.Join(tt.wantSMTP, mockevsmtp.Separator)
 			if wantSMTP != actualClient {
 				t.Errorf("Got:\n%s\nExpected:\n%s", actualClient, wantSMTP)
 			}
@@ -497,8 +497,8 @@ func Test_checkerCacheRandomRCPT_RandomRCPT(t *testing.T) {
 		email evmail.Address
 	}
 
-	errs := []error{simpleError}
-	errsAlias := []AliasError{simpleError}
+	errs := []error{errorSimple}
+	errsAlias := []AliasError{errorSimple}
 	emptyChecker := func() CheckerWithRandomRCPT {
 		mock := NewMockCheckerWithRandomRCPT(ctrl)
 		mock.EXPECT().get().Return(nil).Times(1)
@@ -518,7 +518,7 @@ func Test_checkerCacheRandomRCPT_RandomRCPT(t *testing.T) {
 			fields: fields{
 				checkerWithRandomRPCT: emptyChecker,
 				cache: func() evcache.Interface {
-					mock := mock_evcache.NewMockInterface(ctrl)
+					mock := mockevcache.NewMockInterface(ctrl)
 					mock.EXPECT().Get(validEmail.Domain()).Return(&errs, nil).Times(1)
 
 					return mock
@@ -542,7 +542,7 @@ func Test_checkerCacheRandomRCPT_RandomRCPT(t *testing.T) {
 					return mock
 				},
 				cache: func() evcache.Interface {
-					mock := mock_evcache.NewMockInterface(ctrl)
+					mock := mockevcache.NewMockInterface(ctrl)
 					mock.EXPECT().Get(validEmail.Domain()).Return(nil, nil).Times(1)
 					mock.EXPECT().Set(validEmail.Domain(), errsAlias).Return(nil).Times(1)
 
@@ -578,9 +578,9 @@ func TestDefaultRandomCacheKeyGetter(t *testing.T) {
 		{
 			name: "success",
 			args: args{
-				email: mock_evmail.GetValidTestEmail(),
+				email: mockevmail.GetValidTestEmail(),
 			},
-			want: mock_evmail.GetValidTestEmail().Domain(),
+			want: mockevmail.GetValidTestEmail().Domain(),
 		},
 	}
 	for _, tt := range tests {
@@ -664,7 +664,7 @@ func Test_Cache(t *testing.T) {
 
 	key := "key"
 
-	err = cache.Set(key, ConvertErrorsToEVSMTPErrors(cacheErrs))
+	err = cache.Set(key, ErrorsToEVSMTPErrors(cacheErrs))
 	require.Nil(t, err)
 
 	got, err := cache.Get(key)
@@ -709,7 +709,7 @@ func Test_checkerCacheRandomRCPT_RandomRCPT_RealCache(t *testing.T) {
 
 					// Add value to cache
 					key := DefaultRandomCacheKeyGetter(validEmail)
-					err = marshal.Set(key, ConvertErrorsToEVSMTPErrors(cacheErrs), nil)
+					err = marshal.Set(key, ErrorsToEVSMTPErrors(cacheErrs), nil)
 					require.Nil(t, err)
 
 					return evcache.NewCacheMarshaller(marshal, func() interface{} {

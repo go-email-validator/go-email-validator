@@ -8,6 +8,7 @@ import (
 	"net/url"
 )
 
+// Constants to form errors
 const (
 	PrefixError      = "proxifier: "
 	InvalidAddr      = PrefixError + "addr %v: %w"
@@ -15,14 +16,19 @@ const (
 	EmptyAddress     = ""
 )
 
-var ErrEmptyPool = errors.New(PrefixError + "proxy pool is empty")
-var ErrNotEnough = errors.New(PrefixError + "proxy pool should be more or equal of ListDTO.MinUsing")
+// Errors of List
+var (
+	ErrEmptyPool = errors.New(PrefixError + "proxy pool is empty")
+	ErrNotEnough = errors.New(PrefixError + "proxy pool should be more or equal of ListDTO.MinUsing")
+)
 
+// List is list of proxies
 type List interface {
 	GetAddress() (string, error)
 	Ban(string) bool
 }
 
+// ListDTO is used to create List interface
 type ListDTO struct {
 	Addresses           []string
 	BulkPool            int
@@ -31,6 +37,7 @@ type ListDTO struct {
 	RequestNewAddresses func() []*Address
 }
 
+// NewListFromStrings is constructor for realization of List
 func NewListFromStrings(dto ListDTO) (lst List, errs []error) {
 	addrs, errs := getAddressesFromString(dto.Addresses)
 
@@ -87,7 +94,8 @@ func newMap() MapAddress {
 	return linkedhashmap.New()
 }
 
-type MapAddress maps.Map // linkedhashmap.Map
+// MapAddress is alias of linkedhashmap.Map
+type MapAddress maps.Map
 
 // TODO add strategy struct for changing behavior
 type list struct {

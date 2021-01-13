@@ -215,7 +215,7 @@ func TestNewListFromStrings(t *testing.T) {
 				using:     newMap(),
 				banned:    newMap(),
 			},
-			wantErrs: append(getAddrErrs([]string{addressInvalid, addressInvalid, addressFirstWithPort})),
+			wantErrs: getAddrErrs([]string{addressInvalid, addressInvalid, addressFirstWithPort}),
 		},
 		{
 			name: "with Error",

@@ -4,7 +4,7 @@ import (
 	"github.com/emirpasic/gods/sets/hashset"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp"
-	mock_evmail "github.com/go-email-validator/go-email-validator/test/mock/ev/evmail"
+	mockevmail "github.com/go-email-validator/go-email-validator/test/mock/ev/evmail"
 	"github.com/stretchr/testify/require"
 	"testing"
 )
@@ -18,7 +18,7 @@ func newSMTPValidator() Validator {
 	}))
 }
 
-func getSmtpValidator_Validate() Validator {
+func getSMTPValidatorValidate() Validator {
 	return NewDepValidator(
 		map[ValidatorName]Validator{
 			SyntaxValidatorName: NewSyntaxValidator(),
@@ -36,8 +36,8 @@ func getSmtpValidator_Validate() Validator {
 }
 
 func BenchmarkSMTPValidator_Validate(b *testing.B) {
-	email := evmail.FromString(mock_evmail.ValidEmailString)
-	validator := getSmtpValidator_Validate()
+	email := evmail.FromString(mockevmail.ValidEmailString)
+	validator := getSMTPValidatorValidate()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -46,8 +46,8 @@ func BenchmarkSMTPValidator_Validate(b *testing.B) {
 }
 
 func TestSMTPValidator_Validate_WithoutMock(t *testing.T) {
-	email := evmail.FromString(mock_evmail.ValidEmailString)
-	validator := getSmtpValidator_Validate()
+	email := evmail.FromString(mockevmail.ValidEmailString)
+	validator := getSMTPValidatorValidate()
 
 	v := validator.Validate(email)
 	require.True(t, v.IsValid())

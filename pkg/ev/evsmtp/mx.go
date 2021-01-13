@@ -4,8 +4,10 @@ import (
 	"net"
 )
 
-type FuncLookupMX func(domain string) ([]*net.MX, error)
+// FuncLookupMX returns MXs
+type FuncLookupMX func(domain string) (MXs, error)
 
-func LookupMX(domain string) ([]*net.MX, error) {
+// LookupMX is default realization for looking net.MX
+func LookupMX(domain string) (MXs, error) {
 	return net.LookupMX(domain)
 }

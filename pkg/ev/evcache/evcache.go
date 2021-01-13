@@ -5,13 +5,13 @@ import (
 	"github.com/eko/gocache/store"
 )
 
-// Cache interface
+// Interface is Cache interface
 type Interface interface {
 	Get(key interface{}) (interface{}, error)
 	Set(key, object interface{}) error
 }
 
-// Generate adapter for cache.CacheInterface
+// NewCache instantiates adapter for cache.CacheInterface
 func NewCache(cache cache.CacheInterface, option *store.Options) Interface {
 	return &gocacheAdapter{
 		cache:  cache,
@@ -32,6 +32,7 @@ func (c *gocacheAdapter) Set(key, object interface{}) error {
 	return c.cache.Set(key, object, c.option)
 }
 
+// Marshaler is interface for marshaler.Marshaler
 type Marshaler interface {
 	Get(key interface{}, returnObj interface{}) (interface{}, error)
 	Set(key, object interface{}, options *store.Options) error
@@ -40,9 +41,10 @@ type Marshaler interface {
 	Clear() error
 }
 
+// MarshallerReturnObj generates returned object to fill by marshaler.Marshaler
 type MarshallerReturnObj func() interface{}
 
-// Generate adapter for marshaler.Marshaler
+// NewCacheMarshaller generates adapter for marshaler.Marshaler
 func NewCacheMarshaller(marshaller Marshaler, returnObj MarshallerReturnObj, option *store.Options) Interface {
 	return &gocacheMarshallerAdapter{
 		marshaller: marshaller,

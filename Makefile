@@ -25,10 +25,12 @@ go.mocks.isntall:
 	go get github.com/golang/mock/mockgen
 
 go.mocks.gen:
-	mockgen -source=pkg/ev/evcache/evcache.go -destination=test/mock/ev/evcache/evcache.go
-	mockgen -source=pkg/ev/evsmtp/smtp_client/interface.go -destination=test/mock/ev/evsmtp/smtp_client/interface.go
+	mockgen -source=pkg/ev/evcache/evcache.go -destination=test/mock/ev/evcache/evcache.go --package=mockevcache
+	mockgen -source=pkg/ev/evsmtp/smtp_client/interface.go -destination=test/mock/ev/evsmtp/smtp_client/interface.go --package=mocksmtpclient
 	mockgen -source=pkg/ev/evsmtp/smtp.go -destination=pkg/ev/evsmtp/mock_smtp.go --package=evsmtp # https://github.com/golang/mock/issues/352
 
+go.link:
+	golint ./...
 
 GO_COVER=go tool cover -func=$(COVERAGE_FILE)
 go.cover:

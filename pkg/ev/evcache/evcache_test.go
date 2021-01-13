@@ -6,7 +6,7 @@ import (
 	"github.com/eko/gocache/store"
 	mocks "github.com/eko/gocache/test/mocks/cache"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evtests"
-	mock_evcache "github.com/go-email-validator/go-email-validator/test/mock/ev/evcache"
+	mockevcache "github.com/go-email-validator/go-email-validator/test/mock/ev/evcache"
 	"github.com/golang/mock/gomock"
 	"reflect"
 	"testing"
@@ -16,7 +16,7 @@ const key = "key"
 
 var (
 	simpleValue  = map[int]string{0: "123"}
-	simpleError  = errors.New("simpleError")
+	errorSimple  = errors.New("errorSimple")
 	emptyOptions = &store.Options{}
 )
 
@@ -62,7 +62,7 @@ func Test_gocacheAdapter_Get(t *testing.T) {
 			fields: fields{
 				cache: func() cache.CacheInterface {
 					cacheMock := mocks.NewMockCacheInterface(ctrl)
-					cacheMock.EXPECT().Get(key).Return(nil, simpleError).Times(1)
+					cacheMock.EXPECT().Get(key).Return(nil, errorSimple).Times(1)
 
 					return cacheMock
 				},
@@ -129,7 +129,7 @@ func Test_gocacheAdapter_Set(t *testing.T) {
 			fields: fields{
 				cache: func() cache.CacheInterface {
 					cacheMock := mocks.NewMockCacheInterface(ctrl)
-					cacheMock.EXPECT().Set(key, simpleValue, emptyOptions).Return(simpleError).Times(1)
+					cacheMock.EXPECT().Set(key, simpleValue, emptyOptions).Return(errorSimple).Times(1)
 
 					return cacheMock
 				},
@@ -153,7 +153,7 @@ func Test_gocacheAdapter_Set(t *testing.T) {
 }
 
 var returnObj = func() interface{} {
-	return make(map[int]string, 0)
+	return make(map[int]string)
 }
 
 func Test_gocacheMarshallerAdapter_Get(t *testing.T) {
@@ -179,7 +179,7 @@ func Test_gocacheMarshallerAdapter_Get(t *testing.T) {
 			name: "success get",
 			fields: fields{
 				marshaller: func() Marshaler {
-					cacheMock := mock_evcache.NewMockMarshaler(ctrl)
+					cacheMock := mockevcache.NewMockMarshaler(ctrl)
 					cacheMock.EXPECT().Get(key, returnObj()).Return(simpleValue, nil).Times(1)
 
 					return cacheMock
@@ -196,8 +196,8 @@ func Test_gocacheMarshallerAdapter_Get(t *testing.T) {
 			name: "error get",
 			fields: fields{
 				marshaller: func() Marshaler {
-					cacheMock := mock_evcache.NewMockMarshaler(ctrl)
-					cacheMock.EXPECT().Get(key, returnObj()).Return(nil, simpleError).Times(1)
+					cacheMock := mockevcache.NewMockMarshaler(ctrl)
+					cacheMock.EXPECT().Get(key, returnObj()).Return(nil, errorSimple).Times(1)
 
 					return cacheMock
 				},
@@ -248,7 +248,7 @@ func Test_gocacheMarshallerAdapter_Set(t *testing.T) {
 			name: "success",
 			fields: fields{
 				marshaller: func() Marshaler {
-					cacheMock := mock_evcache.NewMockMarshaler(ctrl)
+					cacheMock := mockevcache.NewMockMarshaler(ctrl)
 					cacheMock.EXPECT().Set(key, simpleValue, emptyOptions).Return(nil).Times(1)
 
 					return cacheMock
@@ -265,8 +265,8 @@ func Test_gocacheMarshallerAdapter_Set(t *testing.T) {
 			name: "error",
 			fields: fields{
 				marshaller: func() Marshaler {
-					cacheMock := mock_evcache.NewMockMarshaler(ctrl)
-					cacheMock.EXPECT().Set(key, simpleValue, emptyOptions).Return(simpleError).Times(1)
+					cacheMock := mockevcache.NewMockMarshaler(ctrl)
+					cacheMock.EXPECT().Set(key, simpleValue, emptyOptions).Return(errorSimple).Times(1)
 
 					return cacheMock
 				},

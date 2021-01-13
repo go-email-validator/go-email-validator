@@ -6,10 +6,12 @@ import (
 	"strings"
 )
 
+// WillWhiteFree returns the list of free domains
 func WillWhiteFree() []string {
 	return willWhiteFree
 }
 
+// NewWillWhiteSetFree forms contains.InSet from list of free domains (https://github.com/willwhite/freemail/blob/master/data/free.txt)
 func NewWillWhiteSetFree() contains.InSet {
 	WillWhiteFree := WillWhiteFree()
 	freeEmails := make([]interface{}, len(WillWhiteFree))

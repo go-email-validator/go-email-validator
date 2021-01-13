@@ -6,12 +6,17 @@ import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 )
 
+// WhiteListDomainValidatorName name of whiteListValidator
 const WhiteListDomainValidatorName ValidatorName = "WhiteListDomain"
 
-type WhiteListError struct {
-	utils.Err
+// WhiteListError is error for WhiteListDomainValidatorName
+type WhiteListError struct{}
+
+func (WhiteListError) Error() string {
+	return "WhiteListError"
 }
 
+// NewWhiteListValidator instantiates WhiteListDomainValidatorName
 func NewWhiteListValidator(d contains.InSet) Validator {
 	return whiteListValidator{d: d}
 }

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evcache"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
-	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp/smtp_client"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp/smtpclient"
 	"github.com/go-email-validator/go-email-validator/pkg/log"
 	"github.com/sethvargo/go-password/password"
 	"go.uber.org/zap"
@@ -13,6 +13,7 @@ import (
 	"net/smtp"
 )
 
+// Configuration constants
 const (
 	ErrPrefix        = "evsmtp: "
 	ErrConnectionMsg = ErrPrefix + "connection was not created \n %w"
@@ -21,40 +22,47 @@ const (
 	DefaultLocalName = "localhost"
 )
 
+// MXs is short alias for []*net.MX
 type MXs = []*net.MX
 
+// Constants of stages
 const (
 	RandomRCPTStage = CloseStage + 1
 	ConnectionStage = RandomRCPTStage + 1
 )
 
 var (
-	ErrConnection    = NewError(ClientStage, errors.New(ErrConnectionMsg))
+	// ErrConnection is error of connection
+	ErrConnection = NewError(ClientStage, errors.New(ErrConnectionMsg))
+	// DefaultFromEmail is address, used as default From email
 	DefaultFromEmail = evmail.FromString(DefaultEmail)
 )
 
-// Create SMTPClient
-type DialFunc func(addr string) (smtp_client.SMTPClient, error)
+// DialFunc is function type to create smtpclient.SMTPClient
+type DialFunc func(addr string) (smtpclient.SMTPClient, error)
 
-// Default SMTPClient, smtp.Client
-func Dial(addr string) (smtp_client.SMTPClient, error) {
+// Dial generates smtpclient.SMTPClient (smtp.Client)
+func Dial(addr string) (smtpclient.SMTPClient, error) {
 	client, err := smtp.Dial(addr)
 	return client, err
 }
 
+// RandomRCPTFunc is function for checking of Catching All
 type RandomRCPTFunc func(email evmail.Address) (errs []error)
 
-// Need to mplementation of is-a relation (inheritance)
+// RandomRCPT Need to realize of is-a relation (inheritance)
 type RandomRCPT interface {
 	Call(email evmail.Address) []error
 	set(fn RandomRCPTFunc)
 	get() RandomRCPTFunc
 }
 
+// ARandomRCPT is abstract realization of RandomRCPT
 type ARandomRCPT struct {
 	fn RandomRCPTFunc
 }
 
+// Call is calling of RandomRCPTFunc
 func (a *ARandomRCPT) Call(email evmail.Address) []error {
 	return a.fn(email)
 }
@@ -67,16 +75,18 @@ func (a *ARandomRCPT) get() RandomRCPTFunc {
 	return a.fn
 }
 
+// Checker is SMTP validation
 type Checker interface {
 	Validate(mxs MXs, email evmail.Address) []error
 }
 
+// CheckerWithRandomRCPT is used for caching of RandomRCPT
 type CheckerWithRandomRCPT interface {
 	Checker
 	RandomRCPT
 }
 
-// Generate random email for checking of Catching All emails by RCPTs
+// RandomEmail is function type to generate random email for checking of Catching All emails by RCPTs
 type RandomEmail func(domain string) (evmail.Address, error)
 
 func randomEmail(domain string) (evmail.Address, error) {
@@ -87,6 +97,7 @@ func randomEmail(domain string) (evmail.Address, error) {
 	return evmail.NewEmailAddress(username, domain), err
 }
 
+// CheckerDTO is DTO for NewChecker
 type CheckerDTO struct {
 	DialFunc    DialFunc
 	SendMail    SendMail
@@ -96,6 +107,7 @@ type CheckerDTO struct {
 	Port        int
 }
 
+// NewChecker instantiates Checker
 func NewChecker(dto CheckerDTO) Checker {
 	if dto.DialFunc == nil {
 		dto.DialFunc = Dial
@@ -232,13 +244,15 @@ func (c checker) randomRCPT(email evmail.Address) (errs []error) {
 	return
 }
 
+// RandomCacheKeyGetter is type of function to get cache key
 type RandomCacheKeyGetter func(email evmail.Address) interface{}
 
+// DefaultRandomCacheKeyGetter generates of cache key for RandomRCPT
 func DefaultRandomCacheKeyGetter(email evmail.Address) interface{} {
 	return email.Domain()
 }
 
-// Create Checker with caching of RandomRCPT calling
+// NewCheckerCacheRandomRCPT creates Checker with caching of RandomRCPT calling
 func NewCheckerCacheRandomRCPT(checker CheckerWithRandomRCPT, cache evcache.Interface, getKey RandomCacheKeyGetter) Checker {
 	if getKey == nil {
 		getKey = DefaultRandomCacheKeyGetter
@@ -270,7 +284,7 @@ func (c checkerCacheRandomRCPT) RandomRCPT(email evmail.Address) (errs []error) 
 		errs = *resultInterface.(*[]error)
 	} else {
 		errs = c.randomRCPT.Call(email)
-		if err = c.cache.Set(key, ConvertErrorsToEVSMTPErrors(errs)); err != nil {
+		if err = c.cache.Set(key, ErrorsToEVSMTPErrors(errs)); err != nil {
 			log.Logger().Error(fmt.Sprintf("cache RandomRCPT: %s", err),
 				zap.String("email", email.String()),
 				zap.String("key", fmt.Sprint(key)),

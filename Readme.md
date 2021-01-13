@@ -106,10 +106,10 @@ To add own validator, just implement [ev.Validator](pkg/ev/validator.go) interfa
 
 ## Logger
 
-Package use [logrus](https://github.com/sirupsen/logrus).
+Package use [zap](https://github.com/uber-go/zap).
 
 To use logging see in [log package](pkg/log).
-Default level is logrus.ErrorLevel.
+Default level is zap.ErrorLevel.
 
 ## Addition
 

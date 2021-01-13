@@ -3,13 +3,15 @@ package evsmtp
 import (
 	"crypto/tls"
 	"errors"
-	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp/smtp_client"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp/smtpclient"
 	"io"
 	"net/smtp"
 )
 
+// SendMailStage is stage type of SendMail
 type SendMailStage uint8
 
+// Constants of stages
 const (
 	ClientStage SendMailStage = iota + 1
 	HelloStage
@@ -22,6 +24,7 @@ const (
 	CloseStage
 )
 
+// SendMail is interface of custom realization as smtp.SendMail
 type SendMail interface {
 	SetClient(interface{})
 	Client() interface{}
@@ -37,6 +40,7 @@ type SendMail interface {
 
 var testHookStartTLS func(*tls.Config)
 
+// NewSendMail instantiates SendMail
 func NewSendMail(tlsConfig *tls.Config) SendMail {
 	return &sendMail{
 		tlsConfig: tlsConfig,
@@ -44,12 +48,12 @@ func NewSendMail(tlsConfig *tls.Config) SendMail {
 }
 
 type sendMail struct {
-	client    smtp_client.SMTPClient
+	client    smtpclient.SMTPClient
 	tlsConfig *tls.Config
 }
 
 func (s *sendMail) SetClient(client interface{}) {
-	s.client = client.(smtp_client.SMTPClient)
+	s.client = client.(smtpclient.SMTPClient)
 }
 
 func (s *sendMail) Client() interface{} {

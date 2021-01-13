@@ -5,8 +5,10 @@ import (
 	"strings"
 )
 
+// EnvName is environment name to store list of proxy addresses
 const EnvName = "PROXIES"
 
+// EnvProxies returns list of url for Address from .env file
 func EnvProxies() []string {
 	str, exists := os.LookupEnv(EnvName)
 

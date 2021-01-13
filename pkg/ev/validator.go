@@ -8,7 +8,8 @@ import (
 )
 
 func init() {
-	msgpack.RegisterExt(10, new(AValidationResult))
+	msgpack.RegisterExt(10, new(DepsError))
+	msgpack.RegisterExt(11, new(AValidationResult))
 }
 
 type ValidatorName string
@@ -84,8 +85,8 @@ func (a *AValidationResult) ValidatorName() ValidatorName {
 func (a *AValidationResult) EncodeMsgpack(enc *msgpack.Encoder) error {
 	return enc.EncodeMulti(
 		a.isValid,
-		evsmtp.ConvertErrorsToEVSMTPErrors(a.errors),
-		evsmtp.ConvertErrorsToEVSMTPErrors(a.warnings),
+		evsmtp.ErrorsToEVSMTPErrors(a.errors),
+		evsmtp.ErrorsToEVSMTPErrors(a.warnings),
 		a.name,
 	)
 }

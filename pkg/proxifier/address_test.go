@@ -15,7 +15,7 @@ var (
 	addressSecond        = "addressSecond"
 	addressThird         = "addressThird"
 	addressInvalid       = "@@@@%%...sdfd"
-	simpleError          = errors.New("simpleError")
+	errorSimple          = errors.New("errorSimple")
 )
 
 func getTestAddrsStr() []string {

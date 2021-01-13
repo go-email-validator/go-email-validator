@@ -2,11 +2,10 @@ package evsmtp
 
 import (
 	"crypto/tls"
-	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp/smtp_client"
-	mock_smtp_client "github.com/go-email-validator/go-email-validator/test/mock/ev/evsmtp/smtp_client"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp/smtpclient"
+	mocksmtpclient "github.com/go-email-validator/go-email-validator/test/mock/ev/evsmtp/smtp_client"
 	"github.com/golang/mock/gomock"
 	"io"
-	"net/smtp"
 	"reflect"
 	"testing"
 )
@@ -35,38 +34,9 @@ func TestNewSendMail(t *testing.T) {
 	}
 }
 
-func Test_sendMail_Auth(t *testing.T) {
-	type fields struct {
-		client    smtp_client.SMTPClient
-		TLSConfig *tls.Config
-	}
-	type args struct {
-		a smtp.Auth
-	}
-	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			s := &sendMail{
-				client:    tt.fields.client,
-				tlsConfig: tt.fields.TLSConfig,
-			}
-			if err := s.Auth(tt.args.a); (err != nil) != tt.wantErr {
-				t.Errorf("Auth() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}
-
 func Test_sendMail_Client(t *testing.T) {
 	type fields struct {
-		client    smtp_client.SMTPClient
+		client    smtpclient.SMTPClient
 		TLSConfig *tls.Config
 	}
 	tests := []struct {
@@ -107,7 +77,7 @@ func Test_sendMail_Close(t *testing.T) {
 	defer ctrl.Finish()
 
 	type fields struct {
-		client    func() smtp_client.SMTPClient
+		client    func() smtpclient.SMTPClient
 		TLSConfig *tls.Config
 	}
 	tests := []struct {
@@ -118,8 +88,8 @@ func Test_sendMail_Close(t *testing.T) {
 		{
 			name: "success",
 			fields: fields{
-				client: func() smtp_client.SMTPClient {
-					smtpMock := mock_smtp_client.NewMockSMTPClient(ctrl)
+				client: func() smtpclient.SMTPClient {
+					smtpMock := mocksmtpclient.NewMockSMTPClient(ctrl)
 					smtpMock.EXPECT().Close().Return(nil).Times(1)
 
 					return smtpMock
@@ -130,14 +100,14 @@ func Test_sendMail_Close(t *testing.T) {
 		{
 			name: "with error",
 			fields: fields{
-				client: func() smtp_client.SMTPClient {
-					smtpMock := mock_smtp_client.NewMockSMTPClient(ctrl)
-					smtpMock.EXPECT().Close().Return(simpleError).Times(1)
+				client: func() smtpclient.SMTPClient {
+					smtpMock := mocksmtpclient.NewMockSMTPClient(ctrl)
+					smtpMock.EXPECT().Close().Return(errorSimple).Times(1)
 
 					return smtpMock
 				},
 			},
-			want: simpleError,
+			want: errorSimple,
 		},
 	}
 	for _, tt := range tests {
@@ -158,7 +128,7 @@ func Test_sendMail_Data(t *testing.T) {
 	defer ctrl.Finish()
 
 	type fields struct {
-		client    func() smtp_client.SMTPClient
+		client    func() smtpclient.SMTPClient
 		TLSConfig *tls.Config
 	}
 	tests := []struct {
@@ -170,8 +140,8 @@ func Test_sendMail_Data(t *testing.T) {
 		{
 			name: "success",
 			fields: fields{
-				client: func() smtp_client.SMTPClient {
-					smtpMock := mock_smtp_client.NewMockSMTPClient(ctrl)
+				client: func() smtpclient.SMTPClient {
+					smtpMock := mocksmtpclient.NewMockSMTPClient(ctrl)
 					smtpMock.EXPECT().Data().Return(mockWriterInstance, nil).Times(1)
 
 					return smtpMock
@@ -183,15 +153,15 @@ func Test_sendMail_Data(t *testing.T) {
 		{
 			name: "error",
 			fields: fields{
-				client: func() smtp_client.SMTPClient {
-					smtpMock := mock_smtp_client.NewMockSMTPClient(ctrl)
-					smtpMock.EXPECT().Data().Return(nil, simpleError).Times(1)
+				client: func() smtpclient.SMTPClient {
+					smtpMock := mocksmtpclient.NewMockSMTPClient(ctrl)
+					smtpMock.EXPECT().Data().Return(nil, errorSimple).Times(1)
 
 					return smtpMock
 				},
 			},
 			want:    nil,
-			wantErr: simpleError,
+			wantErr: errorSimple,
 		},
 	}
 	for _, tt := range tests {
@@ -217,7 +187,7 @@ func Test_sendMail_Hello(t *testing.T) {
 	defer ctrl.Finish()
 
 	type fields struct {
-		client    func() smtp_client.SMTPClient
+		client    func() smtpclient.SMTPClient
 		TLSConfig *tls.Config
 	}
 	type args struct {
@@ -232,8 +202,8 @@ func Test_sendMail_Hello(t *testing.T) {
 		{
 			name: "success",
 			fields: fields{
-				client: func() smtp_client.SMTPClient {
-					smtpMock := mock_smtp_client.NewMockSMTPClient(ctrl)
+				client: func() smtpclient.SMTPClient {
+					smtpMock := mocksmtpclient.NewMockSMTPClient(ctrl)
 					smtpMock.EXPECT().Hello(localName).Return(nil).Times(1)
 
 					return smtpMock
@@ -247,9 +217,9 @@ func Test_sendMail_Hello(t *testing.T) {
 		{
 			name: "error",
 			fields: fields{
-				client: func() smtp_client.SMTPClient {
-					smtpMock := mock_smtp_client.NewMockSMTPClient(ctrl)
-					smtpMock.EXPECT().Hello(emptyLocalName).Return(simpleError).Times(1)
+				client: func() smtpclient.SMTPClient {
+					smtpMock := mocksmtpclient.NewMockSMTPClient(ctrl)
+					smtpMock.EXPECT().Hello(emptyLocalName).Return(errorSimple).Times(1)
 
 					return smtpMock
 				},
@@ -257,7 +227,7 @@ func Test_sendMail_Hello(t *testing.T) {
 			args: args{
 				localName: emptyLocalName,
 			},
-			wantErr: simpleError,
+			wantErr: errorSimple,
 		},
 	}
 	for _, tt := range tests {
@@ -278,7 +248,7 @@ func Test_sendMail_Mail(t *testing.T) {
 	defer ctrl.Finish()
 
 	type fields struct {
-		client    func() smtp_client.SMTPClient
+		client    func() smtpclient.SMTPClient
 		TLSConfig *tls.Config
 	}
 	type args struct {
@@ -293,8 +263,8 @@ func Test_sendMail_Mail(t *testing.T) {
 		{
 			name: "success",
 			fields: fields{
-				client: func() smtp_client.SMTPClient {
-					smtpMock := mock_smtp_client.NewMockSMTPClient(ctrl)
+				client: func() smtpclient.SMTPClient {
+					smtpMock := mocksmtpclient.NewMockSMTPClient(ctrl)
 					smtpMock.EXPECT().Mail(emailFromStr).Return(nil).Times(1)
 
 					return smtpMock
@@ -308,9 +278,9 @@ func Test_sendMail_Mail(t *testing.T) {
 		{
 			name: "error",
 			fields: fields{
-				client: func() smtp_client.SMTPClient {
-					smtpMock := mock_smtp_client.NewMockSMTPClient(ctrl)
-					smtpMock.EXPECT().Mail(emailFromStr).Return(simpleError).Times(1)
+				client: func() smtpclient.SMTPClient {
+					smtpMock := mocksmtpclient.NewMockSMTPClient(ctrl)
+					smtpMock.EXPECT().Mail(emailFromStr).Return(errorSimple).Times(1)
 
 					return smtpMock
 				},
@@ -318,7 +288,7 @@ func Test_sendMail_Mail(t *testing.T) {
 			args: args{
 				from: emailFromStr,
 			},
-			wantErr: simpleError,
+			wantErr: errorSimple,
 		},
 	}
 	for _, tt := range tests {
@@ -339,7 +309,7 @@ func Test_sendMail_Quit(t *testing.T) {
 	defer ctrl.Finish()
 
 	type fields struct {
-		client    func() smtp_client.SMTPClient
+		client    func() smtpclient.SMTPClient
 		TLSConfig *tls.Config
 	}
 	tests := []struct {
@@ -350,8 +320,8 @@ func Test_sendMail_Quit(t *testing.T) {
 		{
 			name: "success",
 			fields: fields{
-				client: func() smtp_client.SMTPClient {
-					smtpMock := mock_smtp_client.NewMockSMTPClient(ctrl)
+				client: func() smtpclient.SMTPClient {
+					smtpMock := mocksmtpclient.NewMockSMTPClient(ctrl)
 					smtpMock.EXPECT().Quit().Return(nil).Times(1)
 
 					return smtpMock
@@ -362,14 +332,14 @@ func Test_sendMail_Quit(t *testing.T) {
 		{
 			name: "error",
 			fields: fields{
-				client: func() smtp_client.SMTPClient {
-					smtpMock := mock_smtp_client.NewMockSMTPClient(ctrl)
-					smtpMock.EXPECT().Quit().Return(simpleError).Times(1)
+				client: func() smtpclient.SMTPClient {
+					smtpMock := mocksmtpclient.NewMockSMTPClient(ctrl)
+					smtpMock.EXPECT().Quit().Return(errorSimple).Times(1)
 
 					return smtpMock
 				},
 			},
-			wantErr: simpleError,
+			wantErr: errorSimple,
 		},
 	}
 	for _, tt := range tests {
@@ -391,7 +361,7 @@ func Test_sendMail_RCPTs(t *testing.T) {
 
 	addrs := []string{emailToStr, emailFromStr}
 	type fields struct {
-		client    func() smtp_client.SMTPClient
+		client    func() smtpclient.SMTPClient
 		TLSConfig *tls.Config
 	}
 	type args struct {
@@ -406,8 +376,8 @@ func Test_sendMail_RCPTs(t *testing.T) {
 		{
 			name: "success",
 			fields: fields{
-				client: func() smtp_client.SMTPClient {
-					smtpMock := mock_smtp_client.NewMockSMTPClient(ctrl)
+				client: func() smtpclient.SMTPClient {
+					smtpMock := mocksmtpclient.NewMockSMTPClient(ctrl)
 					firstCall := smtpMock.EXPECT().Rcpt(emailToStr).Return(nil).Times(1)
 					smtpMock.EXPECT().Rcpt(emailFromStr).After(firstCall).Return(nil).Times(1)
 
@@ -422,9 +392,9 @@ func Test_sendMail_RCPTs(t *testing.T) {
 		{
 			name: "error",
 			fields: fields{
-				client: func() smtp_client.SMTPClient {
-					smtpMock := mock_smtp_client.NewMockSMTPClient(ctrl)
-					firstCall := smtpMock.EXPECT().Rcpt(emailToStr).Return(simpleError).Times(1)
+				client: func() smtpclient.SMTPClient {
+					smtpMock := mocksmtpclient.NewMockSMTPClient(ctrl)
+					firstCall := smtpMock.EXPECT().Rcpt(emailToStr).Return(errorSimple).Times(1)
 					smtpMock.EXPECT().Rcpt(emailFromStr).After(firstCall).Return(nil).Times(1)
 
 					return smtpMock
@@ -433,7 +403,7 @@ func Test_sendMail_RCPTs(t *testing.T) {
 			args: args{
 				addrs: addrs,
 			},
-			want: map[string]error{emailToStr: simpleError},
+			want: map[string]error{emailToStr: errorSimple},
 		},
 	}
 	for _, tt := range tests {
@@ -454,7 +424,7 @@ func Test_sendMail_SetClient(t *testing.T) {
 	defer ctrl.Finish()
 
 	type fields struct {
-		client smtp_client.SMTPClient
+		client smtpclient.SMTPClient
 	}
 	type args struct {
 		client interface{}
@@ -481,36 +451,6 @@ func Test_sendMail_SetClient(t *testing.T) {
 			s := &sendMail{}
 			if s.SetClient(tt.fields.client); !reflect.DeepEqual(tt.want, s) {
 				t.Errorf("SetClient() server = %v, want %v", s, tt.want)
-			}
-		})
-	}
-}
-
-func Test_sendMail_Write(t *testing.T) {
-	type fields struct {
-		client    smtp_client.SMTPClient
-		TLSConfig *tls.Config
-	}
-	type args struct {
-		w   io.WriteCloser
-		msg []byte
-	}
-	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			s := &sendMail{
-				client:    tt.fields.client,
-				tlsConfig: tt.fields.TLSConfig,
-			}
-			if err := s.Write(tt.args.w, tt.args.msg); (err != nil) != tt.wantErr {
-				t.Errorf("Write() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

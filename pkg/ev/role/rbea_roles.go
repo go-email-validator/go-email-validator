@@ -6,10 +6,12 @@ import (
 	"strings"
 )
 
+// RBEARoles returns the list of roles
 func RBEARoles() []string {
 	return rbeaRoles
 }
 
+// NewRBEASetRole forms contains.InSet from roles (https://github.com/mixmaxhq/role-based-email-addresses)
 func NewRBEASetRole() contains.InSet {
 	RBEARoles := RBEARoles()
 	roles := make([]interface{}, len(RBEARoles))

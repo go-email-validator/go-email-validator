@@ -6,6 +6,7 @@ import (
 	"reflect"
 )
 
+// RangeLen returns length of interface{}
 func RangeLen(i interface{}) int {
 	if i == nil {
 		return 0
@@ -14,6 +15,7 @@ func RangeLen(i interface{}) int {
 	return reflect.ValueOf(i).Len()
 }
 
+// Errs forms []error from errors...
 func Errs(errs ...error) []error {
 	if errs == nil || len(errs) == 1 && errs[0] == nil {
 		return nil
@@ -22,14 +24,7 @@ func Errs(errs ...error) []error {
 	return errs
 }
 
-type Err struct {
-	s string
-}
-
-func (e Err) Error() string {
-	return e.s
-}
-
+// LoadEnv loads
 func LoadEnv(env string) {
 	filenames := make([]string, 0)
 
@@ -42,6 +37,7 @@ func LoadEnv(env string) {
 	}
 }
 
+// StructName returns name of structure
 func StructName(strct interface{}) string {
 	return reflect.ValueOf(strct).Type().String()
 }

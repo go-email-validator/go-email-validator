@@ -5,7 +5,7 @@ import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evtests"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
-	mock_evmail "github.com/go-email-validator/go-email-validator/test/mock/ev/evmail"
+	mockevmail "github.com/go-email-validator/go-email-validator/test/mock/ev/evmail"
 	"github.com/stretchr/testify/require"
 	"reflect"
 	"sort"
@@ -16,12 +16,12 @@ import (
 var (
 	emptyEmail                     = evmail.NewEmailAddress("", "")
 	emptyErrors                    = make([]error, 0)
-	validEmail                     = evmail.FromString(mock_evmail.ValidEmailString)
+	validEmail                     = evmail.FromString(mockevmail.ValidEmailString)
 	invalidEmail                   = evmail.FromString("some%..@invalid.%.email")
 	validMockValidator   Validator = mockValidator{result: true}
 	inValidMockValidator Validator = mockValidator{result: false}
-	simpleError                    = errors.New("simpleError")
-	simpleError2                   = errors.New("simpleError2")
+	errorSimple                    = errors.New("errorSimple")
+	errorSimple2                   = errors.New("errorSimple2")
 	validResult                    = NewResult(true, nil, nil, OtherValidator)
 	invalidResult                  = NewResult(false, utils.Errs(newMockError()), nil, OtherValidator)
 )
@@ -62,8 +62,10 @@ func newMockError() error {
 	return mockError{}
 }
 
-type mockError struct {
-	utils.Err
+type mockError struct{}
+
+func (mockError) Error() string {
+	return "mockError"
 }
 
 const mockValidatorName ValidatorName = "mockValidatorName"
@@ -178,11 +180,11 @@ func TestNewValidatorResult(t *testing.T) {
 			name: "invalid with errors and warnings",
 			args: args{
 				isValid:  false,
-				errors:   []error{simpleError},
-				warnings: []error{simpleError},
+				errors:   []error{errorSimple},
+				warnings: []error{errorSimple},
 				name:     mockValidatorName,
 			},
-			want: &validationResult{false, []error{simpleError}, []error{simpleError}, mockValidatorName},
+			want: &validationResult{false, []error{errorSimple}, []error{errorSimple}, mockValidatorName},
 		},
 		{
 			name: "invalid",

@@ -6,12 +6,17 @@ import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 )
 
+// RoleValidatorName is name of role validator
 const RoleValidatorName ValidatorName = "RoleValidator"
 
-type RoleError struct {
-	utils.Err
+// RoleError is error of RoleValidatorName
+type RoleError struct{}
+
+func (RoleError) Error() string {
+	return "RoleError"
 }
 
+// NewRoleValidator instantiates RoleValidatorName
 func NewRoleValidator(r contains.InSet) Validator {
 	return roleValidator{r: r}
 }

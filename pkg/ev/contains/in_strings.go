@@ -2,10 +2,12 @@ package contains
 
 import "github.com/emirpasic/gods/sets/hashset"
 
+// InStrings checks existing value in set of strings
 type InStrings interface {
 	Contains(value string) bool
 }
 
+// NewInStringsFromArray instantiates InStrings based on []string
 func NewInStringsFromArray(elements []string) InStrings {
 	var maxLen = 0
 	setElements := make([]interface{}, len(elements))
@@ -20,6 +22,7 @@ func NewInStringsFromArray(elements []string) InStrings {
 	return NewInStrings(NewSet(hashset.New(setElements...)), maxLen)
 }
 
+// NewInStrings instantiates InStrings based on InSet
 func NewInStrings(contains InSet, maxLen int) InStrings {
 	return inStrings{contains, maxLen}
 }

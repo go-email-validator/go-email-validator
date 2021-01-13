@@ -1,4 +1,4 @@
-package smtp_client
+package smtpclient
 
 import (
 	"crypto/tls"
@@ -6,6 +6,7 @@ import (
 	"net/smtp"
 )
 
+// SMTPClient is interface of smtp.Client
 type SMTPClient interface {
 	Close() error
 	Hello(localName string) error

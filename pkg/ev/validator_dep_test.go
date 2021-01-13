@@ -3,7 +3,7 @@ package ev
 import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evtests"
-	mock_evmail "github.com/go-email-validator/go-email-validator/test/mock/ev/evmail"
+	mockevmail "github.com/go-email-validator/go-email-validator/test/mock/ev/evmail"
 	"github.com/stretchr/testify/require"
 	"reflect"
 	"testing"
@@ -35,7 +35,7 @@ func (t testSleep) Validate(_ evmail.Address, results ...ValidationResult) Valid
 }
 
 func TestDepValidator_Validate_Independent(t *testing.T) {
-	email := mock_evmail.GetValidTestEmail()
+	email := mockevmail.GetValidTestEmail()
 	strings := emptyDeps
 
 	depValidator := NewDepValidator(
@@ -63,7 +63,7 @@ func TestDepValidator_Validate_Independent(t *testing.T) {
 }
 
 func TestDepValidator_Validate_Dependent(t *testing.T) {
-	email := mock_evmail.GetValidTestEmail()
+	email := mockevmail.GetValidTestEmail()
 	strings := emptyDeps
 
 	depValidator := NewDepValidator(map[ValidatorName]Validator{
@@ -92,7 +92,7 @@ func TestDepValidator_Validate_Dependent(t *testing.T) {
 func TestDepValidator_Validate_Full(t *testing.T) {
 	evtests.FunctionalSkip(t)
 
-	email := evmail.FromString(mock_evmail.ValidEmailString)
+	email := evmail.FromString(mockevmail.ValidEmailString)
 	depValidator := NewDepBuilder(nil).Build()
 
 	v := depValidator.Validate(email)
@@ -114,11 +114,11 @@ func Test_depValidationResult_Errors(t *testing.T) {
 			fields: fields{
 				isValid: false,
 				results: DepResult{
-					mockValidatorName:   mockValidationResult{errs: []error{simpleError, simpleError2}},
-					SyntaxValidatorName: mockValidationResult{errs: []error{simpleError2, simpleError}},
+					mockValidatorName:   mockValidationResult{errs: []error{errorSimple, errorSimple2}},
+					SyntaxValidatorName: mockValidationResult{errs: []error{errorSimple2, errorSimple}},
 				},
 			},
-			want: []error{simpleError, simpleError2, simpleError2, simpleError},
+			want: []error{errorSimple, errorSimple2, errorSimple2, errorSimple},
 		},
 		{
 			name: "without Errors",
@@ -161,11 +161,11 @@ func Test_depValidationResult_Warnings(t *testing.T) {
 			fields: fields{
 				isValid: false,
 				results: DepResult{
-					mockValidatorName:   mockValidationResult{warns: []error{simpleError, simpleError2}},
-					SyntaxValidatorName: mockValidationResult{warns: []error{simpleError2, simpleError}},
+					mockValidatorName:   mockValidationResult{warns: []error{errorSimple, errorSimple2}},
+					SyntaxValidatorName: mockValidationResult{warns: []error{errorSimple2, errorSimple}},
 				},
 			},
-			wantWarnings: []error{simpleError, simpleError2, simpleError2, simpleError},
+			wantWarnings: []error{errorSimple, errorSimple2, errorSimple2, errorSimple},
 		},
 		{
 			name: "without Warnings",

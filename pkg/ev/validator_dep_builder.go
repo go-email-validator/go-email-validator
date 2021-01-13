@@ -8,8 +8,7 @@ import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/role"
 )
 
-type DefaultValidatorFactory func() Validator
-
+// GetDefaultSMTPValidator instantiates default SMTPValidatorName
 func GetDefaultSMTPValidator(dto evsmtp.CheckerDTO) Validator {
 	return NewWarningsDecorator(
 		NewSMTPValidator(evsmtp.NewChecker(dto)),
@@ -25,6 +24,7 @@ func GetDefaultSMTPValidator(dto evsmtp.CheckerDTO) Validator {
 	)
 }
 
+// GetDefaultFactories returns default list ValidatorMap
 func GetDefaultFactories() ValidatorMap {
 	return ValidatorMap{
 		RoleValidatorName:       NewRoleValidator(role.NewRBEASetRole()),
@@ -35,6 +35,7 @@ func GetDefaultFactories() ValidatorMap {
 	}
 }
 
+// NewDepBuilder instantiates Validator with ValidatorMap or GetDefaultFactories validators
 func NewDepBuilder(validators ValidatorMap) *DepBuilder {
 	if validators == nil {
 		validators = GetDefaultFactories()
@@ -43,16 +44,19 @@ func NewDepBuilder(validators ValidatorMap) *DepBuilder {
 	return &DepBuilder{validators: validators}
 }
 
+// DepBuilder is used to form Validator
 type DepBuilder struct {
 	validators ValidatorMap
 }
 
+// Set sets validator by ValidatorName
 func (d *DepBuilder) Set(name ValidatorName, validator Validator) *DepBuilder {
 	d.validators[name] = validator
 
 	return d
 }
 
+// Get returns validator by ValidatorName
 func (d *DepBuilder) Get(name ValidatorName) Validator {
 	if d.Has(name) {
 		return d.validators[name]
@@ -61,6 +65,7 @@ func (d *DepBuilder) Get(name ValidatorName) Validator {
 	return nil
 }
 
+// Has checks for existing validators by ValidatorName...
 func (d *DepBuilder) Has(names ...ValidatorName) bool {
 	for _, name := range names {
 		if _, has := d.validators[name]; !has {
@@ -71,6 +76,7 @@ func (d *DepBuilder) Has(names ...ValidatorName) bool {
 	return true
 }
 
+// Delete deletes validators by ValidatorName...
 func (d *DepBuilder) Delete(names ...ValidatorName) *DepBuilder {
 	for _, name := range names {
 		if d.Has(name) {
@@ -81,6 +87,7 @@ func (d *DepBuilder) Delete(names ...ValidatorName) *DepBuilder {
 	return d
 }
 
+// Build builds Validator based on configuration
 func (d *DepBuilder) Build() Validator {
 	return NewDepValidator(d.validators)
 }

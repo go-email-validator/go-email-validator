@@ -2,7 +2,7 @@
 // Source: pkg/ev/evsmtp/smtp_client/interface.go
 
 // Package mock_smtp_client is a generated GoMock package.
-package mock_smtp_client
+package mocksmtpclient
 
 import (
 	tls "crypto/tls"

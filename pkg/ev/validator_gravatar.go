@@ -10,21 +10,36 @@ import (
 )
 
 const (
+	// GravatarValidatorName is name for validation by https://www.gravatar.com/
 	GravatarValidatorName ValidatorName = "Gravatar"
-	GravatarURL           string        = "https://www.gravatar.com/avatar/%x?d=404"
+	// GravatarURL is url for gravatar validation
+	GravatarURL string = "https://www.gravatar.com/avatar/%x?d=404"
 )
 
-type GravatarError struct {
-	utils.Err
+// GravatarError is GravatarValidatorName error
+type GravatarError struct{}
+
+func (GravatarError) Error() string {
+	return "GravatarError"
 }
 
+// NewGravatarValidator instantiates GravatarValidatorName validator with GravatarURL for validation
 func NewGravatarValidator() Validator {
-	return gravatarValidator{h: md5.New()} //nolint:gosec
+	return NewGravatarValidatorWithURL(GravatarURL)
+}
+
+// NewGravatarValidatorWithURL instantiates GravatarValidatorName validator
+func NewGravatarValidatorWithURL(gravatarURL string) Validator {
+	return gravatarValidator{
+		h:   md5.New(), //nolint:gosec
+		url: gravatarURL,
+	}
 }
 
 type gravatarValidator struct {
 	AValidatorWithoutDeps
-	h hash.Hash
+	h   hash.Hash
+	url string
 }
 
 func (g gravatarValidator) GetDeps() []ValidatorName {

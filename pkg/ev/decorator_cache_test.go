@@ -8,7 +8,7 @@ import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evcache"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp"
-	mock_evcache "github.com/go-email-validator/go-email-validator/test/mock/ev/evcache"
+	mockevcache "github.com/go-email-validator/go-email-validator/test/mock/ev/evcache"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 	"net/textproto"
@@ -44,9 +44,9 @@ func Test_cacheDecorator_Validate(t *testing.T) {
 			fields: fields{
 				validator: inValidMockValidator,
 				cache: func() evcache.Interface {
-					cacheMock := mock_evcache.NewMockInterface(ctrl)
+					cacheMock := mockevcache.NewMockInterface(ctrl)
 					cacheMock.EXPECT().Get(key).Return(nil, nil).Times(1)
-					cacheMock.EXPECT().Set(key, invalidResult).Return(simpleError).Times(1)
+					cacheMock.EXPECT().Set(key, invalidResult).Return(errorSimple).Times(1)
 
 					return cacheMock
 				},
@@ -63,8 +63,8 @@ func Test_cacheDecorator_Validate(t *testing.T) {
 			fields: fields{
 				validator: validMockValidator,
 				cache: func() evcache.Interface {
-					cacheMock := mock_evcache.NewMockInterface(ctrl)
-					cacheMock.EXPECT().Get(key).Return(nil, simpleError).Times(1)
+					cacheMock := mockevcache.NewMockInterface(ctrl)
+					cacheMock.EXPECT().Get(key).Return(nil, errorSimple).Times(1)
 					cacheMock.EXPECT().Set(key, validResult).Return(nil).Times(1)
 
 					return cacheMock
@@ -82,7 +82,7 @@ func Test_cacheDecorator_Validate(t *testing.T) {
 			fields: fields{
 				validator: validMockValidator,
 				cache: func() evcache.Interface {
-					cacheMock := mock_evcache.NewMockInterface(ctrl)
+					cacheMock := mockevcache.NewMockInterface(ctrl)
 					cacheMock.EXPECT().Get(key).Return(&validResult, nil).Times(1)
 
 					return cacheMock
@@ -195,7 +195,15 @@ func TestDomainCacheKeyGetter(t *testing.T) {
 	}
 }
 
+type customErr struct{}
+
+func (customErr) Error() string {
+	return "customErr"
+}
+
 var cacheErrs = []error{
+	//error(&customErr{}), TODO find way to marshal and unmarshal all interfaces
+	&DepsError{},
 	evsmtp.NewError(1, &textproto.Error{Code: 505, Msg: "msg1"}),
 	evsmtp.NewError(1, errors.New("msg2")),
 }

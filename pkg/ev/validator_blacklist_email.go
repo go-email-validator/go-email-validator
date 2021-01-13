@@ -6,12 +6,18 @@ import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 )
 
+// BlackListEmailsValidatorName is name of black list emails
+// It checks an email in list. If the address is in, the email is invalid.
 const BlackListEmailsValidatorName ValidatorName = "BlackListEmails"
 
-type BlackListEmailsError struct {
-	utils.Err
+// BlackListEmailsError is BlackListEmailsValidatorName error
+type BlackListEmailsError struct{}
+
+func (BlackListEmailsError) Error() string {
+	return "BlackListEmailsError"
 }
 
+// NewBlackListEmailsValidator instantiates BlackListEmailsValidatorName validator
 func NewBlackListEmailsValidator(d contains.InSet) Validator {
 	return blackListEmailsValidator{d: d}
 }

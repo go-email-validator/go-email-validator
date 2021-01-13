@@ -17,10 +17,12 @@ func init() {
 	SetLogger(l)
 }
 
+// SetLogger sets logger
 func SetLogger(l *zap.Logger) {
 	logger = l
 }
 
+// Logger returns logger
 func Logger() *zap.Logger {
 	return logger
 }

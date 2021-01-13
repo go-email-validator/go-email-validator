@@ -1,4 +1,4 @@
-package mock_evsmtp
+package mockevsmtp
 
 import (
 	"bufio"
@@ -9,9 +9,11 @@ import (
 	"time"
 )
 
+// Separator separate mock message of Server
 const Separator = "\r\n"
 
-//  Partial copy of TestSendMail  from smtp.TestSendMail
+// Server to testing SMTP
+// Partial copy of TestSendMail  from smtp.TestSendMail
 func Server(t *testing.T, server []string, timeout time.Duration) (string, chan string) {
 	var cmdbuf bytes.Buffer
 	bcmdbuf := bufio.NewWriter(&cmdbuf)

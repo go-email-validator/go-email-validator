@@ -7,16 +7,22 @@ import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 )
 
+// FreeValidatorName is name of free validator
 const FreeValidatorName ValidatorName = "FreeValidator"
 
-type FreeError struct {
-	utils.Err
+// FreeError is FreeValidatorName error
+type FreeError struct{}
+
+func (FreeError) Error() string {
+	return "FreeError"
 }
 
+// FreeDefaultValidator instantiates default FreeValidatorName based on free.NewWillWhiteSetFree()
 func FreeDefaultValidator() Validator {
 	return NewFreeValidator(free.NewWillWhiteSetFree())
 }
 
+// NewFreeValidator instantiates FreeValidatorName
 func NewFreeValidator(f contains.InSet) Validator {
 	return freeValidator{f: f}
 }

@@ -4,7 +4,7 @@ import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
-	mock_evmail "github.com/go-email-validator/go-email-validator/test/mock/ev/evmail"
+	mockevmail "github.com/go-email-validator/go-email-validator/test/mock/ev/evmail"
 	"github.com/stretchr/testify/require"
 	"net"
 	"reflect"
@@ -64,27 +64,27 @@ func Test_mxValidator_Validate(t *testing.T) {
 		{
 			name: "unexisted domain",
 			fields: fields{
-				lookupMX: mockLookupMX(t, validEmail.Domain(), nil, simpleError),
+				lookupMX: mockLookupMX(t, validEmail.Domain(), nil, errorSimple),
 			},
 			args: args{
 				email: validEmail,
 			},
 			want: NewMXValidationResult(
 				nil,
-				NewResult(false, utils.Errs(simpleError), nil, MXValidatorName).(*AValidationResult),
+				NewResult(false, utils.Errs(errorSimple), nil, MXValidatorName).(*AValidationResult),
 			),
 		},
 		{
 			name: "unexisted domain with mxs",
 			fields: fields{
-				lookupMX: mockLookupMX(t, validEmail.Domain(), mxs, simpleError),
+				lookupMX: mockLookupMX(t, validEmail.Domain(), mxs, errorSimple),
 			},
 			args: args{
 				email: validEmail,
 			},
 			want: NewMXValidationResult(
 				mxs,
-				NewResult(false, utils.Errs(simpleError), nil, MXValidatorName).(*AValidationResult),
+				NewResult(false, utils.Errs(errorSimple), nil, MXValidatorName).(*AValidationResult),
 			),
 		},
 	}
@@ -99,7 +99,7 @@ func Test_mxValidator_Validate(t *testing.T) {
 }
 
 func BenchmarkSMTPValidator_Validate_MX(b *testing.B) {
-	email := evmail.FromString(mock_evmail.ValidEmailString)
+	email := evmail.FromString(mockevmail.ValidEmailString)
 
 	depValidator := NewDepValidator(
 		map[ValidatorName]Validator{

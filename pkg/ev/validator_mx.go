@@ -6,17 +6,23 @@ import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 )
 
+// MXValidatorName  is name of mx validator
 const MXValidatorName ValidatorName = "MXValidator"
 
-type EmptyMXsError struct {
-	utils.Err
+// EmptyMXsError is error of MXValidatorName
+type EmptyMXsError struct{}
+
+func (EmptyMXsError) Error() string {
+	return "EmptyMXsError"
 }
 
+// MXValidationResult is result of MXValidatorName
 type MXValidationResult interface {
 	MX() evsmtp.MXs
 	ValidationResult
 }
 
+// NewMXValidationResult instantiates result of MXValidatorName
 func NewMXValidationResult(mx evsmtp.MXs, result *AValidationResult) MXValidationResult {
 	return mxValidationResult{mx: mx, AValidationResult: result}
 }
@@ -30,10 +36,12 @@ func (v mxValidationResult) MX() evsmtp.MXs {
 	return v.mx
 }
 
+// DefaultNewMXValidator instantiates default MXValidatorName based on evsmtp.LookupMX
 func DefaultNewMXValidator() Validator {
 	return NewMXValidator(evsmtp.LookupMX)
 }
 
+// NewMXValidator instantiates MXValidatorName based on evsmtp.FuncLookupMX
 func NewMXValidator(lookupMX evsmtp.FuncLookupMX) Validator {
 	return mxValidator{
 		lookupMX: lookupMX,

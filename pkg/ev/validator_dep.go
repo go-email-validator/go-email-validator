@@ -2,18 +2,23 @@ package ev
 
 import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
-	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 	"sync"
 )
 
+// DepValidatorName is name of validator with dependencies
 const DepValidatorName ValidatorName = "depValidator"
 
+// ValidatorMap alias for map[ValidatorName]Validator
 type ValidatorMap map[ValidatorName]Validator
 
-type DepsError struct {
-	utils.Err
+// DepsError is DepValidatorName error
+type DepsError struct{}
+
+func (DepsError) Error() string {
+	return "DepsError"
 }
 
+// NewDepValidator instantiates DepValidatorName validator
 func NewDepValidator(deps ValidatorMap) Validator {
 	return depValidator{deps: deps}
 }
@@ -88,13 +93,16 @@ func (d depValidator) Validate(email evmail.Address, _ ...ValidationResult) Vali
 	return NewDepValidatorResult(isValid, validationResultsByName)
 }
 
+// DepResult is alias for results of nested validators
 type DepResult map[ValidatorName]ValidationResult
 
+// DepValidationResult is representation of DepValidatorName result
 type DepValidationResult interface {
 	ValidationResult
 	GetResults() DepResult
 }
 
+// NewDepValidatorResult returns DepValidatorName result
 func NewDepValidatorResult(isValid bool, results DepResult) ValidationResult {
 	return depValidationResult{
 		isValid: isValid,
@@ -117,9 +125,7 @@ func (d depValidationResult) IsValid() bool {
 
 func (d depValidationResult) Errors() (errors []error) {
 	for _, result := range d.GetResults() {
-		for _, err := range result.Errors() {
-			errors = append(errors, err)
-		}
+		errors = append(errors, result.Errors()...)
 	}
 
 	return errors
@@ -137,9 +143,7 @@ func (d depValidationResult) HasErrors() bool {
 
 func (d depValidationResult) Warnings() (warnings []error) {
 	for _, result := range d.GetResults() {
-		for _, warning := range result.Warnings() {
-			warnings = append(warnings, warning)
-		}
+		warnings = append(warnings, result.Warnings()...)
 	}
 
 	return warnings

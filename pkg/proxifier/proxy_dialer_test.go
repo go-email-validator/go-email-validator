@@ -23,7 +23,7 @@ var (
 	tcpConn         = &net.TCPConn{}
 	udpConn         = &net.UDPConn{}
 	smtpClient      = &smtp.Client{}
-	emptySmtpClient = new(smtp.Client)
+	emptySMTPClient = new(smtp.Client)
 )
 
 type mockListWant struct {
@@ -197,7 +197,7 @@ func Test_dialer_Dial(t *testing.T) {
 							network: networkUDP,
 							addr:    addressThird,
 							conn:    nil,
-							err:     simpleError,
+							err:     errorSimple,
 						},
 					},
 					{
@@ -226,7 +226,7 @@ func Test_dialer_Dial(t *testing.T) {
 					want: []mockListWant{
 						{
 							value: WantGetAddress,
-							ret:   []interface{}{EmptyAddress, simpleError},
+							ret:   []interface{}{EmptyAddress, errorSimple},
 						},
 					},
 				},
@@ -330,7 +330,7 @@ func Test_smtpDialer_Dial(t *testing.T) {
 				network: UDPConnection,
 				addr:    addressFirstWithPort,
 				conn:    tcpConn,
-				err:     simpleError,
+				err:     errorSimple,
 			},
 		},
 	}
