@@ -42,13 +42,38 @@ func Dial(addr string) (smtp_client.SMTPClient, error) {
 	return client, err
 }
 
+type RandomRCPTFunc func(email evmail.Address) (errs []error)
+
+// Need to mplementation of is-a relation (inheritance)
+type RandomRCPT interface {
+	Call(email evmail.Address) []error
+	set(fn RandomRCPTFunc)
+	get() RandomRCPTFunc
+}
+
+type ARandomRCPT struct {
+	fn RandomRCPTFunc
+}
+
+func (a *ARandomRCPT) Call(email evmail.Address) []error {
+	return a.fn(email)
+}
+
+func (a *ARandomRCPT) set(fn RandomRCPTFunc) {
+	a.fn = fn
+}
+
+func (a *ARandomRCPT) get() RandomRCPTFunc {
+	return a.fn
+}
+
 type Checker interface {
 	Validate(mxs MXs, email evmail.Address) []error
 }
 
 type CheckerWithRandomRCPT interface {
 	Checker
-	RandomRCPT(email evmail.Address) (errs []error)
+	RandomRCPT
 }
 
 // Generate random email for checking of Catching All emails by RCPTs
@@ -96,7 +121,7 @@ func NewChecker(dto CheckerDTO) Checker {
 		dto.Port = DefaultSMTPPort
 	}
 
-	return checker{
+	c := checker{
 		dialFunc:    dto.DialFunc,
 		Auth:        nil,
 		sendMail:    dto.SendMail,
@@ -105,6 +130,9 @@ func NewChecker(dto CheckerDTO) Checker {
 		randomEmail: dto.RandomEmail,
 		port:        dto.Port,
 	}
+	c.RandomRCPT = &ARandomRCPT{fn: c.randomRCPT}
+
+	return c
 }
 
 /*
@@ -112,6 +140,7 @@ Some SMTP server send additional message and we should read it
 2.1.5 for OK message
 */
 type checker struct {
+	RandomRCPT
 	dialFunc    DialFunc // use for get connection to smtp server
 	Auth        smtp.Auth
 	sendMail    SendMail
@@ -171,7 +200,7 @@ func (c checker) Validate(mxs MXs, email evmail.Address) (errs []error) {
 		return
 	}
 
-	if errsRandomRCPTs := c.RandomRCPT(email); len(errsRandomRCPTs) > 0 {
+	if errsRandomRCPTs := c.RandomRCPT.Call(email); len(errsRandomRCPTs) > 0 {
 		errs = append(errs, errsRandomRCPTs...)
 		if errsRCPTs := c.sendMail.RCPTs([]string{email.String()}); len(errsRCPTs) > 0 {
 			errs = append(errs, NewError(RCPTsStage, errsRCPTs[email.String()]))
@@ -186,7 +215,7 @@ func (c checker) Validate(mxs MXs, email evmail.Address) (errs []error) {
 	return
 }
 
-func (c checker) RandomRCPT(email evmail.Address) (errs []error) {
+func (c checker) randomRCPT(email evmail.Address) (errs []error) {
 	randomEmail, err := c.randomEmail(email.Domain())
 	if err != nil {
 		randomEmailErr := NewError(RandomRCPTStage, err)
@@ -215,27 +244,33 @@ func NewCheckerCacheRandomRCPT(checker CheckerWithRandomRCPT, cache evcache.Inte
 		getKey = DefaultRandomCacheKeyGetter
 	}
 
-	return &checkerCacheRandomRCPT{
+	c := &checkerCacheRandomRCPT{
 		CheckerWithRandomRCPT: checker,
+		randomRCPT:            &ARandomRCPT{fn: checker.get()},
 		cache:                 cache,
 		getKey:                getKey,
 	}
+
+	c.CheckerWithRandomRCPT.set(c.RandomRCPT)
+
+	return c
 }
 
 type checkerCacheRandomRCPT struct {
 	CheckerWithRandomRCPT
-	cache  evcache.Interface
-	getKey RandomCacheKeyGetter
+	randomRCPT RandomRCPT
+	cache      evcache.Interface
+	getKey     RandomCacheKeyGetter
 }
 
 func (c checkerCacheRandomRCPT) RandomRCPT(email evmail.Address) (errs []error) {
 	key := c.getKey(email)
 	resultInterface, err := c.cache.Get(key)
 	if err == nil && resultInterface != nil {
-		errs = resultInterface.([]error)
+		errs = ConvertEVSMTPErrorsToErrors(resultInterface.([]AliasError))
 	} else {
-		errs = c.CheckerWithRandomRCPT.RandomRCPT(email)
-		if err = c.cache.Set(key, errs); err != nil {
+		errs = c.randomRCPT.Call(email)
+		if err = c.cache.Set(key, ConvertErrorsToEVSMTPErrors(errs)); err != nil {
 			log.Logger().Error(fmt.Sprintf("cache RandomRCPT: %s", err),
 				zap.String("email", email.String()),
 				zap.String("key", fmt.Sprint(key)),

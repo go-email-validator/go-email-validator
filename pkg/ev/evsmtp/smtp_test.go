@@ -3,6 +3,9 @@ package evsmtp
 import (
 	"errors"
 	"fmt"
+	"github.com/allegro/bigcache"
+	"github.com/eko/gocache/marshaler"
+	"github.com/eko/gocache/store"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evcache"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp/smtp_client"
@@ -49,6 +52,13 @@ var (
 	emailToStr     = "email@to.com"
 	emailTo        = evmail.FromString(emailToStr)
 	randomAddress  = getRandomAddress(emailTo)
+	validEmail     = mock_evmail.GetValidTestEmail()
+	getMockKey     = func(t *testing.T, wantEmail evmail.Address, ret interface{}) func(email evmail.Address) interface{} {
+		return func(email evmail.Address) interface{} {
+			require.Equal(t, wantEmail, email)
+			return ret
+		}
+	}
 )
 
 func getRandomAddress(email evmail.Address) evmail.Address {
@@ -486,15 +496,15 @@ func Test_checkerCacheRandomRCPT_RandomRCPT(t *testing.T) {
 		email evmail.Address
 	}
 
-	getMockKey := func(wantEmail evmail.Address, ret interface{}) func(email evmail.Address) interface{} {
-		return func(email evmail.Address) interface{} {
-			require.Equal(t, wantEmail, email)
-			return ret
-		}
-	}
-	validEmail := mock_evmail.GetValidTestEmail()
 	errs := []error{simpleError}
-	emptyChecker := func() CheckerWithRandomRCPT { return nil }
+	errsAlias := []AliasError{simpleError}
+	emptyChecker := func() CheckerWithRandomRCPT {
+		mock := NewMockCheckerWithRandomRCPT(ctrl)
+		mock.EXPECT().get().Return(nil).Times(1)
+		mock.EXPECT().set(gomock.Any()).Times(1)
+
+		return mock
+	}
 
 	tests := []struct {
 		name     string
@@ -508,11 +518,11 @@ func Test_checkerCacheRandomRCPT_RandomRCPT(t *testing.T) {
 				checkerWithRandomRPCT: emptyChecker,
 				cache: func() evcache.Interface {
 					mock := mock_evcache.NewMockInterface(ctrl)
-					mock.EXPECT().Get(validEmail.Domain()).Return(errs, nil).Times(1)
+					mock.EXPECT().Get(validEmail.Domain()).Return(errsAlias, nil).Times(1)
 
 					return mock
 				},
-				getKey: getMockKey(validEmail, validEmail.Domain()),
+				getKey: getMockKey(t, validEmail, validEmail.Domain()),
 			},
 			args: args{
 				email: validEmail,
@@ -524,18 +534,20 @@ func Test_checkerCacheRandomRCPT_RandomRCPT(t *testing.T) {
 			fields: fields{
 				checkerWithRandomRPCT: func() CheckerWithRandomRCPT {
 					mock := NewMockCheckerWithRandomRCPT(ctrl)
-					mock.EXPECT().RandomRCPT(validEmail).Return(errs).Times(1)
+					mock.EXPECT().get().Return(mock.Call).Times(1)
+					mock.EXPECT().set(gomock.Any()).Times(1)
+					mock.EXPECT().Call(validEmail).Return(errs).Times(1)
 
 					return mock
 				},
 				cache: func() evcache.Interface {
 					mock := mock_evcache.NewMockInterface(ctrl)
 					mock.EXPECT().Get(validEmail.Domain()).Return(nil, nil).Times(1)
-					mock.EXPECT().Set(validEmail.Domain(), errs).Return(nil).Times(1)
+					mock.EXPECT().Set(validEmail.Domain(), errsAlias).Return(nil).Times(1)
 
 					return mock
 				},
-				getKey: getMockKey(validEmail, validEmail.Domain()),
+				getKey: getMockKey(t, validEmail, validEmail.Domain()),
 			},
 			args: args{
 				email: validEmail,
@@ -545,7 +557,7 @@ func Test_checkerCacheRandomRCPT_RandomRCPT(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := NewCheckerCacheRandomRCPT(tt.fields.checkerWithRandomRPCT(), tt.fields.cache(), tt.fields.getKey).(CheckerWithRandomRCPT)
+			c := NewCheckerCacheRandomRCPT(tt.fields.checkerWithRandomRPCT(), tt.fields.cache(), tt.fields.getKey).(*checkerCacheRandomRCPT)
 			if gotErrs := c.RandomRCPT(tt.args.email); !reflect.DeepEqual(gotErrs, tt.wantErrs) {
 				t.Errorf("RandomRCPT() = %v, want %v", gotErrs, tt.wantErrs)
 			}
@@ -580,8 +592,11 @@ func TestDefaultRandomCacheKeyGetter(t *testing.T) {
 }
 
 func TestNewCheckerCacheRandomRCPT(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
 	type args struct {
-		checker CheckerWithRandomRCPT
+		checker func() CheckerWithRandomRCPT
 		cache   evcache.Interface
 		getKey  RandomCacheKeyGetter
 	}
@@ -593,28 +608,125 @@ func TestNewCheckerCacheRandomRCPT(t *testing.T) {
 		{
 			name: "fill empty",
 			args: args{
-				checker: nil,
-				cache:   nil,
-				getKey:  nil,
+				checker: func() CheckerWithRandomRCPT {
+					mock := NewMockCheckerWithRandomRCPT(ctrl)
+					mock.EXPECT().get().Return(nil).Times(1)
+					mock.EXPECT().set(gomock.Any()).Times(1)
+
+					return mock
+				},
+				cache:  nil,
+				getKey: nil,
 			},
 			want: &checkerCacheRandomRCPT{
-				getKey: DefaultRandomCacheKeyGetter,
+				getKey:     DefaultRandomCacheKeyGetter,
+				randomRCPT: &ARandomRCPT{},
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := NewCheckerCacheRandomRCPT(tt.args.checker, tt.args.cache, tt.args.getKey)
+			got := NewCheckerCacheRandomRCPT(tt.args.checker(), tt.args.cache, tt.args.getKey)
+
 			gotChecker := got.(*checkerCacheRandomRCPT)
 			gotGetKey := gotChecker.getKey
 			gotChecker.getKey = nil
+			gotChecker.CheckerWithRandomRCPT = nil
 			want := tt.want.(*checkerCacheRandomRCPT)
 			wantGetKey := want.getKey
 			want.getKey = nil
+
 			if !reflect.DeepEqual(got, tt.want) || fmt.Sprint(gotGetKey) != fmt.Sprint(wantGetKey) {
 				t.Errorf(
 					"NewCheckerCacheRandomRCPT() = %v, want %v\n gotGetKey = %v, wantGetKey %v",
 					got, tt.want, gotGetKey, wantGetKey)
+			}
+		})
+	}
+}
+
+var cacheErrs = []error{
+	NewError(1, &textproto.Error{Code: 505, Msg: "msg1"}),
+	NewError(1, errors.New("msg2")),
+}
+
+func Test_Cache(t *testing.T) {
+	bigCacheClient, err := bigcache.NewBigCache(bigcache.DefaultConfig(5 * time.Minute))
+	require.Nil(t, err)
+	bigCacheStore := store.NewBigcache(bigCacheClient, nil)
+
+	marshal := marshaler.New(bigCacheStore)
+
+	cache := evcache.NewCacheMarshaller(marshal, func() interface{} {
+		return new([]error)
+	}, nil)
+
+	key := "key"
+
+	err = cache.Set(key, ConvertErrorsToEVSMTPErrors(cacheErrs))
+	require.Nil(t, err)
+
+	got, err := cache.Get(key)
+	require.Nil(t, err)
+	require.Equal(t, cacheErrs, *got.(*[]error))
+}
+
+func Test_checkerCacheRandomRCPT_RandomRCPT_RealCache(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	type fields struct {
+		CheckerWithRandomRCPT func() CheckerWithRandomRCPT
+		randomRCPT            RandomRCPT
+		cache                 func() evcache.Interface
+	}
+	type args struct {
+		email evmail.Address
+	}
+	tests := []struct {
+		name     string
+		fields   fields
+		args     args
+		wantErrs []error
+	}{
+		{
+			name: "with cache",
+			fields: fields{
+				CheckerWithRandomRCPT: func() CheckerWithRandomRCPT {
+					mock := NewMockCheckerWithRandomRCPT(ctrl)
+					mock.EXPECT().get().Return(mock.Call).Times(1)
+					mock.EXPECT().set(gomock.Any()).Times(1)
+					mock.EXPECT().Call(validEmail).Return(cacheErrs).Times(1)
+
+					return mock
+				},
+				cache: func() evcache.Interface {
+					bigCacheClient, err := bigcache.NewBigCache(bigcache.DefaultConfig(5 * time.Minute))
+					require.Nil(t, err)
+					bigCacheStore := store.NewBigcache(bigCacheClient, nil)
+
+					marshal := marshaler.New(bigCacheStore)
+
+					// Add value to cache
+					err = marshal.Set(DefaultRandomCacheKeyGetter(validEmail), cacheErrs, nil)
+					require.Nil(t, err)
+
+					return evcache.NewCacheMarshaller(marshal, func() interface{} {
+						return []error{}
+					}, nil)
+				},
+			},
+			args: args{
+				email: validEmail,
+			},
+			wantErrs: cacheErrs,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := NewCheckerCacheRandomRCPT(tt.fields.CheckerWithRandomRCPT(), tt.fields.cache(), DefaultRandomCacheKeyGetter).(*checkerCacheRandomRCPT)
+			if gotErrs := c.RandomRCPT(tt.args.email); !reflect.DeepEqual(gotErrs, tt.wantErrs) {
+				t.Errorf("RandomRCPT() = %v, want %v", gotErrs, tt.wantErrs)
 			}
 		})
 	}
