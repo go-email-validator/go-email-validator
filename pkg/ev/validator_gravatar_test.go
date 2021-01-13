@@ -37,7 +37,7 @@ func Test_gravatarValidator_Validate(t *testing.T) {
 				email:   evmail.FromString(""),
 				results: []ValidationResult{syntaxGetError()},
 			},
-			want: gravatarGetError(DepsError{}),
+			want: gravatarGetError(NewDepsError()),
 		},
 		{
 			name: "invalid in gravatar",

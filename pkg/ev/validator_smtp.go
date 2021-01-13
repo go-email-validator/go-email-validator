@@ -29,7 +29,7 @@ func (s smtpValidator) Validate(email evmail.Address, results ...ValidationResul
 	if syntaxResult.IsValid() && mxResult.IsValid() {
 		errs = s.checker.Validate(mxResult.MX(), email)
 	} else {
-		errs = append(errs, &DepsError{})
+		errs = append(errs, NewDepsError())
 	}
 
 	return NewResult(len(errs) == 0, errs, nil, SMTPValidatorName)

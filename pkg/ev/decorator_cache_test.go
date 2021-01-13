@@ -203,7 +203,7 @@ func (customErr) Error() string {
 
 var cacheErrs = []error{
 	//error(&customErr{}), TODO find way to marshal and unmarshal all interfaces
-	&DepsError{},
+	NewDepsError(),
 	evsmtp.NewError(1, &textproto.Error{Code: 505, Msg: "msg1"}),
 	evsmtp.NewError(1, errors.New("msg2")),
 }

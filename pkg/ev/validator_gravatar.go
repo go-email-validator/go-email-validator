@@ -49,7 +49,7 @@ func (g gravatarValidator) GetDeps() []ValidatorName {
 func (g gravatarValidator) Validate(email evmail.Address, results ...ValidationResult) ValidationResult {
 	syntaxResult := results[0].(SyntaxValidatorResult)
 	if !syntaxResult.IsValid() {
-		return gravatarGetError(DepsError{})
+		return gravatarGetError(NewDepsError())
 	}
 
 	g.h.Reset()
