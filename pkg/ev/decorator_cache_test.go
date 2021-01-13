@@ -83,7 +83,7 @@ func Test_cacheDecorator_Validate(t *testing.T) {
 				validator: validMockValidator,
 				cache: func() evcache.Interface {
 					cacheMock := mock_evcache.NewMockInterface(ctrl)
-					cacheMock.EXPECT().Get(key).Return(validResult, nil).Times(1)
+					cacheMock.EXPECT().Get(key).Return(&validResult, nil).Times(1)
 
 					return cacheMock
 				},
