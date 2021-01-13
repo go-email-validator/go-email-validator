@@ -6,14 +6,18 @@ import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 )
 
+// BanWordsUsernameValidatorName is name of ban words username
+// If email username has ban worlds, the email is invalid
 const BanWordsUsernameValidatorName ValidatorName = "BanWordsUsername"
 
+// BanWordsUsernameError is BanWordsUsernameValidatorName error
 type BanWordsUsernameError struct{}
 
 func (BanWordsUsernameError) Error() string {
 	return "BanWordsUsernameError"
 }
 
+// NewBanWordsUsername instantiates BanWordsUsernameValidatorName validator
 func NewBanWordsUsername(inStrings contains.InStrings) Validator {
 	return banWordsUsernameValidator{d: inStrings}
 }

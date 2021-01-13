@@ -10,6 +10,7 @@ import (
 	"strings"
 )
 
+// Default configuration constants
 const (
 	RoleURL      = "https://raw.githubusercontent.com/mixmaxhq/role-based-email-addresses/master/index.js"
 	RBEARolePath = "pkg/ev/role/rbea_roles.go"

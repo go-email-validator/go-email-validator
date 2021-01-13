@@ -9,17 +9,21 @@ import (
 	"go.uber.org/zap"
 )
 
+// CacheKeyGetter is type for key generators
 // To use complex keys you can use https://github.com/vmihailenco/msgpack/
 type CacheKeyGetter func(email evmail.Address, results ...ValidationResult) interface{}
 
+// EmailCacheKeyGetter generates key as full email
 func EmailCacheKeyGetter(email evmail.Address, _ ...ValidationResult) interface{} {
 	return email.String()
 }
 
+// DomainCacheKeyGetter generates key as domain
 func DomainCacheKeyGetter(email evmail.Address, _ ...ValidationResult) interface{} {
 	return email.Domain()
 }
 
+// NewCacheDecorator instantiates cache decorator
 func NewCacheDecorator(validator Validator, cache evcache.Interface, getKey CacheKeyGetter) Validator {
 	if getKey == nil {
 		getKey = EmailCacheKeyGetter

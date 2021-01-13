@@ -5,17 +5,18 @@ import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 )
 
-// Create warning decorator to skip some errors
+// NewWarningsDecorator creates warning decorator to skip some errors
 func NewWarningsDecorator(validator Validator, isWarning IsWarning) Validator {
 	return warningsDecorator{validator, isWarning}
 }
 
-// Detect error as warning
+// IsWarning is type to detect error as warning
 type IsWarning func(err error) bool
 
+// WarningSet is alias for sets.Set
 type WarningSet sets.Set
 
-// Create function for detection of warnings
+// NewIsWarning creates function for detection of warnings
 func NewIsWarning(warningMap WarningSet, isWarning func(warningMap WarningSet) IsWarning) IsWarning {
 	return isWarning(warningMap)
 }
