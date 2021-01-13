@@ -1,10 +1,14 @@
 package evsmtp
 
 import (
+	"crypto/tls"
+	"crypto/x509"
 	"errors"
 	"fmt"
 	"github.com/vmihailenco/msgpack"
+	"net"
 	"net/textproto"
+	"net/url"
 	"reflect"
 )
 
@@ -14,10 +18,46 @@ const (
 	ErrorCrLR       = "smtp: A line must not contain CR or LF"
 )
 
+var registerExtId int8 = -128
+
+// ExtId returns register extent id, used for msgpack.RegisterExt
+func ExtId() int8 {
+	registerExtId++
+	return registerExtId - 1
+}
+
+// SetExtId sets register extent id, used for msgpack.RegisterExt
+func SetExtId(rExt int8) {
+	registerExtId = rExt
+}
+
+// Import different error types from packages, used in smtp.Client
 func init() {
-	msgpack.RegisterExt(1, new(DefaultError))
-	msgpack.RegisterExt(2, new(ASMTPError))
-	msgpack.RegisterExt(3, new(textproto.Error))
+	msgpack.RegisterExt(ExtId(), new(DefaultError))
+	msgpack.RegisterExt(ExtId(), new(ASMTPError))
+
+	msgpack.RegisterExt(ExtId(), new(textproto.Error))
+	msgpack.RegisterExt(ExtId(), new(textproto.ProtocolError))
+
+	msgpack.RegisterExt(ExtId(), new(net.AddrError))
+	msgpack.RegisterExt(ExtId(), new(net.DNSConfigError))
+	msgpack.RegisterExt(ExtId(), new(net.DNSError))
+	msgpack.RegisterExt(ExtId(), new(net.InvalidAddrError))
+	msgpack.RegisterExt(ExtId(), new(net.OpError))
+	msgpack.RegisterExt(ExtId(), new(net.ParseError))
+	msgpack.RegisterExt(ExtId(), new(net.UnknownNetworkError))
+
+	msgpack.RegisterExt(ExtId(), new(url.Error))
+	msgpack.RegisterExt(ExtId(), new(url.EscapeError))
+	msgpack.RegisterExt(ExtId(), new(url.InvalidHostError))
+
+	msgpack.RegisterExt(ExtId(), new(tls.RecordHeaderError))
+	msgpack.RegisterExt(ExtId(), new(x509.CertificateInvalidError))
+	msgpack.RegisterExt(ExtId(), new(x509.HostnameError))
+	msgpack.RegisterExt(ExtId(), new(x509.UnknownAuthorityError))
+	msgpack.RegisterExt(ExtId(), new(x509.SystemRootsError))
+	msgpack.RegisterExt(ExtId(), new(x509.InsecureAlgorithmError))
+	msgpack.RegisterExt(ExtId(), new(x509.ConstraintViolationError))
 
 	msgpack.Register(errors.New(""), func(e *msgpack.Encoder, v reflect.Value) error {
 		if v.IsNil() {

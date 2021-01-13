@@ -8,8 +8,8 @@ import (
 )
 
 func init() {
-	msgpack.RegisterExt(10, new(DepsError))
-	msgpack.RegisterExt(11, new(AValidationResult))
+	msgpack.RegisterExt(evsmtp.ExtId(), new(DepsError))
+	msgpack.RegisterExt(evsmtp.ExtId(), new(AValidationResult))
 }
 
 // ValidatorName is type to represent validator name
