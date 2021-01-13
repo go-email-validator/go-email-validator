@@ -467,6 +467,7 @@ func TestChecker_Validate_WithProxy_Local(t *testing.T) {
 				randomEmail: tt.fields.RandomEmail,
 				port:        tt.fields.Port,
 			}
+			c.RandomRCPT = &ARandomRCPT{fn: c.randomRCPT}
 
 			gotErrs := c.Validate(tt.args.mxs, tt.args.email)
 			actualClient := <-done
