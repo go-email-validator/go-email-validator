@@ -2,9 +2,14 @@ package ev
 
 import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 	"github.com/vmihailenco/msgpack"
 )
+
+func init() {
+	msgpack.RegisterExt(10, new(AValidationResult))
+}
 
 type ValidatorName string
 
@@ -75,8 +80,14 @@ func (a *AValidationResult) ValidatorName() ValidatorName {
 	return a.name
 }
 
+// Fix this problem https://github.com/vmihailenco/msgpack/issues/294
 func (a *AValidationResult) EncodeMsgpack(enc *msgpack.Encoder) error {
-	return enc.EncodeMulti(a.isValid, a.errors, a.warnings, a.name)
+	return enc.EncodeMulti(
+		a.isValid,
+		evsmtp.ConvertErrorsToEVSMTPErrors(a.errors),
+		evsmtp.ConvertErrorsToEVSMTPErrors(a.warnings),
+		a.name,
+	)
 }
 
 func (a *AValidationResult) DecodeMsgpack(dec *msgpack.Decoder) error {

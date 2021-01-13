@@ -22,8 +22,7 @@ func init() {
 		if v.IsNil() {
 			return e.EncodeNil()
 		}
-		str := v.Interface().(error).Error()
-		return e.EncodeString(str)
+		return e.EncodeString(v.Interface().(error).Error())
 	}, nil)
 }
 

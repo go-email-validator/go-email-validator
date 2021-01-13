@@ -1,12 +1,20 @@
 package ev
 
 import (
+	"errors"
+	"github.com/allegro/bigcache"
+	"github.com/eko/gocache/marshaler"
+	"github.com/eko/gocache/store"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evcache"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp"
 	mock_evcache "github.com/go-email-validator/go-email-validator/test/mock/ev/evcache"
 	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/require"
+	"net/textproto"
 	"reflect"
 	"testing"
+	"time"
 )
 
 func Test_cacheDecorator_Validate(t *testing.T) {
@@ -186,4 +194,32 @@ func TestDomainCacheKeyGetter(t *testing.T) {
 			}
 		})
 	}
+}
+
+var cacheErrs = []error{
+	evsmtp.NewError(1, &textproto.Error{Code: 505, Msg: "msg1"}),
+	evsmtp.NewError(1, errors.New("msg2")),
+}
+var validatorResult = NewResult(true, cacheErrs, cacheErrs, OtherValidator)
+
+func Test_Cache(t *testing.T) {
+	bigCacheClient, err := bigcache.NewBigCache(bigcache.DefaultConfig(1 * time.Second))
+	require.Nil(t, err)
+	bigCacheStore := store.NewBigcache(bigCacheClient, nil)
+
+	marshal := marshaler.New(bigCacheStore)
+
+	cache := evcache.NewCacheMarshaller(marshal, func() interface{} {
+		return new(ValidationResult)
+	}, nil)
+
+	key := "key"
+
+	err = cache.Set(key, validatorResult)
+	require.Nil(t, err)
+
+	gotInterface, err := cache.Get(key)
+	require.Nil(t, err)
+	got := *gotInterface.(*ValidationResult)
+	require.Equal(t, validatorResult, got)
 }

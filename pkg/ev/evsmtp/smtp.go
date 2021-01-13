@@ -267,7 +267,7 @@ func (c checkerCacheRandomRCPT) RandomRCPT(email evmail.Address) (errs []error) 
 	key := c.getKey(email)
 	resultInterface, err := c.cache.Get(key)
 	if err == nil && resultInterface != nil {
-		errs = ConvertEVSMTPErrorsToErrors(resultInterface.([]AliasError))
+		errs = *resultInterface.(*[]error)
 	} else {
 		errs = c.randomRCPT.Call(email)
 		if err = c.cache.Set(key, ConvertErrorsToEVSMTPErrors(errs)); err != nil {

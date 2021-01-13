@@ -519,7 +519,7 @@ func Test_checkerCacheRandomRCPT_RandomRCPT(t *testing.T) {
 				checkerWithRandomRPCT: emptyChecker,
 				cache: func() evcache.Interface {
 					mock := mock_evcache.NewMockInterface(ctrl)
-					mock.EXPECT().Get(validEmail.Domain()).Return(errsAlias, nil).Times(1)
+					mock.EXPECT().Get(validEmail.Domain()).Return(&errs, nil).Times(1)
 
 					return mock
 				},
@@ -697,7 +697,6 @@ func Test_checkerCacheRandomRCPT_RandomRCPT_RealCache(t *testing.T) {
 					mock := NewMockCheckerWithRandomRCPT(ctrl)
 					mock.EXPECT().get().Return(mock.Call).Times(1)
 					mock.EXPECT().set(gomock.Any()).Times(1)
-					mock.EXPECT().Call(validEmail).Return(cacheErrs).Times(1)
 
 					return mock
 				},
@@ -709,11 +708,12 @@ func Test_checkerCacheRandomRCPT_RandomRCPT_RealCache(t *testing.T) {
 					marshal := marshaler.New(bigCacheStore)
 
 					// Add value to cache
-					err = marshal.Set(DefaultRandomCacheKeyGetter(validEmail), cacheErrs, nil)
+					key := DefaultRandomCacheKeyGetter(validEmail)
+					err = marshal.Set(key, ConvertErrorsToEVSMTPErrors(cacheErrs), nil)
 					require.Nil(t, err)
 
 					return evcache.NewCacheMarshaller(marshal, func() interface{} {
-						return []error{}
+						return new([]error)
 					}, nil)
 				},
 			},
