@@ -7,8 +7,8 @@ on:
       - master
 name: Test
 env:
-  GO_VERSION_LATEST: &go-version-latest 1.15.x
-  OS_CODE_COVERAGE: &os-code-coverage ubuntu-latest
+  GO_VERSION_LATEST: 1.15.x
+  OS_CODE_COVERAGE: ubuntu-latest
 jobs:
   test:
     strategy:
@@ -16,9 +16,9 @@ jobs:
         go-version:
           - 1.13.x
           - 1.14.x
-          - *go-version-latest
+          - ${{ env.GO_VERSION_LATEST }}
         os:
-          - *os-code-coverage
+          - ${{ env.OS_CODE_COVERAGE }}
           # - macos-latest
           # - windows-latest
     runs-on: ${{ matrix.os }}
