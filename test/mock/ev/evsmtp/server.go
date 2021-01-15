@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"net"
 	"net/textproto"
+	"sync"
 	"testing"
 	"time"
 )
@@ -23,8 +24,10 @@ func Server(t *testing.T, server []string, timeout time.Duration) (string, chan 
 	}
 
 	var done = make(chan string)
+	closedMu := &sync.Mutex{}
 	closed := false
 	closeServer := func() {
+		closedMu.Lock()
 		if !closed {
 			closed = true
 			bcmdbuf.Flush()
@@ -32,6 +35,7 @@ func Server(t *testing.T, server []string, timeout time.Duration) (string, chan 
 			close(done)
 			l.Close()
 		}
+		closedMu.Unlock()
 	}
 	go func(data []string) {
 		defer closeServer()

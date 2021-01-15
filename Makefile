@@ -42,9 +42,12 @@ go.cover.total:
 	$(GO_COVER) | grep total | awk '{print substr($$3, 1, length($$3)-1)}'
 
 # make act ARGS="-s CODECOV_TOKEN=..."
-act:
+act.build:
 	docker build -t act-node-slim build/act/
+act.run:
 	act -P ubuntu-latest=act-node-slim:latest $(ARGS)
+
+act: act.build act.run
 
 install.lint:
     curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.33.0

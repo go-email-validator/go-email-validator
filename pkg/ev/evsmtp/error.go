@@ -18,7 +18,8 @@ const (
 	ErrorCrLR       = "smtp: A line must not contain CR or LF"
 )
 
-var registerExtId int8 = -128
+// Used 0 because of https://github.com/msgpack/msgpack/blob/master/spec.md#extension-types
+var registerExtId int8 = 0
 
 // ExtId returns register extent id, used for msgpack.RegisterExt
 func ExtId() int8 {

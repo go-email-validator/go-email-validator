@@ -42,20 +42,26 @@ func generateFreeCode(freeEmails []string) string {
 	strBuilder.WriteString(
 		`package free
 
-import "github.com/emirpasic/gods/sets/hashset"
+import (
+	"github.com/emirpasic/gods/sets/hashset"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/contains"
+	"strings"
+)
 
+// WillWhiteFree returns the list of free domains
 func WillWhiteFree() []string {
 	return willWhiteFree
 }
 
-func NewWillWhiteSetFree() SetFree {
+// NewWillWhiteSetFree forms contains.InSet from list of free domains (https://github.com/willwhite/freemail/blob/master/data/free.txt)
+func NewWillWhiteSetFree() contains.InSet {
 	WillWhiteFree := WillWhiteFree()
 	freeEmails := make([]interface{}, len(WillWhiteFree))
 	for i, freeEmail := range WillWhiteFree {
-		freeEmails[i] = freeEmail
+		freeEmails[i] = strings.ToLower(freeEmail)
 	}
 
-	return SetFree{hashset.New(freeEmails...)}
+	return contains.NewSet(hashset.New(freeEmails...))
 }
 `)
 	strBuilder.WriteString(`
