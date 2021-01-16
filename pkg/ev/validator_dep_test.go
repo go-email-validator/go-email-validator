@@ -20,7 +20,7 @@ func (t testSleep) GetDeps() []ValidatorName {
 	return t.deps
 }
 
-func (t testSleep) Validate(_ evmail.Address, results ...ValidationResult) ValidationResult {
+func (t testSleep) Validate(_ Interface, results ...ValidationResult) ValidationResult {
 	time.Sleep(t.sleep)
 
 	var isValid = true
@@ -58,7 +58,7 @@ func TestDepValidator_Validate_Independent(t *testing.T) {
 		},
 	)
 
-	v := depValidator.Validate(email)
+	v := depValidator.Validate(NewInput(email))
 	require.False(t, v.IsValid())
 }
 
@@ -85,7 +85,7 @@ func TestDepValidator_Validate_Dependent(t *testing.T) {
 	},
 	)
 
-	v := depValidator.Validate(email)
+	v := depValidator.Validate(NewInput(email))
 	require.True(t, v.IsValid())
 }
 
@@ -95,7 +95,7 @@ func TestDepValidator_Validate_Full(t *testing.T) {
 	email := evmail.FromString(mockevmail.ValidEmailString)
 	depValidator := NewDepBuilder(nil).Build()
 
-	v := depValidator.Validate(email)
+	v := depValidator.Validate(NewInput(email))
 	require.True(t, v.IsValid())
 }
 

@@ -41,3 +41,32 @@ func LoadEnv(env string) {
 func StructName(strct interface{}) string {
 	return reflect.ValueOf(strct).Type().String()
 }
+
+var (
+	defaultString string
+	defaultInt    int
+)
+
+func DefaultString(val string, defaultVal string) string {
+	if val == defaultString {
+		return defaultVal
+	}
+
+	return val
+}
+
+func DefaultInt(val int, defaultVal int) int {
+	if val == defaultInt {
+		return defaultVal
+	}
+
+	return val
+}
+
+func DefaultInterface(val interface{}, defaultVal interface{}) interface{} {
+	if val == nil {
+		return defaultVal
+	}
+
+	return val
+}

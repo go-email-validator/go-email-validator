@@ -2,7 +2,6 @@ package ev
 
 import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/contains"
-	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 )
 
@@ -10,11 +9,14 @@ import (
 // If email username has ban worlds, the email is invalid
 const BanWordsUsernameValidatorName ValidatorName = "BanWordsUsername"
 
+// BanWordsUsernameErr is text for BanWordsUsernameError.Error
+const BanWordsUsernameErr = "BanWordsUsernameError"
+
 // BanWordsUsernameError is BanWordsUsernameValidatorName error
 type BanWordsUsernameError struct{}
 
 func (BanWordsUsernameError) Error() string {
-	return "BanWordsUsernameError"
+	return BanWordsUsernameErr
 }
 
 // NewBanWordsUsername instantiates BanWordsUsernameValidatorName validator
@@ -27,9 +29,9 @@ type banWordsUsernameValidator struct {
 	AValidatorWithoutDeps
 }
 
-func (w banWordsUsernameValidator) Validate(email evmail.Address, _ ...ValidationResult) ValidationResult {
+func (w banWordsUsernameValidator) Validate(input Interface, _ ...ValidationResult) ValidationResult {
 	var err error
-	var isContains = w.d.Contains(email.Username())
+	var isContains = w.d.Contains(input.Email().Username())
 	if isContains {
 		err = BanWordsUsernameError{}
 	}

@@ -79,7 +79,7 @@ type mockValidator struct {
 	deps   []ValidatorName
 }
 
-func (m mockValidator) Validate(_ evmail.Address, _ ...ValidationResult) ValidationResult {
+func (m mockValidator) Validate(_ Interface, _ ...ValidationResult) ValidationResult {
 	var err error
 	if !m.result {
 		err = newMockError()
@@ -143,7 +143,7 @@ func TestMockValidator(t *testing.T) {
 
 	var emptyEmail evmail.Address
 	for _, c := range cases {
-		actual := c.validator.Validate(emptyEmail)
+		actual := c.validator.Validate(NewInput(emptyEmail))
 		require.Equal(t, c.expected, actual)
 	}
 }
@@ -222,6 +222,90 @@ func TestValidatorName_String(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.v.String(); got != tt.want {
 				t.Errorf("String() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestAValidationResult_HasWarnings(t *testing.T) {
+	type fields struct {
+		isValid  bool
+		errors   []error
+		warnings []error
+		name     ValidatorName
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   bool
+	}{
+		{
+			name: "true",
+			fields: fields{
+				warnings: utils.Errs(errorSimple),
+			},
+			want: true,
+		},
+		{
+			name: "false empty",
+			fields: fields{
+				warnings: []error{},
+			},
+			want: false,
+		},
+		{
+			name: "false nil",
+			fields: fields{
+				warnings: nil,
+			},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			a := &AValidationResult{
+				isValid:  tt.fields.isValid,
+				errors:   tt.fields.errors,
+				warnings: tt.fields.warnings,
+				name:     tt.fields.name,
+			}
+			if got := a.HasWarnings(); got != tt.want {
+				t.Errorf("HasWarnings() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestAValidationResult_ValidatorName(t *testing.T) {
+	type fields struct {
+		isValid  bool
+		errors   []error
+		warnings []error
+		name     ValidatorName
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   ValidatorName
+	}{
+		{
+			name: "success",
+			fields: fields{
+				name: OtherValidator,
+			},
+			want: OtherValidator,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			a := &AValidationResult{
+				isValid:  tt.fields.isValid,
+				errors:   tt.fields.errors,
+				warnings: tt.fields.warnings,
+				name:     tt.fields.name,
+			}
+			if got := a.ValidatorName(); got != tt.want {
+				t.Errorf("ValidatorName() = %v, want %v", got, tt.want)
 			}
 		})
 	}

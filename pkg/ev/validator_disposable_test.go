@@ -41,8 +41,27 @@ func TestDisposableValidator_Validate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			d := NewDisposableValidator(tt.fields.d)
-			if got := d.Validate(tt.args.email, tt.args.in1...); !reflect.DeepEqual(got, tt.want) {
+			if got := d.Validate(NewInput(tt.args.email), tt.args.in1...); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Validate() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestDisposableError_Error(t *testing.T) {
+	tests := []struct {
+		name string
+		want string
+	}{
+		{
+			want: DisposableErr,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			di := DisposableError{}
+			if got := di.Error(); got != tt.want {
+				t.Errorf("Error() = %v, want %v", got, tt.want)
 			}
 		})
 	}

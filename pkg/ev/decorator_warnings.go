@@ -2,7 +2,6 @@ package ev
 
 import (
 	"github.com/emirpasic/gods/sets"
-	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 )
 
 // NewWarningsDecorator creates warning decorator to skip some errors
@@ -30,8 +29,8 @@ func (w warningsDecorator) GetDeps() []ValidatorName {
 	return w.validator.GetDeps()
 }
 
-func (w warningsDecorator) Validate(email evmail.Address, results ...ValidationResult) ValidationResult {
-	result := w.validator.Validate(email, results...)
+func (w warningsDecorator) Validate(input Interface, results ...ValidationResult) ValidationResult {
+	result := w.validator.Validate(input, results...)
 	changeableResult, ok := result.(ChangeableValidationResult)
 	if !ok {
 		return result

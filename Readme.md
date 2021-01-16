@@ -57,7 +57,7 @@ func main() {
 
   validator := builder.Build()
 
-  v := validator.Validate(evmail.FromString("test@evmail.com"))
+  v := validator.Validate(NewInput(evmail.FromString("test@evmail.com")))
   if !v.IsValid() {
     panic("email is invalid")
   }
@@ -79,7 +79,7 @@ import (
 )
 
 func main() {
-  var v = ev.NewSyntaxValidator().Validate(evmail.FromString("some@evmail.here")) // ev.ValidationResult
+  var v = ev.NewSyntaxValidator().Validate(NewInput(evmail.FromString("some@evmail.here"))) // ev.ValidationResult
 
   if !v.IsValid() {
     panic("email is invalid")
@@ -87,6 +87,19 @@ func main() {
 
   fmt.Println(v)
 }
+```
+
+### Addition options
+
+To set options for different validators, use NewInput(..., NewKVOption(ValidatorName, Options))
+
+```go
+NewInput(
+	evmail.FromString("test@evmail.com"), 
+	NewKVOption(SMTPValidatorName, evsmtp.NewOptions(evsmtp.OptionsDTO{
+		Port: 465,
+    })),
+)
 ```
 
 Use function New...(...) to create structure instead of public.

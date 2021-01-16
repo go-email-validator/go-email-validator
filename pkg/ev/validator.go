@@ -1,7 +1,6 @@
 package ev
 
 import (
-	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 	"github.com/vmihailenco/msgpack"
@@ -12,20 +11,13 @@ func init() {
 	msgpack.RegisterExt(evsmtp.ExtId(), new(AValidationResult))
 }
 
-// ValidatorName is type to represent validator name
-type ValidatorName string
-
-func (v ValidatorName) String() string {
-	return string(v)
-}
-
 // OtherValidator is ValidatorName for unknown Validator
 const OtherValidator ValidatorName = "other"
 
 // Validator is interface for validators
 type Validator interface {
 	GetDeps() []ValidatorName
-	Validate(email evmail.Address, results ...ValidationResult) ValidationResult
+	Validate(input Interface, results ...ValidationResult) ValidationResult
 }
 
 // ChangeableValidationResult is ValidationResult with changeable errors and warnings

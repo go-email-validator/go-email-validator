@@ -97,17 +97,17 @@ func (m *MockChecker) EXPECT() *MockCheckerMockRecorder {
 }
 
 // Validate mocks base method
-func (m *MockChecker) Validate(mxs MXs, email evmail.Address) []error {
+func (m *MockChecker) Validate(mxs MXs, input Input) []error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Validate", mxs, email)
+	ret := m.ctrl.Call(m, "Validate", mxs, input)
 	ret0, _ := ret[0].([]error)
 	return ret0
 }
 
 // Validate indicates an expected call of Validate
-func (mr *MockCheckerMockRecorder) Validate(mxs, email interface{}) *gomock.Call {
+func (mr *MockCheckerMockRecorder) Validate(mxs, input interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Validate", reflect.TypeOf((*MockChecker)(nil).Validate), mxs, email)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Validate", reflect.TypeOf((*MockChecker)(nil).Validate), mxs, input)
 }
 
 // MockCheckerWithRandomRCPT is a mock of CheckerWithRandomRCPT interface
@@ -134,17 +134,17 @@ func (m *MockCheckerWithRandomRCPT) EXPECT() *MockCheckerWithRandomRCPTMockRecor
 }
 
 // Validate mocks base method
-func (m *MockCheckerWithRandomRCPT) Validate(mxs MXs, email evmail.Address) []error {
+func (m *MockCheckerWithRandomRCPT) Validate(mxs MXs, input Input) []error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Validate", mxs, email)
+	ret := m.ctrl.Call(m, "Validate", mxs, input)
 	ret0, _ := ret[0].([]error)
 	return ret0
 }
 
 // Validate indicates an expected call of Validate
-func (mr *MockCheckerWithRandomRCPTMockRecorder) Validate(mxs, email interface{}) *gomock.Call {
+func (mr *MockCheckerWithRandomRCPTMockRecorder) Validate(mxs, input interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Validate", reflect.TypeOf((*MockCheckerWithRandomRCPT)(nil).Validate), mxs, email)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Validate", reflect.TypeOf((*MockCheckerWithRandomRCPT)(nil).Validate), mxs, input)
 }
 
 // Call mocks base method

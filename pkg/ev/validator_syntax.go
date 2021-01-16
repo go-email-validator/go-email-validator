@@ -1,7 +1,6 @@
 package ev
 
 import (
-	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 	"net/mail"
 	"regexp"
@@ -31,8 +30,8 @@ type syntaxValidator struct {
 	AValidatorWithoutDeps
 }
 
-func (syntaxValidator) Validate(email evmail.Address, _ ...ValidationResult) ValidationResult {
-	_, err := mail.ParseAddress(email.String())
+func (syntaxValidator) Validate(input Interface, _ ...ValidationResult) ValidationResult {
+	_, err := mail.ParseAddress(input.Email().String())
 
 	if err == nil {
 		return NewValidResult(SyntaxValidatorName)
@@ -65,8 +64,8 @@ type syntaxRegexValidator struct {
 	emailRegex *regexp.Regexp
 }
 
-func (s syntaxRegexValidator) Validate(email evmail.Address, _ ...ValidationResult) ValidationResult {
-	if s.emailRegex.MatchString(email.String()) {
+func (s syntaxRegexValidator) Validate(input Interface, _ ...ValidationResult) ValidationResult {
+	if s.emailRegex.MatchString(input.Email().String()) {
 		return NewValidResult(SyntaxValidatorName)
 	}
 	return syntaxGetError()

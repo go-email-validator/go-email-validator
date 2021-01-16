@@ -99,7 +99,7 @@ func Test_cacheDecorator_Validate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := NewCacheDecorator(tt.fields.validator, tt.fields.cache(), tt.fields.getKey)
-			if gotResult := c.Validate(tt.args.email, tt.args.results...); !reflect.DeepEqual(gotResult, tt.wantResult) {
+			if gotResult := c.Validate(NewInput(tt.args.email), tt.args.results...); !reflect.DeepEqual(gotResult, tt.wantResult) {
 				t.Errorf("Validate() = %v, want %v", gotResult, tt.wantResult)
 			}
 		})
@@ -162,7 +162,7 @@ func TestEmailCacheKeyGetter(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := EmailCacheKeyGetter(tt.args.email, tt.args.results...); !reflect.DeepEqual(got, tt.want) {
+			if got := EmailCacheKeyGetter(NewInput(tt.args.email), tt.args.results...); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("EmailCacheKeyGetter() = %v, want %v", got, tt.want)
 			}
 		})
@@ -188,7 +188,7 @@ func TestDomainCacheKeyGetter(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := DomainCacheKeyGetter(tt.args.email); !reflect.DeepEqual(got, tt.want) {
+			if got := DomainCacheKeyGetter(NewInput(tt.args.email)); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("DomainCacheKeyGetter() = %v, want %v", got, tt.want)
 			}
 		})

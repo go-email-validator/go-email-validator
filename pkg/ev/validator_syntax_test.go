@@ -38,7 +38,7 @@ func Test_syntaxValidator_Validate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			sy := NewSyntaxValidator()
-			if got := sy.Validate(tt.args.email); !reflect.DeepEqual(got, tt.want) {
+			if got := sy.Validate(NewInput(tt.args.email)); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Validate() = %v, want %v", got, tt.want)
 			}
 		})
@@ -95,7 +95,7 @@ func Test_syntaxRegexValidator_Validate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := NewSyntaxRegexValidator(tt.fields.emailRegex)
-			if got := s.Validate(tt.args.email); !reflect.DeepEqual(got, tt.want) {
+			if got := s.Validate(NewInput(tt.args.email)); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Validate() = %v, want %v", got, tt.want)
 			}
 		})

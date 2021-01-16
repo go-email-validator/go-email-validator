@@ -44,7 +44,7 @@ var (
 	errorSimple    = errors.New("errorSimple")
 	errorRandom    = errors.New("errorRandom")
 	mxs            = MXs{&net.MX{Host: "127.0.0.1"}}
-	localName      = "localName"
+	helloName      = "helloName"
 	emptyLocalName = ""
 	simpleClient   = &smtp.Client{}
 	emailFromStr   = "email@from.com"
@@ -105,9 +105,8 @@ func Test_checker_Validate(t *testing.T) {
 	type fields struct {
 		dialFunc    DialFunc
 		sendMail    SendMail
-		fromEmail   evmail.Address
-		localName   string
 		randomEmail RandomEmail
+		options     Options
 	}
 	type args struct {
 		mx    MXs
@@ -143,14 +142,16 @@ func Test_checker_Validate(t *testing.T) {
 			),
 		},
 		{
-			name: "Bad hello with localName",
+			name: "Bad hello with helloName",
 			fields: fields{
 				dialFunc: dialFunc(simpleClient, nil),
 				sendMail: &mockSendMail{
 					t:    t,
-					want: failWant(&sendMailWant{stage: smHello, message: smHello + localName, ret: errorSimple}, true),
+					want: failWant(&sendMailWant{stage: smHello, message: smHello + helloName, ret: errorSimple}, true),
 				},
-				localName: localName,
+				options: &options{
+					helloName: helloName,
+				},
 			},
 			args: args{
 				mx: mxs,
@@ -191,7 +192,9 @@ func Test_checker_Validate(t *testing.T) {
 						ret:     errorSimple,
 					}, true),
 				},
-				fromEmail: emailFrom,
+				options: &options{
+					emailFrom: emailFrom,
+				},
 			},
 			args: args{
 				mx: mxs,
@@ -220,8 +223,10 @@ func Test_checker_Validate(t *testing.T) {
 						closeStageWant,
 					),
 				},
-				fromEmail:   emailFrom,
 				randomEmail: mockRandomEmail(t, randomAddress, errorRandom),
+				options: &options{
+					emailFrom: emailFrom,
+				},
 			},
 			args: args{
 				mx:    mxs,
@@ -252,8 +257,10 @@ func Test_checker_Validate(t *testing.T) {
 						closeStageWant,
 					),
 				},
-				fromEmail:   emailFrom,
 				randomEmail: mockRandomEmail(t, randomAddress, nil),
+				options: &options{
+					emailFrom: emailFrom,
+				},
 			},
 			args: args{
 				mx:    mxs,
@@ -276,8 +283,10 @@ func Test_checker_Validate(t *testing.T) {
 						ret:     errorSimple,
 					}, true),
 				},
-				fromEmail:   emailFrom,
 				randomEmail: mockRandomEmail(t, randomAddress, nil),
+				options: &options{
+					emailFrom: emailFrom,
+				},
 			},
 			args: args{
 				mx:    mxs,
@@ -295,8 +304,10 @@ func Test_checker_Validate(t *testing.T) {
 					t:    t,
 					want: failWant(nil, true),
 				},
-				fromEmail:   emailFrom,
 				randomEmail: mockRandomEmail(t, randomAddress, nil),
+				options: &options{
+					emailFrom: emailFrom,
+				},
 			},
 			args: args{
 				mx:    mxs,
@@ -310,11 +321,10 @@ func Test_checker_Validate(t *testing.T) {
 			c := NewChecker(CheckerDTO{
 				DialFunc:    tt.fields.dialFunc,
 				SendMail:    tt.fields.sendMail,
-				FromEmail:   tt.fields.fromEmail,
-				LocalName:   tt.fields.localName,
 				RandomEmail: tt.fields.randomEmail,
+				Options:     tt.fields.options,
 			})
-			gotErrs := c.Validate(tt.args.mx, tt.args.email)
+			gotErrs := c.Validate(tt.args.mx, NewInput(tt.args.email, nil))
 			if !reflect.DeepEqual(gotErrs, tt.wantErrs) {
 				t.Errorf("Validate() = %v, want %v", gotErrs, tt.wantErrs)
 			}
@@ -335,8 +345,8 @@ func TestChecker_Validate_WithProxy_Local(t *testing.T) {
 		"221 Goodbye",
 	}
 	successWantSMTP := []string{
-		"EHLO localhost",
-		"HELO localhost",
+		"EHLO helloName",
+		"HELO helloName",
 		"MAIL FROM:<user@example.org>",
 		"RCPT TO:<random.which.did.not.exist@tradepro.net>",
 		"RCPT TO:<asd@tradepro.net>",
@@ -361,11 +371,9 @@ func TestChecker_Validate_WithProxy_Local(t *testing.T) {
 		GetConn     DialFunc
 		Auth        smtp.Auth
 		SendMail    SendMail
-		FromEmail   evmail.Address
-		Localhost   string
 		RandomEmail RandomEmail
-		Port        int
 		Server      []string
+		OptionsDTO  OptionsDTO
 	}
 	type args struct {
 		mxs   MXs
@@ -393,10 +401,12 @@ func TestChecker_Validate_WithProxy_Local(t *testing.T) {
 				GetConn:     Dial,
 				Auth:        nil,
 				SendMail:    NewSendMail(nil),
-				FromEmail:   emailFrom,
-				Localhost:   "localhost",
 				RandomEmail: mockRandomEmail(t, getRandomAddress(emailTest), nil),
 				Server:      successServer,
+				OptionsDTO: OptionsDTO{
+					EmailFrom: emailFrom,
+					HelloName: helloName,
+				},
 			},
 			args: args{
 				mxs:   mxs,
@@ -414,10 +424,12 @@ func TestChecker_Validate_WithProxy_Local(t *testing.T) {
 				GetConn:     getSMTPProxy(nil, append(invalidProxies, proxyList...)...).Dial,
 				Auth:        nil,
 				SendMail:    NewSendMail(nil),
-				FromEmail:   emailFrom,
-				Localhost:   "localhost",
 				RandomEmail: mockRandomEmail(t, getRandomAddress(emailTest), nil),
 				Server:      successServer,
+				OptionsDTO: OptionsDTO{
+					EmailFrom: emailFrom,
+					HelloName: helloName,
+				},
 			},
 			args: args{
 				mxs: MXs{&net.MX{
@@ -437,9 +449,11 @@ func TestChecker_Validate_WithProxy_Local(t *testing.T) {
 				GetConn:     getSMTPProxy(nil, invalidProxies...).Dial,
 				Auth:        nil,
 				SendMail:    NewSendMail(nil),
-				FromEmail:   emailFrom,
-				Localhost:   "localhost",
 				RandomEmail: mockRandomEmail(t, getRandomAddress(emailTest), nil),
+				OptionsDTO: OptionsDTO{
+					EmailFrom: emailFrom,
+					HelloName: helloName,
+				},
 			},
 			args: args{
 				mxs:   mxs,
@@ -453,23 +467,21 @@ func TestChecker_Validate_WithProxy_Local(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			addr, done := mockevsmtp.Server(t, tt.fields.Server, time.Second)
 
-			if tt.fields.Port == 0 {
+			if tt.fields.OptionsDTO.Port == 0 {
 				u, _ := url.Parse("http://" + addr)
-				tt.fields.Port, _ = strconv.Atoi(u.Port())
+				tt.fields.OptionsDTO.Port, _ = strconv.Atoi(u.Port())
 			}
 
 			c := checker{
 				dialFunc:    tt.fields.GetConn,
 				Auth:        tt.fields.Auth,
 				sendMail:    tt.fields.SendMail,
-				fromEmail:   tt.fields.FromEmail,
-				localName:   tt.fields.Localhost,
 				randomEmail: tt.fields.RandomEmail,
-				port:        tt.fields.Port,
+				options:     NewOptions(tt.fields.OptionsDTO),
 			}
 			c.RandomRCPT = &ARandomRCPT{fn: c.randomRCPT}
 
-			gotErrs := c.Validate(tt.args.mxs, tt.args.email)
+			gotErrs := c.Validate(tt.args.mxs, NewInput(tt.args.email, nil))
 			actualClient := <-done
 
 			wantSMTP := strings.Join(tt.wantSMTP, mockevsmtp.Separator)

@@ -91,7 +91,7 @@ func Test_mxValidator_Validate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			v := NewMXValidator(tt.fields.lookupMX)
-			if got := v.Validate(tt.args.email); !reflect.DeepEqual(got, tt.want) {
+			if got := v.Validate(NewInput(tt.args.email)); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Validate() = %v, want %v", got, tt.want)
 			}
 		})
@@ -110,6 +110,6 @@ func BenchmarkSMTPValidator_Validate_MX(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		depValidator.Validate(email)
+		depValidator.Validate(NewInput(email))
 	}
 }

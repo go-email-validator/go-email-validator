@@ -6,6 +6,7 @@ import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evcache"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp/smtpclient"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 	"github.com/go-email-validator/go-email-validator/pkg/log"
 	"github.com/sethvargo/go-password/password"
 	"go.uber.org/zap"
@@ -19,7 +20,7 @@ const (
 	ErrConnectionMsg = ErrPrefix + "connection was not created \n %w"
 	DefaultEmail     = "user@example.org"
 	DefaultSMTPPort  = 25
-	DefaultLocalName = "localhost"
+	DefaultHelloName = "localhost"
 )
 
 // MXs is short alias for []*net.MX
@@ -77,7 +78,7 @@ func (a *ARandomRCPT) get() RandomRCPTFunc {
 
 // Checker is SMTP validation
 type Checker interface {
-	Validate(mxs MXs, email evmail.Address) []error
+	Validate(mxs MXs, input Input) []error
 }
 
 // CheckerWithRandomRCPT is used for caching of RandomRCPT
@@ -101,10 +102,8 @@ func randomEmail(domain string) (evmail.Address, error) {
 type CheckerDTO struct {
 	DialFunc    DialFunc
 	SendMail    SendMail
-	FromEmail   evmail.Address
-	LocalName   string
 	RandomEmail RandomEmail
-	Port        int
+	Options     Options
 }
 
 // NewChecker instantiates Checker
@@ -117,30 +116,28 @@ func NewChecker(dto CheckerDTO) Checker {
 		dto.SendMail = NewSendMail(nil)
 	}
 
-	if dto.FromEmail == nil {
-		dto.FromEmail = DefaultFromEmail
-	}
-
-	if dto.LocalName == "" {
-		dto.LocalName = DefaultLocalName
-	}
-
 	if dto.RandomEmail == nil {
 		dto.RandomEmail = randomEmail
 	}
 
-	if dto.Port == 0 {
-		dto.Port = DefaultSMTPPort
+	if dto.Options == nil {
+		dto.Options = NewOptions(OptionsDTO{})
+	}
+
+	opts := OptionsDTO{
+		EmailFrom: evmail.EmptyEmail(dto.Options.EmailFrom(), DefaultFromEmail),
+		HelloName: utils.DefaultString(dto.Options.HelloName(), DefaultHelloName),
+		Proxy:     dto.Options.Proxy(),
+		Timeout:   dto.Options.Timeout(),
+		Port:      utils.DefaultInt(dto.Options.Port(), DefaultSMTPPort),
 	}
 
 	c := checker{
 		dialFunc:    dto.DialFunc,
 		Auth:        nil,
 		sendMail:    dto.SendMail,
-		fromEmail:   dto.FromEmail,
-		localName:   dto.LocalName,
 		randomEmail: dto.RandomEmail,
-		port:        dto.Port,
+		options:     NewOptions(opts),
 	}
 	c.RandomRCPT = &ARandomRCPT{fn: c.randomRCPT}
 
@@ -156,20 +153,20 @@ type checker struct {
 	dialFunc    DialFunc // use for get connection to smtp server
 	Auth        smtp.Auth
 	sendMail    SendMail
-	fromEmail   evmail.Address
-	localName   string
 	randomEmail RandomEmail
-	port        int
+	options     Options
 }
 
-func (c checker) Validate(mxs MXs, email evmail.Address) (errs []error) {
+func (c checker) Validate(mxs MXs, input Input) (errs []error) {
 	var client interface{}
 	var err error
 	errs = make([]error, 0)
 	var host string
 
+	email := input.Email()
+
 	for _, mx := range mxs {
-		host = fmt.Sprintf("%v:%v", mx.Host, c.port)
+		host = fmt.Sprintf("%v:%v", mx.Host, utils.DefaultInt(input.Port(), c.options.Port()))
 		if client, err = c.dialFunc(host); err == nil {
 			break
 		}
@@ -197,7 +194,7 @@ func (c checker) Validate(mxs MXs, email evmail.Address) (errs []error) {
 		}
 	}()
 
-	if err = c.sendMail.Hello(c.localName); err != nil {
+	if err = c.sendMail.Hello(utils.DefaultString(input.HelloName(), c.options.HelloName())); err != nil {
 		errs = append(errs, NewError(HelloStage, err))
 		return
 	}
@@ -206,7 +203,7 @@ func (c checker) Validate(mxs MXs, email evmail.Address) (errs []error) {
 		return
 	}
 
-	err = c.sendMail.Mail(c.fromEmail.String())
+	err = c.sendMail.Mail(evmail.EmptyEmail(input.EmailFrom(), c.options.EmailFrom()).String())
 	if err != nil {
 		errs = append(errs, NewError(MailStage, err))
 		return

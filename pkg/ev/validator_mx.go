@@ -1,7 +1,6 @@
 package ev
 
 import (
-	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 )
@@ -53,10 +52,10 @@ type mxValidator struct {
 	lookupMX evsmtp.FuncLookupMX
 }
 
-func (v mxValidator) Validate(email evmail.Address, _ ...ValidationResult) ValidationResult {
+func (v mxValidator) Validate(input Interface, _ ...ValidationResult) ValidationResult {
 	var mxs evsmtp.MXs
 	var err error
-	mxs, err = v.lookupMX(email.Domain())
+	mxs, err = v.lookupMX(input.Email().Domain())
 
 	if hasMXs := len(mxs) > 0; err == nil && !hasMXs {
 		err = EmptyMXsError{}

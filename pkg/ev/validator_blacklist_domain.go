@@ -2,7 +2,6 @@ package ev
 
 import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/contains"
-	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 )
 
@@ -27,9 +26,9 @@ type blackListValidator struct {
 	AValidatorWithoutDeps
 }
 
-func (w blackListValidator) Validate(email evmail.Address, _ ...ValidationResult) ValidationResult {
+func (w blackListValidator) Validate(input Interface, _ ...ValidationResult) ValidationResult {
 	var err error
-	var isContains = w.d.Contains(email.Domain())
+	var isContains = w.d.Contains(input.Email().Domain())
 	if isContains {
 		err = BlackListDomainsError{}
 	}

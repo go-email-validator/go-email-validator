@@ -204,13 +204,13 @@ func Test_sendMail_Hello(t *testing.T) {
 			fields: fields{
 				client: func() smtpclient.SMTPClient {
 					smtpMock := mocksmtpclient.NewMockSMTPClient(ctrl)
-					smtpMock.EXPECT().Hello(localName).Return(nil).Times(1)
+					smtpMock.EXPECT().Hello(helloName).Return(nil).Times(1)
 
 					return smtpMock
 				},
 			},
 			args: args{
-				localName: localName,
+				localName: helloName,
 			},
 			wantErr: nil,
 		},

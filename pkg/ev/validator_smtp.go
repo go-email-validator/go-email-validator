@@ -1,7 +1,6 @@
 package ev
 
 import (
-	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp"
 )
 
@@ -21,13 +20,21 @@ func (s smtpValidator) GetDeps() []ValidatorName {
 	return []ValidatorName{SyntaxValidatorName, MXValidatorName}
 }
 
-func (s smtpValidator) Validate(email evmail.Address, results ...ValidationResult) ValidationResult {
+func (s smtpValidator) Validate(input Interface, results ...ValidationResult) ValidationResult {
 	syntaxResult := results[0].(SyntaxValidatorResult)
 	mxResult := results[1].(MXValidationResult)
 	var errs []error
 
 	if syntaxResult.IsValid() && mxResult.IsValid() {
-		errs = s.checker.Validate(mxResult.MX(), email)
+		var opts evsmtp.Options
+		if optsInterface := input.Option(SMTPValidatorName); optsInterface != nil {
+			opts = optsInterface.(evsmtp.Options)
+		}
+
+		errs = s.checker.Validate(
+			mxResult.MX(),
+			evsmtp.NewInput(input.Email(), opts),
+		)
 	} else {
 		errs = append(errs, NewDepsError())
 	}

@@ -46,7 +46,7 @@ func Test_freeValidator_Validate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := NewFreeValidator(tt.fields.f)
-			if got := r.Validate(tt.args.email); !reflect.DeepEqual(got, tt.want) {
+			if got := r.Validate(NewInput(tt.args.email)); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Validate() = %v, want %v", got, tt.want)
 			}
 		})

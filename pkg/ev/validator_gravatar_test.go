@@ -51,7 +51,7 @@ func Test_gravatarValidator_Validate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			w := NewGravatarValidator()
-			if got := w.Validate(tt.args.email, tt.args.results...); !reflect.DeepEqual(got, tt.want) {
+			if got := w.Validate(NewInput(tt.args.email), tt.args.results...); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Validate() = %v, want %v", got, tt.want)
 			}
 		})

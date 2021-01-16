@@ -12,9 +12,11 @@ import (
 // test monicaramirezrestrepo@hotmail.com.
 func newSMTPValidator() Validator {
 	return NewSMTPValidator(evsmtp.NewChecker(evsmtp.CheckerDTO{
-		DialFunc:  evsmtp.Dial,
-		SendMail:  evsmtp.NewSendMail(nil),
-		FromEmail: evmail.FromString(evsmtp.DefaultEmail),
+		DialFunc: evsmtp.Dial,
+		SendMail: evsmtp.NewSendMail(nil),
+		Options: evsmtp.NewOptions(evsmtp.OptionsDTO{
+			EmailFrom: evmail.FromString(evsmtp.DefaultEmail),
+		}),
 	}))
 }
 
@@ -41,7 +43,7 @@ func BenchmarkSMTPValidator_Validate(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		validator.Validate(email)
+		validator.Validate(NewInput(email))
 	}
 }
 
@@ -49,6 +51,6 @@ func TestSMTPValidator_Validate_WithoutMock(t *testing.T) {
 	email := evmail.FromString(mockevmail.ValidEmailString)
 	validator := getSMTPValidatorValidate()
 
-	v := validator.Validate(email)
+	v := validator.Validate(NewInput(email))
 	require.True(t, v.IsValid())
 }

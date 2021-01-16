@@ -45,8 +45,28 @@ func Test_blackListEmailsValidator_Validate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			w := NewBlackListEmailsValidator(tt.fields.d)
-			if got := w.Validate(tt.args.email); !reflect.DeepEqual(got, tt.want) {
+			if got := w.Validate(NewInput(tt.args.email)); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Validate() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestBlackListEmailsError_Error(t *testing.T) {
+	tests := []struct {
+		name string
+		want string
+	}{
+		{
+			name: "success",
+			want: BlackListEmailsErr,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			bl := BlackListEmailsError{}
+			if got := bl.Error(); got != tt.want {
+				t.Errorf("Error() = %v, want %v", got, tt.want)
 			}
 		})
 	}

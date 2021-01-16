@@ -1,7 +1,6 @@
 package ev
 
 import (
-	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"sync"
 )
 
@@ -33,7 +32,7 @@ type depValidator struct {
 	deps ValidatorMap
 }
 
-func (d depValidator) Validate(email evmail.Address, _ ...ValidationResult) ValidationResult {
+func (d depValidator) Validate(input Interface, _ ...ValidationResult) ValidationResult {
 	var waiters, waitersMutex = make(map[ValidatorName][]*sync.WaitGroup), sync.RWMutex{}
 	var validationResultsByName, validationResultsMutex = make(map[ValidatorName]ValidationResult), sync.RWMutex{}
 	var isValid = true
@@ -76,7 +75,7 @@ func (d depValidator) Validate(email evmail.Address, _ ...ValidationResult) Vali
 				validationResultsMutex.RUnlock()
 			}
 
-			var result = validator.Validate(email, results...)
+			var result = validator.Validate(input, results...)
 			validationResultsMutex.Lock()
 			validationResultsByName[key] = result
 			isValid = isValid && result.IsValid()

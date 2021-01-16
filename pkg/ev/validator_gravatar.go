@@ -3,7 +3,6 @@ package ev
 import (
 	"crypto/md5" //nolint:gosec
 	"fmt"
-	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 	"hash"
 	"net/http"
@@ -46,14 +45,14 @@ func (g gravatarValidator) GetDeps() []ValidatorName {
 	return []ValidatorName{SyntaxValidatorName}
 }
 
-func (g gravatarValidator) Validate(email evmail.Address, results ...ValidationResult) ValidationResult {
+func (g gravatarValidator) Validate(input Interface, results ...ValidationResult) ValidationResult {
 	syntaxResult := results[0].(SyntaxValidatorResult)
 	if !syntaxResult.IsValid() {
 		return gravatarGetError(NewDepsError())
 	}
 
 	g.h.Reset()
-	g.h.Write([]byte(email.String()))
+	g.h.Write([]byte(input.Email().String()))
 	resp, err := http.Head(fmt.Sprintf(GravatarURL, g.h.Sum(nil)))
 	if err != nil || resp.StatusCode != 200 {
 		return gravatarGetError(GravatarError{})

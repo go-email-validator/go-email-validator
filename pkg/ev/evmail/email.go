@@ -71,3 +71,12 @@ func FromString(email string) Address {
 
 	return NewEmailAddressWithSource(username, domain, email)
 }
+
+// EmptyEmail return defaultVal if val is nil
+func EmptyEmail(val Address, defaultVal Address) Address {
+	if val == nil {
+		return defaultVal
+	}
+
+	return val
+}

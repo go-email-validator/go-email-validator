@@ -45,7 +45,7 @@ func Test_blackListValidator_Validate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			w := NewBlackListValidator(tt.fields.d)
-			if got := w.Validate(tt.args.email); !reflect.DeepEqual(got, tt.want) {
+			if got := w.Validate(NewInput(tt.args.email)); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Validate() = %v, want %v", got, tt.want)
 			}
 		})
