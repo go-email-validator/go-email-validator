@@ -10,15 +10,15 @@ import (
 
 // CacheKeyGetter is type for key generators
 // To use complex keys you can use https://github.com/vmihailenco/msgpack/
-type CacheKeyGetter func(input Interface, results ...ValidationResult) interface{}
+type CacheKeyGetter func(input Input, results ...ValidationResult) interface{}
 
 // EmailCacheKeyGetter generates key as full email
-func EmailCacheKeyGetter(input Interface, _ ...ValidationResult) interface{} {
+func EmailCacheKeyGetter(input Input, _ ...ValidationResult) interface{} {
 	return input.Email().String()
 }
 
 // DomainCacheKeyGetter generates key as domain
-func DomainCacheKeyGetter(input Interface, _ ...ValidationResult) interface{} {
+func DomainCacheKeyGetter(input Input, _ ...ValidationResult) interface{} {
 	return input.Email().Domain()
 }
 
@@ -45,7 +45,7 @@ func (c *cacheDecorator) GetDeps() []ValidatorName {
 	return c.validator.GetDeps()
 }
 
-func (c *cacheDecorator) Validate(input Interface, results ...ValidationResult) (result ValidationResult) {
+func (c *cacheDecorator) Validate(input Input, results ...ValidationResult) (result ValidationResult) {
 	key := c.getKey(input, results...)
 	resultInterface, err := c.cache.Get(key)
 	if err == nil && resultInterface != nil {

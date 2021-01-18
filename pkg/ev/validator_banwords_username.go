@@ -29,7 +29,7 @@ type banWordsUsernameValidator struct {
 	AValidatorWithoutDeps
 }
 
-func (w banWordsUsernameValidator) Validate(input Interface, _ ...ValidationResult) ValidationResult {
+func (w banWordsUsernameValidator) Validate(input Input, _ ...ValidationResult) ValidationResult {
 	var err error
 	var isContains = w.d.Contains(input.Email().Username())
 	if isContains {

@@ -31,7 +31,7 @@ type freeValidator struct {
 	f contains.InSet
 }
 
-func (r freeValidator) Validate(input Interface, _ ...ValidationResult) ValidationResult {
+func (r freeValidator) Validate(input Input, _ ...ValidationResult) ValidationResult {
 	var err error
 	var isFree = r.f.Contains(input.Email().Domain())
 	if isFree {

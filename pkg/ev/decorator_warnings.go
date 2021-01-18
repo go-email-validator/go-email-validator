@@ -29,7 +29,7 @@ func (w warningsDecorator) GetDeps() []ValidatorName {
 	return w.validator.GetDeps()
 }
 
-func (w warningsDecorator) Validate(input Interface, results ...ValidationResult) ValidationResult {
+func (w warningsDecorator) Validate(input Input, results ...ValidationResult) ValidationResult {
 	result := w.validator.Validate(input, results...)
 	changeableResult, ok := result.(ChangeableValidationResult)
 	if !ok {

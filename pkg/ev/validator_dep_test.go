@@ -20,7 +20,7 @@ func (t testSleep) GetDeps() []ValidatorName {
 	return t.deps
 }
 
-func (t testSleep) Validate(_ Interface, results ...ValidationResult) ValidationResult {
+func (t testSleep) Validate(_ Input, results ...ValidationResult) ValidationResult {
 	time.Sleep(t.sleep)
 
 	var isValid = true

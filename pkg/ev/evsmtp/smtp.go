@@ -1,23 +1,24 @@
 package evsmtp
 
 import (
+	"context"
 	"errors"
 	"fmt"
-	"github.com/go-email-validator/go-email-validator/pkg/ev/evcache"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
-	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp/smtpclient"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 	"github.com/go-email-validator/go-email-validator/pkg/log"
 	"github.com/sethvargo/go-password/password"
+	"github.com/tevino/abool"
 	"go.uber.org/zap"
 	"net"
 	"net/smtp"
+	"sync"
 )
 
 // Configuration constants
 const (
 	ErrPrefix        = "evsmtp: "
-	ErrConnectionMsg = ErrPrefix + "connection was not created \n %w"
+	ErrConnectionMsg = ErrPrefix + "connection was not created"
 	DefaultEmail     = "user@example.org"
 	DefaultSMTPPort  = 25
 	DefaultHelloName = "localhost"
@@ -38,43 +39,6 @@ var (
 	// DefaultFromEmail is address, used as default From email
 	DefaultFromEmail = evmail.FromString(DefaultEmail)
 )
-
-// DialFunc is function type to create smtpclient.SMTPClient
-type DialFunc func(addr string) (smtpclient.SMTPClient, error)
-
-// Dial generates smtpclient.SMTPClient (smtp.Client)
-func Dial(addr string) (smtpclient.SMTPClient, error) {
-	client, err := smtp.Dial(addr)
-	return client, err
-}
-
-// RandomRCPTFunc is function for checking of Catching All
-type RandomRCPTFunc func(email evmail.Address) (errs []error)
-
-// RandomRCPT Need to realize of is-a relation (inheritance)
-type RandomRCPT interface {
-	Call(email evmail.Address) []error
-	set(fn RandomRCPTFunc)
-	get() RandomRCPTFunc
-}
-
-// ARandomRCPT is abstract realization of RandomRCPT
-type ARandomRCPT struct {
-	fn RandomRCPTFunc
-}
-
-// Call is calling of RandomRCPTFunc
-func (a *ARandomRCPT) Call(email evmail.Address) []error {
-	return a.fn(email)
-}
-
-func (a *ARandomRCPT) set(fn RandomRCPTFunc) {
-	a.fn = fn
-}
-
-func (a *ARandomRCPT) get() RandomRCPTFunc {
-	return a.fn
-}
 
 // Checker is SMTP validation
 type Checker interface {
@@ -109,7 +73,7 @@ type CheckerDTO struct {
 // NewChecker instantiates Checker
 func NewChecker(dto CheckerDTO) Checker {
 	if dto.DialFunc == nil {
-		dto.DialFunc = Dial
+		dto.DialFunc = DirectDial
 	}
 
 	if dto.SendMail == nil {
@@ -121,15 +85,16 @@ func NewChecker(dto CheckerDTO) Checker {
 	}
 
 	if dto.Options == nil {
-		dto.Options = NewOptions(OptionsDTO{})
+		dto.Options = DefaultOptions()
 	}
 
 	opts := OptionsDTO{
-		EmailFrom: evmail.EmptyEmail(dto.Options.EmailFrom(), DefaultFromEmail),
-		HelloName: utils.DefaultString(dto.Options.HelloName(), DefaultHelloName),
-		Proxy:     dto.Options.Proxy(),
-		Timeout:   dto.Options.Timeout(),
-		Port:      utils.DefaultInt(dto.Options.Port(), DefaultSMTPPort),
+		EmailFrom:   evmail.EmptyEmail(dto.Options.EmailFrom(), DefaultFromEmail),
+		HelloName:   utils.DefaultString(dto.Options.HelloName(), DefaultHelloName),
+		Proxy:       dto.Options.Proxy(),
+		TimeoutCon:  dto.Options.TimeoutConnection(),
+		TimeoutResp: dto.Options.TimeoutResponse(),
+		Port:        utils.DefaultInt(dto.Options.Port(), DefaultSMTPPort),
 	}
 
 	c := checker{
@@ -159,33 +124,71 @@ type checker struct {
 
 func (c checker) Validate(mxs MXs, input Input) (errs []error) {
 	var client interface{}
+	var clientRWMutex sync.RWMutex
 	var err error
 	errs = make([]error, 0)
 	var host string
 
 	email := input.Email()
 
+	port := utils.DefaultInt(input.Port(), c.options.Port())
+	timeout := utils.DefaultDuration(input.TimeoutConnection(), c.options.TimeoutConnection())
+	proxy := utils.DefaultString(input.Proxy(), c.options.Proxy())
+
+	stopFor := abool.New()
 	for _, mx := range mxs {
-		host = fmt.Sprintf("%v:%v", mx.Host, utils.DefaultInt(input.Port(), c.options.Port()))
-		if client, err = c.dialFunc(host); err == nil {
+		host = fmt.Sprintf("%v:%v", mx.Host, port)
+
+		func() {
+			var cancel context.CancelFunc
+			var ctx context.Context
+			ctx = context.Background()
+			if timeout > 0 {
+				// TODO think about logging of timeout connection error
+				ctx, cancel = context.WithTimeout(ctx, timeout)
+				defer cancel()
+			}
+
+			done := make(chan struct{}, 1)
+			go func() {
+				var errDial error
+
+				clientRWMutex.Lock()
+				client, errDial = c.dialFunc(ctx, host, proxy)
+				clientRWMutex.Unlock()
+				if errDial == nil {
+					stopFor.Set()
+				}
+				done <- struct{}{}
+			}()
+
+			select {
+			case <-ctx.Done():
+				return
+			case <-done:
+				return
+			}
+		}()
+		if stopFor.IsSet() {
 			break
 		}
 	}
 
-	if err != nil {
-		return append(errs, NewError(ConnectionStage, err))
-	}
-
-	if client == nil {
+	stage := SafeSendMailStage{SendMailStage: ConnectionStage}
+	clientRWMutex.RLock()
+	clientIsNil := client == nil
+	clientRWMutex.RUnlock()
+	if clientIsNil {
 		return append(errs, ErrConnection)
 	}
 
 	c.sendMail.SetClient(client)
-	needClose := true
+	needClose := abool.New()
 	defer func() {
-		if !needClose {
+		if needClose.IsNotSet() {
 			return
 		}
+		needClose.UnSet()
 		if err = c.sendMail.Close(); err != nil {
 			log.Logger().Error(fmt.Sprintf("sendMail.Close %v", err),
 				zap.String("email", email.String()),
@@ -194,34 +197,70 @@ func (c checker) Validate(mxs MXs, input Input) (errs []error) {
 		}
 	}()
 
-	if err = c.sendMail.Hello(utils.DefaultString(input.HelloName(), c.options.HelloName())); err != nil {
-		errs = append(errs, NewError(HelloStage, err))
-		return
-	}
-	if err = c.sendMail.Auth(c.Auth); err != nil {
-		errs = append(errs, NewError(AuthStage, err))
-		return
-	}
-
-	err = c.sendMail.Mail(evmail.EmptyEmail(input.EmailFrom(), c.options.EmailFrom()).String())
-	if err != nil {
-		errs = append(errs, NewError(MailStage, err))
-		return
-	}
-
-	if errsRandomRCPTs := c.RandomRCPT.Call(email); len(errsRandomRCPTs) > 0 {
-		errs = append(errs, errsRandomRCPTs...)
-		if errsRCPTs := c.sendMail.RCPTs([]string{email.String()}); len(errsRCPTs) > 0 {
-			errs = append(errs, NewError(RCPTsStage, errsRCPTs[email.String()]))
+	done := make(chan struct{}, 1)
+	isDone := abool.New()
+	errAppend := func(elems ...error) bool {
+		if isDone.IsNotSet() {
+			errs = append(errs, elems...)
 		}
+		return isDone.IsSet()
 	}
 
-	needClose = false
-	if err = c.sendMail.Quit(); err != nil {
-		errs = append(errs, NewError(QuitStage, err))
+	timeoutResponse := utils.DefaultDuration(input.TimeoutResponse(), c.options.TimeoutResponse())
+	ctx := context.Background()
+	if timeoutResponse > 0 {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, timeoutResponse)
+		defer cancel()
 	}
 
-	return
+	go func() {
+		defer func() { done <- struct{}{} }()
+		stage.Set(HelloStage)
+		if err = c.sendMail.Hello(utils.DefaultString(input.HelloName(), c.options.HelloName())); err != nil {
+			errAppend(NewError(stage.Get(), err))
+			return
+		}
+		stage.Set(AuthStage)
+		if err = c.sendMail.Auth(c.Auth); err != nil {
+			errAppend(NewError(stage.Get(), err))
+			return
+		}
+
+		stage.Set(MailStage)
+		err = c.sendMail.Mail(evmail.EmptyEmail(input.EmailFrom(), c.options.EmailFrom()).String())
+		if err != nil {
+			errAppend(NewError(stage.Get(), err))
+			return
+		}
+
+		stage.Set(RandomRCPTStage)
+		if errsRandomRCPTs := c.RandomRCPT.Call(email); len(errsRandomRCPTs) > 0 {
+			if errAppend(errsRandomRCPTs...) {
+				return
+			}
+			stage.Set(RCPTsStage)
+			if errsRCPTs := c.sendMail.RCPTs([]string{email.String()}); len(errsRCPTs) > 0 {
+				errAppend(NewError(stage.Get(), errsRCPTs[email.String()]))
+			}
+		}
+
+		stage.Set(QuitStage)
+		if err = c.sendMail.Quit(); err != nil {
+			errAppend(NewError(stage.Get(), err))
+		}
+		needClose.UnSet()
+	}()
+
+	select {
+	case <-ctx.Done():
+		errAppend(NewError(stage.Get(), ctx.Err()))
+		isDone.Set()
+		return
+	case <-done:
+		isDone.Set()
+		return
+	}
 }
 
 func (c checker) randomRCPT(email evmail.Address) (errs []error) {
@@ -239,55 +278,4 @@ func (c checker) randomRCPT(email evmail.Address) (errs []error) {
 	}
 
 	return
-}
-
-// RandomCacheKeyGetter is type of function to get cache key
-type RandomCacheKeyGetter func(email evmail.Address) interface{}
-
-// DefaultRandomCacheKeyGetter generates of cache key for RandomRCPT
-func DefaultRandomCacheKeyGetter(email evmail.Address) interface{} {
-	return email.Domain()
-}
-
-// NewCheckerCacheRandomRCPT creates Checker with caching of RandomRCPT calling
-func NewCheckerCacheRandomRCPT(checker CheckerWithRandomRCPT, cache evcache.Interface, getKey RandomCacheKeyGetter) Checker {
-	if getKey == nil {
-		getKey = DefaultRandomCacheKeyGetter
-	}
-
-	c := &checkerCacheRandomRCPT{
-		CheckerWithRandomRCPT: checker,
-		randomRCPT:            &ARandomRCPT{fn: checker.get()},
-		cache:                 cache,
-		getKey:                getKey,
-	}
-
-	c.CheckerWithRandomRCPT.set(c.RandomRCPT)
-
-	return c
-}
-
-type checkerCacheRandomRCPT struct {
-	CheckerWithRandomRCPT
-	randomRCPT RandomRCPT
-	cache      evcache.Interface
-	getKey     RandomCacheKeyGetter
-}
-
-func (c checkerCacheRandomRCPT) RandomRCPT(email evmail.Address) (errs []error) {
-	key := c.getKey(email)
-	resultInterface, err := c.cache.Get(key)
-	if err == nil && resultInterface != nil {
-		errs = *resultInterface.(*[]error)
-	} else {
-		errs = c.randomRCPT.Call(email)
-		if err = c.cache.Set(key, ErrorsToEVSMTPErrors(errs)); err != nil {
-			log.Logger().Error(fmt.Sprintf("cache RandomRCPT: %s", err),
-				zap.String("email", email.String()),
-				zap.String("key", fmt.Sprint(key)),
-			)
-		}
-	}
-
-	return errs
 }

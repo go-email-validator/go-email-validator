@@ -26,7 +26,7 @@ type blackListValidator struct {
 	AValidatorWithoutDeps
 }
 
-func (w blackListValidator) Validate(input Interface, _ ...ValidationResult) ValidationResult {
+func (w blackListValidator) Validate(input Input, _ ...ValidationResult) ValidationResult {
 	var err error
 	var isContains = w.d.Contains(input.Email().Domain())
 	if isContains {

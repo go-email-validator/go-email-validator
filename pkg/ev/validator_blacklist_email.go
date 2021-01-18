@@ -29,7 +29,7 @@ type blackListEmailsValidator struct {
 	AValidatorWithoutDeps
 }
 
-func (w blackListEmailsValidator) Validate(input Interface, _ ...ValidationResult) ValidationResult {
+func (w blackListEmailsValidator) Validate(input Input, _ ...ValidationResult) ValidationResult {
 	var err error
 	var isContains = w.d.Contains(input.Email().String())
 	if isContains {

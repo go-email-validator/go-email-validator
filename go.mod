@@ -11,6 +11,7 @@ require (
 	github.com/joho/godotenv v1.3.0
 	github.com/sethvargo/go-password v0.2.0
 	github.com/stretchr/testify v1.7.0
+	github.com/tevino/abool v1.2.0
 	github.com/vmihailenco/msgpack v4.0.4+incompatible
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.16.0

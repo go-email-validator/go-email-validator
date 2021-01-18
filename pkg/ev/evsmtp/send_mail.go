@@ -6,10 +6,29 @@ import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp/smtpclient"
 	"io"
 	"net/smtp"
+	"sync"
 )
 
 // SendMailStage is stage type of SendMail
 type SendMailStage uint8
+
+// SafeSendMailStage is thread safe SendMailStage
+type SafeSendMailStage struct {
+	SendMailStage
+	mu sync.RWMutex
+}
+
+func (s *SafeSendMailStage) Set(val SendMailStage) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.SendMailStage = val
+}
+
+func (s *SafeSendMailStage) Get() SendMailStage {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.SendMailStage
+}
 
 // Constants of stages
 const (

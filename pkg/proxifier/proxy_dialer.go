@@ -1,6 +1,7 @@
 package proxifier
 
 import (
+	"context"
 	"errors"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp/smtpclient"
 	"golang.org/x/net/proxy"
@@ -15,13 +16,44 @@ const (
 	UDPConnection = "udp"
 )
 
+type Dialer interface {
+	proxy.Dialer
+	proxy.ContextDialer
+}
+
 // ProxyDialerFunc is type of function, which generates connection through out proxyURI
-type ProxyDialerFunc func(proxyURI string) func(network string, addr string) (net.Conn, error)
+type ProxyDialerFunc func(proxyURI string) func(ctx context.Context, network string, addr string) (net.Conn, error)
+
+func SocksDialContext(proxyURI string) func(ctx context.Context, network string, addr string) (net.Conn, error) {
+	p := socks.Dial(proxyURI)
+
+	return func(ctx context.Context, network string, addr string) (c net.Conn, err error) {
+		done := make(chan struct{}, 1)
+		needClose := false
+		go func() {
+			c, err = p(network, addr)
+			done <- struct{}{}
+			defer func() {
+				if needClose && c != nil {
+					c.Close()
+				}
+			}()
+		}()
+
+		select {
+		case <-ctx.Done():
+			needClose = true
+			return nil, ctx.Err()
+		case <-done:
+			return c, err
+		}
+	}
+}
 
 // NewProxyDialer returns proxy.Dialer based on List
-func NewProxyDialer(list List, dialerFunc ProxyDialerFunc) proxy.Dialer {
+func NewProxyDialer(list List, dialerFunc ProxyDialerFunc) Dialer {
 	if dialerFunc == nil {
-		dialerFunc = socks.Dial
+		dialerFunc = SocksDialContext
 	}
 
 	return &dialer{
@@ -35,7 +67,7 @@ type dialer struct {
 	dialerFunc ProxyDialerFunc
 }
 
-func (d *dialer) Dial(network, addr string) (c net.Conn, err error) {
+func (d *dialer) DialContext(ctx context.Context, network, addr string) (c net.Conn, err error) {
 	var proxyAddr string
 	err = errors.New("init")
 	for err != nil {
@@ -48,14 +80,19 @@ func (d *dialer) Dial(network, addr string) (c net.Conn, err error) {
 			return nil, proxyErr
 		}
 
-		c, err = d.dialerFunc(proxyAddr)(network, addr)
+		c, err = d.dialerFunc(proxyAddr)(ctx, network, addr)
 	}
 
 	return c, nil
 }
 
+func (d *dialer) Dial(network, addr string) (c net.Conn, err error) {
+	return d.DialContext(context.Background(), network, addr)
+}
+
 // SMTPDialler is a means to establish a connection for SMTP.
 type SMTPDialler interface {
+	DialContext(ctx context.Context, addr string) (smtpclient.SMTPClient, error)
 	Dial(addr string) (smtpclient.SMTPClient, error)
 }
 
@@ -66,7 +103,7 @@ func ProxySMTPDialer(addrs []string) (SMTPDialler, []error) {
 }
 
 // NewSMTPDialer creates SMTP Dialer based on proxy.Dialer
-func NewSMTPDialer(dialer proxy.Dialer, network string) SMTPDialler {
+func NewSMTPDialer(dialer Dialer, network string) SMTPDialler {
 	if network == "" {
 		network = TCPConnection
 	}
@@ -78,18 +115,22 @@ func NewSMTPDialer(dialer proxy.Dialer, network string) SMTPDialler {
 }
 
 type smtpDialer struct {
-	dialer  proxy.Dialer
+	dialer  Dialer
 	network string
 }
 
 var smtpNewClient = smtp.NewClient
 
-func (p *smtpDialer) Dial(addr string) (smtpclient.SMTPClient, error) {
-	conn, err := p.dialer.Dial(p.network, addr)
+func (p *smtpDialer) DialContext(ctx context.Context, addr string) (smtpclient.SMTPClient, error) {
+	conn, err := p.dialer.DialContext(ctx, p.network, addr)
 	if err != nil {
 		return nil, err
 	}
 
 	host, _, _ := net.SplitHostPort(addr)
 	return smtpNewClient(conn, host)
+}
+
+func (p *smtpDialer) Dial(addr string) (smtpclient.SMTPClient, error) {
+	return p.DialContext(context.Background(), addr)
 }

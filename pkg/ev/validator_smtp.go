@@ -20,7 +20,7 @@ func (s smtpValidator) GetDeps() []ValidatorName {
 	return []ValidatorName{SyntaxValidatorName, MXValidatorName}
 }
 
-func (s smtpValidator) Validate(input Interface, results ...ValidationResult) ValidationResult {
+func (s smtpValidator) Validate(input Input, results ...ValidationResult) ValidationResult {
 	syntaxResult := results[0].(SyntaxValidatorResult)
 	mxResult := results[1].(MXValidationResult)
 	var errs []error

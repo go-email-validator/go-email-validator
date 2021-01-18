@@ -1,3 +1,4 @@
+// Deprecated - there are plenty load balancers
 package proxifier
 
 import (

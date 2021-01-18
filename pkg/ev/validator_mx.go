@@ -52,7 +52,7 @@ type mxValidator struct {
 	lookupMX evsmtp.FuncLookupMX
 }
 
-func (v mxValidator) Validate(input Interface, _ ...ValidationResult) ValidationResult {
+func (v mxValidator) Validate(input Input, _ ...ValidationResult) ValidationResult {
 	var mxs evsmtp.MXs
 	var err error
 	mxs, err = v.lookupMX(input.Email().Domain())

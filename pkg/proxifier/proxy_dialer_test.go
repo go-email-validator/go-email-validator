@@ -1,11 +1,11 @@
 package proxifier
 
 import (
+	"context"
 	"fmt"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evtests"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/net/proxy"
-	"h12.io/socks"
 	"net"
 	"net/smtp"
 	"reflect"
@@ -72,7 +72,7 @@ type mockDialer struct {
 	want []dialFuncWant
 }
 
-func (d *mockDialer) Dial(network, addr string) (c net.Conn, err error) {
+func (d *mockDialer) DialContext(_ context.Context, network, addr string) (c net.Conn, err error) {
 	if d.i >= len(d.want) {
 		d.t.Fatalf("Invalid arguments %v, %v", network, addr)
 	}
@@ -89,6 +89,10 @@ func (d *mockDialer) Dial(network, addr string) (c net.Conn, err error) {
 	return d.want[d.i-1].conn, d.want[d.i-1].err
 }
 
+func (d *mockDialer) Dial(network, addr string) (c net.Conn, err error) {
+	return d.DialContext(context.Background(), network, addr)
+}
+
 type dialProxyFuncWant struct {
 	dialFuncWant
 	proxyURI string
@@ -96,7 +100,7 @@ type dialProxyFuncWant struct {
 
 func mockProxyDialFunc(t *testing.T, want []dialProxyFuncWant) ProxyDialerFunc {
 	i := 0
-	return func(proxyURI string) func(string, string) (net.Conn, error) {
+	return func(proxyURI string) func(context.Context, string, string) (net.Conn, error) {
 		if i >= len(want) {
 			t.Fatalf("Invalid command %q", proxyURI)
 		}
@@ -105,7 +109,7 @@ func mockProxyDialFunc(t *testing.T, want []dialProxyFuncWant) ProxyDialerFunc {
 			t.Fatalf("Invalid command, got %q, want %q", proxyURI, want[i].addr)
 		}
 
-		return func(network string, addr string) (net.Conn, error) {
+		return func(_ context.Context, network string, addr string) (net.Conn, error) {
 			if i >= len(want) {
 				t.Fatalf("Invalid command %q", proxyURI)
 			}
@@ -276,7 +280,7 @@ func TestNewProxyDialer(t *testing.T) {
 			},
 			want: &dialer{
 				list:       &mockList{},
-				dialerFunc: socks.Dial,
+				dialerFunc: SocksDialContext,
 			},
 		},
 		{
@@ -303,7 +307,7 @@ func TestNewProxyDialer(t *testing.T) {
 
 func Test_smtpDialer_Dial(t *testing.T) {
 	type fields struct {
-		dialer        proxy.Dialer
+		dialer        Dialer
 		network       string
 		smtpNewClient func(conn net.Conn, host string) (*smtp.Client, error)
 	}

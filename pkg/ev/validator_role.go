@@ -25,7 +25,7 @@ type roleValidator struct {
 	r contains.InSet
 }
 
-func (r roleValidator) Validate(input Interface, _ ...ValidationResult) ValidationResult {
+func (r roleValidator) Validate(input Input, _ ...ValidationResult) ValidationResult {
 	var err error
 	var hasRole = r.r.Contains(input.Email().Username())
 	if hasRole {

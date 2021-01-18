@@ -1,6 +1,7 @@
 package evsmtp
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/allegro/bigcache"
@@ -34,17 +35,24 @@ func TestMain(m *testing.M) {
 	evtests.TestMain(m)
 }
 
-func dialFunc(client smtpclient.SMTPClient, err error) DialFunc {
-	return func(addr string) (smtpclient.SMTPClient, error) {
+func dialFunc(t *testing.T, client smtpclient.SMTPClient, err error, wantCtx context.Context, wantAddr, wantProxy string, sleep time.Duration) DialFunc {
+	return func(ctx context.Context, addr, proxy string) (smtpclient.SMTPClient, error) {
+		require.Equal(t, utils.StructName(wantCtx), utils.StructName(ctx))
+		require.Equal(t, addr, wantAddr)
+		require.Equal(t, wantProxy, proxy)
+
+		time.Sleep(sleep)
+
 		return client, err
 	}
 }
 
 var (
+	localhost      = "127.0.0.1"
+	smtpLocalhost  = localhost + ":25"
 	errorSimple    = errors.New("errorSimple")
 	errorRandom    = errors.New("errorRandom")
-	mxs            = MXs{&net.MX{Host: "127.0.0.1"}}
-	helloName      = "helloName"
+	mxs            = MXs{&net.MX{Host: localhost}}
 	emptyLocalName = ""
 	simpleClient   = &smtp.Client{}
 	emailFromStr   = "email@from.com"
@@ -85,6 +93,7 @@ func getSMTPProxy(dialerFunc proxifier.ProxyDialerFunc, proxies ...string) proxi
 	return proxifier.NewSMTPDialer(proxifier.NewProxyDialer(proxyList, dialerFunc), "")
 }
 
+// TODO delete after remove proxifier
 func localIP() string {
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
@@ -113,6 +122,11 @@ func Test_checker_Validate(t *testing.T) {
 		email evmail.Address
 	}
 
+	successDialFunc := dialFunc(t, simpleClient, nil, context.Background(), smtpLocalhost, "", 0)
+
+	ctxTimeout, cancel := context.WithTimeout(context.Background(), 0)
+	defer cancel()
+
 	tests := []struct {
 		name     string
 		fields   fields
@@ -120,31 +134,26 @@ func Test_checker_Validate(t *testing.T) {
 		wantErrs []error
 	}{
 		{
-			name:   "empty mx",
-			fields: fields{},
-			args:   args{},
-			wantErrs: utils.Errs(
-				ErrConnection,
-			),
+			name:     "empty mx",
+			fields:   fields{},
+			args:     args{},
+			wantErrs: utils.Errs(ErrConnection),
 		},
 		{
 			name: "cannot connection to mx",
 			fields: fields{
-				dialFunc: dialFunc(nil, errorSimple),
+				dialFunc: dialFunc(t, nil, errorSimple, context.Background(), smtpLocalhost, "", 0),
+				options:  &options{},
 			},
 			args: args{
 				mx: mxs,
 			},
-			wantErrs: utils.Errs(
-				NewError(ConnectionStage,
-					errorSimple,
-				),
-			),
+			wantErrs: utils.Errs(ErrConnection),
 		},
 		{
 			name: "Bad hello with helloName",
 			fields: fields{
-				dialFunc: dialFunc(simpleClient, nil),
+				dialFunc: successDialFunc,
 				sendMail: &mockSendMail{
 					t:    t,
 					want: failWant(&sendMailWant{stage: smHello, message: smHello + helloName, ret: errorSimple}, true),
@@ -156,14 +165,12 @@ func Test_checker_Validate(t *testing.T) {
 			args: args{
 				mx: mxs,
 			},
-			wantErrs: utils.Errs(
-				NewError(HelloStage, errorSimple),
-			),
+			wantErrs: utils.Errs(NewError(HelloStage, errorSimple)),
 		},
 		{
 			name: "Bad auth",
 			fields: fields{
-				dialFunc: dialFunc(simpleClient, nil),
+				dialFunc: successDialFunc,
 				sendMail: &mockSendMail{
 					t: t,
 					want: failWant(&sendMailWant{
@@ -172,18 +179,17 @@ func Test_checker_Validate(t *testing.T) {
 						ret:     []interface{}{nil, errorSimple},
 					}, true),
 				},
+				options: &options{},
 			},
 			args: args{
 				mx: mxs,
 			},
-			wantErrs: utils.Errs(
-				NewError(AuthStage, errorSimple),
-			),
+			wantErrs: utils.Errs(NewError(AuthStage, errorSimple)),
 		},
 		{
 			name: "Bad Mail stage",
 			fields: fields{
-				dialFunc: dialFunc(simpleClient, nil),
+				dialFunc: successDialFunc,
 				sendMail: &mockSendMail{
 					t: t,
 					want: failWant(&sendMailWant{
@@ -199,14 +205,12 @@ func Test_checker_Validate(t *testing.T) {
 			args: args{
 				mx: mxs,
 			},
-			wantErrs: utils.Errs(
-				NewError(MailStage, errorSimple),
-			),
+			wantErrs: utils.Errs(NewError(MailStage, errorSimple)),
 		},
 		{
 			name: "Problem with generation Random email",
 			fields: fields{
-				dialFunc: dialFunc(simpleClient, nil),
+				dialFunc: successDialFunc,
 				sendMail: &mockSendMail{
 					t: t,
 					want: append(failWant(&sendMailWant{
@@ -240,7 +244,7 @@ func Test_checker_Validate(t *testing.T) {
 		{
 			name: "Problem with RCPTs Random email",
 			fields: fields{
-				dialFunc: dialFunc(simpleClient, nil),
+				dialFunc: successDialFunc,
 				sendMail: &mockSendMail{
 					t: t,
 					want: append(failWant(&sendMailWant{
@@ -274,7 +278,7 @@ func Test_checker_Validate(t *testing.T) {
 		{
 			name: "Quit problem",
 			fields: fields{
-				dialFunc: dialFunc(simpleClient, nil),
+				dialFunc: successDialFunc,
 				sendMail: &mockSendMail{
 					t: t,
 					want: failWant(&sendMailWant{
@@ -292,14 +296,12 @@ func Test_checker_Validate(t *testing.T) {
 				mx:    mxs,
 				email: emailTo,
 			},
-			wantErrs: utils.Errs(
-				NewError(QuitStage, errorSimple),
-			),
+			wantErrs: utils.Errs(NewError(QuitStage, errorSimple)),
 		},
 		{
 			name: "Success",
 			fields: fields{
-				dialFunc: dialFunc(simpleClient, nil),
+				dialFunc: successDialFunc,
 				sendMail: &mockSendMail{
 					t:    t,
 					want: failWant(nil, true),
@@ -314,6 +316,70 @@ func Test_checker_Validate(t *testing.T) {
 				email: emailTo,
 			},
 			wantErrs: []error{},
+		},
+		{
+			name: "with timeout success",
+			fields: fields{
+				dialFunc: dialFunc(t, simpleClient, nil, ctxTimeout, smtpLocalhost, "", 0),
+				sendMail: &mockSendMail{
+					t:    t,
+					want: failWant(nil, true),
+				},
+				randomEmail: mockRandomEmail(t, randomAddress, nil),
+				options: &options{
+					emailFrom:   emailFrom,
+					timeoutCon:  5 * time.Second,
+					timeoutResp: 5 * time.Second,
+				},
+			},
+			args: args{
+				mx:    mxs,
+				email: emailTo,
+			},
+			wantErrs: []error{},
+		},
+		{
+			name: "with expired connection timeout",
+			fields: fields{
+				dialFunc: dialFunc(t, simpleClient, nil, ctxTimeout, smtpLocalhost, "", 2),
+				sendMail: &mockSendMail{
+					t:    t,
+					want: failWant(nil, true),
+				},
+				randomEmail: mockRandomEmail(t, randomAddress, nil),
+				options: &options{
+					emailFrom:  emailFrom,
+					timeoutCon: 1,
+				},
+			},
+			args: args{
+				mx:    mxs,
+				email: emailTo,
+			},
+			wantErrs: utils.Errs(ErrConnection),
+		},
+		{
+			name: "with expired response timeout",
+			fields: fields{
+				dialFunc: successDialFunc,
+				sendMail: &mockSendMail{
+					t: t,
+					want: append(
+						failWant(&sendMailWant{stage: smSetClient, message: smSetClient, ret: simpleClient}, false),
+						sendMailWant{sleep: 2 * time.Millisecond, stage: smHello, message: smHelloLocalhost, ret: context.DeadlineExceeded},
+						closeStageWant),
+				},
+				randomEmail: mockRandomEmail(t, randomAddress, nil),
+				options: &options{
+					emailFrom:   emailFrom,
+					timeoutResp: 1 * time.Millisecond,
+				},
+			},
+			args: args{
+				mx:    mxs,
+				email: emailTo,
+			},
+			wantErrs: utils.Errs(NewError(HelloStage, context.DeadlineExceeded)),
 		},
 	}
 	for _, tt := range tests {
@@ -361,11 +427,12 @@ func TestChecker_Validate_WithProxy_Local(t *testing.T) {
 		return
 	}
 
-	lIP := localIP()
-
-	invalidProxies := []string{
-		"socks5://0.0.0.0:0", //invalid
-	}
+	// TODO delete after deleting of proxifier
+	//lIP := localIP()
+	//
+	//invalidProxies := []string{
+	//	"socks5://0.0.0.0:0", //invalid
+	//}
 
 	type fields struct {
 		GetConn     DialFunc
@@ -398,7 +465,7 @@ func TestChecker_Validate_WithProxy_Local(t *testing.T) {
 		{
 			name: "without proxy",
 			fields: fields{
-				GetConn:     Dial,
+				GetConn:     DirectDial,
 				Auth:        nil,
 				SendMail:    NewSendMail(nil),
 				RandomEmail: mockRandomEmail(t, getRandomAddress(emailTest), nil),
@@ -418,50 +485,51 @@ func TestChecker_Validate_WithProxy_Local(t *testing.T) {
 			})},
 			wantSMTP: successWantSMTP,
 		},
-		{
-			name: "with proxy success after ban",
-			fields: fields{
-				GetConn:     getSMTPProxy(nil, append(invalidProxies, proxyList...)...).Dial,
-				Auth:        nil,
-				SendMail:    NewSendMail(nil),
-				RandomEmail: mockRandomEmail(t, getRandomAddress(emailTest), nil),
-				Server:      successServer,
-				OptionsDTO: OptionsDTO{
-					EmailFrom: emailFrom,
-					HelloName: helloName,
-				},
-			},
-			args: args{
-				mxs: MXs{&net.MX{
-					Host: lIP,
-				}},
-				email: emailTest,
-			},
-			wantErrs: []error{NewError(RandomRCPTStage, &textproto.Error{
-				Code: 550,
-				Msg:  "address does not exist",
-			})},
-			wantSMTP: successWantSMTP,
-		},
-		{
-			name: "with invalid proxy",
-			fields: fields{
-				GetConn:     getSMTPProxy(nil, invalidProxies...).Dial,
-				Auth:        nil,
-				SendMail:    NewSendMail(nil),
-				RandomEmail: mockRandomEmail(t, getRandomAddress(emailTest), nil),
-				OptionsDTO: OptionsDTO{
-					EmailFrom: emailFrom,
-					HelloName: helloName,
-				},
-			},
-			args: args{
-				mxs:   mxs,
-				email: emailTest,
-			},
-			wantErrs: []error{NewError(ConnectionStage, proxifier.ErrEmptyPool)},
-			wantSMTP: []string{},
-		},
+		// TODO delete after deleting of proxifier
+		//{
+		//	name: "with proxy success after ban",
+		//	fields: fields{
+		//		GetConn:     getSMTPProxy(nil, append(invalidProxies, proxyList...)...).DialContext,
+		//		Auth:        nil,
+		//		SendMail:    NewSendMail(nil),
+		//		RandomEmail: mockRandomEmail(t, getRandomAddress(emailTest), nil),
+		//		Server:      successServer,
+		//		OptionsDTO: OptionsDTO{
+		//			EmailFrom: emailFrom,
+		//			HelloName: helloName,
+		//		},
+		//	},
+		//	args: args{
+		//		mxs: MXs{&net.MX{
+		//			Host: lIP,
+		//		}},
+		//		email: emailTest,
+		//	},
+		//	wantErrs: []error{NewError(RandomRCPTStage, &textproto.Error{
+		//		Code: 550,
+		//		Msg:  "address does not exist",
+		//	})},
+		//	wantSMTP: successWantSMTP,
+		//},
+		//{
+		//	name: "with invalid proxy",
+		//	fields: fields{
+		//		GetConn:     getSMTPProxy(nil, invalidProxies...).DialContext,
+		//		Auth:        nil,
+		//		SendMail:    NewSendMail(nil),
+		//		RandomEmail: mockRandomEmail(t, getRandomAddress(emailTest), nil),
+		//		OptionsDTO: OptionsDTO{
+		//			EmailFrom: emailFrom,
+		//			HelloName: helloName,
+		//		},
+		//	},
+		//	args: args{
+		//		mxs:   mxs,
+		//		email: emailTest,
+		//	},
+		//	wantErrs: []error{NewError(ConnectionStage, proxifier.ErrEmptyPool)},
+		//	wantSMTP: []string{},
+		//},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

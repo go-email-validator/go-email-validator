@@ -4,6 +4,7 @@ import (
 	"github.com/joho/godotenv"
 	"log"
 	"reflect"
+	"time"
 )
 
 // RangeLen returns length of interface{}
@@ -47,6 +48,7 @@ var (
 	defaultInt    int
 )
 
+// DefaultString return defaultVal if val is empty
 func DefaultString(val string, defaultVal string) string {
 	if val == defaultString {
 		return defaultVal
@@ -55,6 +57,7 @@ func DefaultString(val string, defaultVal string) string {
 	return val
 }
 
+// DefaultInt return defaultVal if val is empty
 func DefaultInt(val int, defaultVal int) int {
 	if val == defaultInt {
 		return defaultVal
@@ -63,6 +66,16 @@ func DefaultInt(val int, defaultVal int) int {
 	return val
 }
 
+// DefaultInt return defaultVal if val is empty
+func DefaultDuration(val time.Duration, defaultVal time.Duration) time.Duration {
+	if val == 0 {
+		return defaultVal
+	}
+
+	return val
+}
+
+// DefaultInterface return defaultVal if val is empty
 func DefaultInterface(val interface{}, defaultVal interface{}) interface{} {
 	if val == nil {
 		return defaultVal

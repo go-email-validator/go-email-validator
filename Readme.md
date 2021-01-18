@@ -21,7 +21,7 @@ username@domain.part
 * [mxValidator](pkg/ev/validator_mx.go)
 * [smtpValidator](pkg/ev/validator_smtp.go)
 
-    to use proxy connection, DialFunc need to be changed in [Checker](pkg/ev/evsmtp/smtp.go). For example by [ProxyDialer](pkg/proxifier/proxy_dialer.go). For socks, [h12w](https://github.com/h12w/socks) is acceptable.
+    to use proxy connection, DialFunc need to be changed in [Checker](pkg/ev/evsmtp/smtp.go). There is [evsmtp.H12IODial](pkg/ev/evsmtp/proxy.go), implementing for [h12w](https://github.com/h12w/socks).
 * [banWordsUsernameValidator](pkg/ev/validator_banwords_username.go) looks for banned words in username
 * [blackListEmailsValidator](pkg/ev/validator_blacklist_email.go) blocked emails from list
 * [blackListValidator](pkg/ev/validator_blacklist_domain.go) blocked emails with domains from black list

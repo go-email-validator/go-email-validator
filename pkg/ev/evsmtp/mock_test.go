@@ -9,9 +9,12 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+	"time"
 )
 
 const (
+	helloName = "helloName"
+
 	smSetClient      = "SetClient"
 	smClient         = "Client"
 	smHello          = "Hello "
@@ -44,6 +47,7 @@ func stringsJoin(strs []string) string {
 type sendMailWant struct {
 	stage   string
 	message string
+	sleep   time.Duration
 	ret     interface{}
 }
 
@@ -113,12 +117,15 @@ func (s *mockSendMail) do(cmd string) interface{} {
 		s.t.Fatalf("Invalid command %q", cmd)
 	}
 
-	if cmd != s.want[s.i].message {
-		s.t.Fatalf("Invalid command, got %q, want %q", cmd, s.want[s.i].message)
+	want := s.want[s.i]
+	if cmd != want.message {
+		s.t.Fatalf("Invalid command, got %q, want %q", cmd, want.message)
 	}
 	s.i++
 
-	return s.want[s.i-1].ret
+	time.Sleep(want.sleep)
+
+	return want.ret
 }
 
 type mockWriter struct {

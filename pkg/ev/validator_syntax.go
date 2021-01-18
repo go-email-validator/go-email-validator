@@ -30,7 +30,7 @@ type syntaxValidator struct {
 	AValidatorWithoutDeps
 }
 
-func (syntaxValidator) Validate(input Interface, _ ...ValidationResult) ValidationResult {
+func (syntaxValidator) Validate(input Input, _ ...ValidationResult) ValidationResult {
 	_, err := mail.ParseAddress(input.Email().String())
 
 	if err == nil {
@@ -64,7 +64,7 @@ type syntaxRegexValidator struct {
 	emailRegex *regexp.Regexp
 }
 
-func (s syntaxRegexValidator) Validate(input Interface, _ ...ValidationResult) ValidationResult {
+func (s syntaxRegexValidator) Validate(input Input, _ ...ValidationResult) ValidationResult {
 	if s.emailRegex.MatchString(input.Email().String()) {
 		return NewValidResult(SyntaxValidatorName)
 	}

@@ -32,7 +32,7 @@ type depValidator struct {
 	deps ValidatorMap
 }
 
-func (d depValidator) Validate(input Interface, _ ...ValidationResult) ValidationResult {
+func (d depValidator) Validate(input Input, _ ...ValidationResult) ValidationResult {
 	var waiters, waitersMutex = make(map[ValidatorName][]*sync.WaitGroup), sync.RWMutex{}
 	var validationResultsByName, validationResultsMutex = make(map[ValidatorName]ValidationResult), sync.RWMutex{}
 	var isValid = true

@@ -45,7 +45,7 @@ func (g gravatarValidator) GetDeps() []ValidatorName {
 	return []ValidatorName{SyntaxValidatorName}
 }
 
-func (g gravatarValidator) Validate(input Interface, results ...ValidationResult) ValidationResult {
+func (g gravatarValidator) Validate(input Input, results ...ValidationResult) ValidationResult {
 	syntaxResult := results[0].(SyntaxValidatorResult)
 	if !syntaxResult.IsValid() {
 		return gravatarGetError(NewDepsError())

@@ -17,7 +17,7 @@ const OtherValidator ValidatorName = "other"
 // Validator is interface for validators
 type Validator interface {
 	GetDeps() []ValidatorName
-	Validate(input Interface, results ...ValidationResult) ValidationResult
+	Validate(input Input, results ...ValidationResult) ValidationResult
 }
 
 // ChangeableValidationResult is ValidationResult with changeable errors and warnings

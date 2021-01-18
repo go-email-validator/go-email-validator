@@ -79,7 +79,7 @@ type mockValidator struct {
 	deps   []ValidatorName
 }
 
-func (m mockValidator) Validate(_ Interface, _ ...ValidationResult) ValidationResult {
+func (m mockValidator) Validate(_ Input, _ ...ValidationResult) ValidationResult {
 	var err error
 	if !m.result {
 		err = newMockError()

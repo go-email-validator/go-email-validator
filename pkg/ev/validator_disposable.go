@@ -28,7 +28,7 @@ type disposableValidator struct {
 	d contains.InSet
 }
 
-func (d disposableValidator) Validate(input Interface, _ ...ValidationResult) ValidationResult {
+func (d disposableValidator) Validate(input Input, _ ...ValidationResult) ValidationResult {
 	var err error
 	var isDisposable = d.d.Contains(input.Email().Domain())
 	if isDisposable {
