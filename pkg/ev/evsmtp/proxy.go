@@ -25,6 +25,9 @@ func DirectDial(ctx context.Context, addr, proxyURL string) (smtpclient.SMTPClie
 
 // H12IODial generates smtpclient.SMTPClient (smtp.Client) with proxy in socks.Dial
 func H12IODial(ctx context.Context, addr, proxyURL string) (client smtpclient.SMTPClient, err error) {
+	if proxyURL == "" {
+		return DirectDial(ctx, addr, proxyURL)
+	}
 	var c net.Conn
 	p := socks.Dial(proxyURL)
 
