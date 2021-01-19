@@ -127,6 +127,8 @@ func Test_checker_Validate(t *testing.T) {
 	ctxTimeout, cancel := context.WithTimeout(context.Background(), 0)
 	defer cancel()
 
+	errConnection := NewError(ConnectionStage, errors.New(ErrConnectionMsg))
+
 	tests := []struct {
 		name     string
 		fields   fields
@@ -137,7 +139,7 @@ func Test_checker_Validate(t *testing.T) {
 			name:     "empty mx",
 			fields:   fields{},
 			args:     args{},
-			wantErrs: utils.Errs(ErrConnection),
+			wantErrs: utils.Errs(errConnection),
 		},
 		{
 			name: "cannot connection to mx",
@@ -148,7 +150,7 @@ func Test_checker_Validate(t *testing.T) {
 			args: args{
 				mx: mxs,
 			},
-			wantErrs: utils.Errs(ErrConnection),
+			wantErrs: utils.Errs(errConnection),
 		},
 		{
 			name: "Bad hello with helloName",
@@ -356,7 +358,7 @@ func Test_checker_Validate(t *testing.T) {
 				mx:    mxs,
 				email: emailTo,
 			},
-			wantErrs: utils.Errs(ErrConnection),
+			wantErrs: utils.Errs(errConnection),
 		},
 		{
 			name: "with expired response timeout",

@@ -35,7 +35,7 @@ const (
 
 var (
 	// ErrConnection is error of connection
-	ErrConnection = NewError(ClientStage, errors.New(ErrConnectionMsg))
+	ErrConnection = NewError(ConnectionStage, errors.New(ErrConnectionMsg))
 	// DefaultFromEmail is address, used as default From email
 	DefaultFromEmail = evmail.FromString(DefaultEmail)
 )
