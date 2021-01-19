@@ -341,7 +341,7 @@ func Test_checker_Validate(t *testing.T) {
 		{
 			name: "with expired connection timeout",
 			fields: fields{
-				dialFunc: dialFunc(t, simpleClient, nil, ctxTimeout, smtpLocalhost, "", 2),
+				dialFunc: dialFunc(t, simpleClient, nil, ctxTimeout, smtpLocalhost, "", 2*time.Millisecond),
 				sendMail: &mockSendMail{
 					t:    t,
 					want: failWant(nil, true),
