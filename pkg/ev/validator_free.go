@@ -9,11 +9,14 @@ import (
 // FreeValidatorName is name of free validator
 const FreeValidatorName ValidatorName = "FreeValidator"
 
+// FreeErr is text for FreeError.Error
+const FreeErr = "FreeError"
+
 // FreeError is FreeValidatorName error
 type FreeError struct{}
 
 func (FreeError) Error() string {
-	return "FreeError"
+	return FreeErr
 }
 
 // FreeDefaultValidator instantiates default FreeValidatorName based on free.NewWillWhiteSetFree()

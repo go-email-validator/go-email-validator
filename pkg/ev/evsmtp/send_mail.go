@@ -18,12 +18,14 @@ type SafeSendMailStage struct {
 	mu sync.RWMutex
 }
 
+// Set sets stage
 func (s *SafeSendMailStage) Set(val SendMailStage) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.SendMailStage = val
 }
 
+// Get returns stage
 func (s *SafeSendMailStage) Get() SendMailStage {
 	s.mu.RLock()
 	defer s.mu.RUnlock()

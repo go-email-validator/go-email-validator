@@ -6,8 +6,10 @@ import (
 )
 
 const (
-	DefaultTimeoutConnection = 2 * time.Second
-	DefaultTimeoutResponse   = 2 * time.Second
+	// DefaultTimeoutConnection is timeout for connection
+	DefaultTimeoutConnection = 5 * time.Second
+	// DefaultTimeoutResponse is timeout for communication with smtp server
+	DefaultTimeoutResponse = 5 * time.Second
 )
 
 // Input describes data for Checker

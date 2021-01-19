@@ -149,6 +149,7 @@ For example:
 * Add misspelled email
 * Add DKIM checking
 * Add linter in pre-hook and ci
+* Do full thread safe library
 * Copy features from [truemail](https://github.com/truemail-rb/truemail)
     * [Extend MX](https://truemail-rb.org/truemail-gem/#/validations-layers?id=mx-validation)
       , [rfc5321 section 5](https://tools.ietf.org/html/rfc5321#section-5)

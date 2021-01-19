@@ -71,3 +71,22 @@ func TestFreeDefaultValidator(t *testing.T) {
 		})
 	}
 }
+
+func TestFreeError_Error(t *testing.T) {
+	tests := []struct {
+		name string
+		want string
+	}{
+		{
+			want: FreeErr,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			fr := FreeError{}
+			if got := fr.Error(); got != tt.want {
+				t.Errorf("Error() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

@@ -16,6 +16,7 @@ const (
 	UDPConnection = "udp"
 )
 
+// Dialer is interface
 type Dialer interface {
 	proxy.Dialer
 	proxy.ContextDialer

@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// From built-in library net.Conn.
+// Conn is copy interface from built-in library net.Conn.
 // Need to generate mock
 type Conn interface {
 	// Read reads data from the connection.

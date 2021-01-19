@@ -66,7 +66,7 @@ func DefaultInt(val int, defaultVal int) int {
 	return val
 }
 
-// DefaultInt return defaultVal if val is empty
+// DefaultDuration return defaultVal if val is empty fpr time.Duration
 func DefaultDuration(val time.Duration, defaultVal time.Duration) time.Duration {
 	if val == 0 {
 		return defaultVal
