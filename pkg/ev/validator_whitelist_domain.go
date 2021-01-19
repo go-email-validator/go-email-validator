@@ -8,11 +8,14 @@ import (
 // WhiteListDomainValidatorName name of whiteListValidator
 const WhiteListDomainValidatorName ValidatorName = "WhiteListDomain"
 
+// WhiteListErr is text for WhiteListError.Error
+const WhiteListErr = "WhiteListError"
+
 // WhiteListError is error for WhiteListDomainValidatorName
 type WhiteListError struct{}
 
 func (WhiteListError) Error() string {
-	return "WhiteListError"
+	return WhiteListErr
 }
 
 // NewWhiteListValidator instantiates WhiteListDomainValidatorName

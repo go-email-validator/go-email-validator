@@ -8,11 +8,14 @@ import (
 // RoleValidatorName is name of role validator
 const RoleValidatorName ValidatorName = "RoleValidator"
 
+// RoleErr is text for RoleError.Error
+const RoleErr = "RoleError"
+
 // RoleError is error of RoleValidatorName
 type RoleError struct{}
 
 func (RoleError) Error() string {
-	return "RoleError"
+	return RoleErr
 }
 
 // NewRoleValidator instantiates RoleValidatorName

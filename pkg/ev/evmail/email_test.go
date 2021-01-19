@@ -198,3 +198,50 @@ func TestSeparatedEmail(t *testing.T) {
 		})
 	}
 }
+
+func TestEmptyEmail(t *testing.T) {
+	type args struct {
+		val        Address
+		defaultVal Address
+	}
+
+	emailTest := FromString("some@email.com")
+
+	tests := []struct {
+		name string
+		args args
+		want Address
+	}{
+		{
+			name: "value",
+			args: args{
+				val:        defaultEmail(),
+				defaultVal: emailTest,
+			},
+			want: defaultEmail(),
+		},
+		{
+			name: "default",
+			args: args{
+				val:        nil,
+				defaultVal: emailTest,
+			},
+			want: emailTest,
+		},
+		{
+			name: "default nil",
+			args: args{
+				val:        nil,
+				defaultVal: nil,
+			},
+			want: nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := EmptyEmail(tt.args.val, tt.args.defaultVal); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("EmptyEmail() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

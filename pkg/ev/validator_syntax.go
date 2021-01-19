@@ -9,11 +9,14 @@ import (
 // SyntaxValidatorName is name of syntax validator
 const SyntaxValidatorName ValidatorName = "syntaxValidator"
 
+// SyntaxErr is text for SyntaxError.Error
+const SyntaxErr = "SyntaxErr"
+
 // SyntaxError is error of SyntaxValidatorName
 type SyntaxError struct{}
 
 func (SyntaxError) Error() string {
-	return "SyntaxError"
+	return SyntaxErr
 }
 
 // SyntaxValidatorResult is interface of SyntaxValidatorName result

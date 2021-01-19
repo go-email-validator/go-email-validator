@@ -101,3 +101,22 @@ func Test_syntaxRegexValidator_Validate(t *testing.T) {
 		})
 	}
 }
+
+func TestSyntaxError_Error(t *testing.T) {
+	tests := []struct {
+		name string
+		want string
+	}{
+		{
+			want: SyntaxErr,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			sy := SyntaxError{}
+			if got := sy.Error(); got != tt.want {
+				t.Errorf("Error() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

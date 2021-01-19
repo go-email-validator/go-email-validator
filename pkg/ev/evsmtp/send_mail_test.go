@@ -3,7 +3,7 @@ package evsmtp
 import (
 	"crypto/tls"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp/smtpclient"
-	mocksmtpclient "github.com/go-email-validator/go-email-validator/test/mock/ev/evsmtp/smtp_client"
+	mocksmtpclient "github.com/go-email-validator/go-email-validator/test/mock/ev/evsmtp/smtpclient"
 	"github.com/golang/mock/gomock"
 	"io"
 	"reflect"

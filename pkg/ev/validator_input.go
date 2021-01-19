@@ -17,8 +17,8 @@ type Input interface {
 	Option(name ValidatorName) interface{}
 }
 
-// NewInput create Input from evmail.Address and KVOption list
-func NewInput(email evmail.Address, kvOptions ...KVOption) Input {
+// NewInput create Input from evmail.Address and kvOption list
+func NewInput(email evmail.Address, kvOptions ...kvOption) Input {
 	var options = make(map[ValidatorName]interface{})
 
 	for _, kvOption := range kvOptions {
@@ -49,16 +49,16 @@ func (i *input) Option(name ValidatorName) interface{} {
 	return i.options[name]
 }
 
-// NewKVOption instantiates KVOption
-func NewKVOption(name ValidatorName, option interface{}) KVOption {
-	return KVOption{
+// KVOption instantiates kvOption
+func KVOption(name ValidatorName, option interface{}) kvOption {
+	return kvOption{
 		Name:   name,
 		Option: option,
 	}
 }
 
-// KVOption needs to form options in Input
-type KVOption struct {
+// kvOption needs to form options in Input
+type kvOption struct {
 	Name   ValidatorName
 	Option interface{}
 }

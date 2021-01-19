@@ -52,3 +52,22 @@ func Test_roleValidator_Validate(t *testing.T) {
 		})
 	}
 }
+
+func TestRoleError_Error(t *testing.T) {
+	tests := []struct {
+		name string
+		want string
+	}{
+		{
+			want: RoleErr,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ro := RoleError{}
+			if got := ro.Error(); got != tt.want {
+				t.Errorf("Error() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

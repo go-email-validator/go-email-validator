@@ -51,3 +51,22 @@ func Test_whiteListValidator_Validate(t *testing.T) {
 		})
 	}
 }
+
+func TestWhiteListError_Error(t *testing.T) {
+	tests := []struct {
+		name string
+		want string
+	}{
+		{
+			want: WhiteListErr,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			wh := WhiteListError{}
+			if got := wh.Error(); got != tt.want {
+				t.Errorf("Error() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

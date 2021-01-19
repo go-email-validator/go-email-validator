@@ -7,6 +7,8 @@ COVERAGE_FILE="coverage.out"
 COVERAGE_TMP_FILE="coverage.out.tmp"
 MOCK_PATTERN=mock_.*.go
 
+GOROOT=$(shell go env GOROOT)
+
 go.test.unit:
 	$(GO_TEST) -race -covermode=atomic -coverprofile=$(COVERAGE_TMP_FILE)
 	rm $(COVERAGE_UNIT_FILE) || true
@@ -25,6 +27,7 @@ go.mocks.isntall:
 	go get github.com/golang/mock/mockgen
 
 go.mocks.gen:
+	mockgen -source=test/mock/net/interface.go -destination=test/mock/net/conn.go --package=mocknet
 	mockgen -source=pkg/ev/evcache/evcache.go -destination=test/mock/ev/evcache/evcache.go --package=mockevcache
 	mockgen -source=pkg/ev/evsmtp/smtpclient/interface.go -destination=test/mock/ev/evsmtp/smtpclient/interface.go --package=mocksmtpclient
 	mockgen -source=pkg/ev/evsmtp/smtp.go -destination=pkg/ev/evsmtp/mock_smtp.go --package=evsmtp # https://github.com/golang/mock/issues/352

@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp/smtpclient"
 	"github.com/go-email-validator/go-email-validator/pkg/proxifier"
+	"github.com/tevino/abool"
 	"h12.io/socks"
 	"net"
 	"net/smtp"
@@ -11,6 +12,10 @@ import (
 
 // DialFunc is function type to create smtpclient.SMTPClient
 type DialFunc func(ctx context.Context, addr, proxyURL string) (smtpclient.SMTPClient, error)
+
+var smtpNewClient = smtp.NewClient
+
+var directDial = DirectDial
 
 // DirectDial generates smtpclient.SMTPClient (smtp.Client)
 func DirectDial(ctx context.Context, addr, proxyURL string) (smtpclient.SMTPClient, error) {
@@ -20,24 +25,29 @@ func DirectDial(ctx context.Context, addr, proxyURL string) (smtpclient.SMTPClie
 		return nil, err
 	}
 	host, _, _ := net.SplitHostPort(addr)
-	return smtp.NewClient(conn, host)
+	return smtpNewClient(conn, host)
 }
 
+var h12ioDial = socks.Dial
+
 // H12IODial generates smtpclient.SMTPClient (smtp.Client) with proxy in socks.Dial
-func H12IODial(ctx context.Context, addr, proxyURL string) (client smtpclient.SMTPClient, err error) {
+func H12IODial(ctx context.Context, addr, proxyURL string) (smtpclient.SMTPClient, error) {
 	if proxyURL == "" {
-		return DirectDial(ctx, addr, proxyURL)
+		return directDial(ctx, addr, proxyURL)
 	}
 	var c net.Conn
-	p := socks.Dial(proxyURL)
+	var client smtpclient.SMTPClient
+	var err error
+	p := h12ioDial(proxyURL)
 
 	done := make(chan struct{}, 1)
-	needClose := false
+	needClose := abool.New()
 	go func() {
 		c, err = p("tcp", addr)
 		defer func() {
 			defer func() { done <- struct{}{} }()
-			if needClose && c != nil {
+
+			if needClose.IsSet() && c != nil {
 				c.Close()
 			}
 		}()
@@ -45,15 +55,16 @@ func H12IODial(ctx context.Context, addr, proxyURL string) (client smtpclient.SM
 		if err != nil {
 			return
 		}
+
 		host, _, _ := net.SplitHostPort(addr)
-		client, err = smtp.NewClient(c, host)
+		client, err = smtpNewClient(c, host)
 	}()
 
 	select {
 	case <-ctx.Done():
-		needClose = true
+		needClose.Set()
 		return nil, ctx.Err()
 	case <-done:
-		return
+		return client, err
 	}
 }
