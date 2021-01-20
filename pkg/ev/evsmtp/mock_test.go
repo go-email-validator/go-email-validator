@@ -2,12 +2,14 @@ package evsmtp
 
 import (
 	"bytes"
+	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp/smtpclient"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evtests"
 	"github.com/stretchr/testify/require"
 	"io"
 	"net/smtp"
 	"reflect"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 )
@@ -15,7 +17,6 @@ import (
 const (
 	helloName = "helloName"
 
-	smSetClient      = "SetClient"
 	smClient         = "Client"
 	smHello          = "Hello "
 	smHelloLocalhost = "Hello localhost"
@@ -52,17 +53,14 @@ type sendMailWant struct {
 }
 
 type mockSendMail struct {
+	mu   sync.Mutex
 	t    *testing.T
 	i    int
 	want []sendMailWant
 }
 
-func (s *mockSendMail) SetClient(i interface{}) {
-	require.Equal(s.t, s.do(smSetClient), i)
-}
-
-func (s *mockSendMail) Client() interface{} {
-	return s.do(smClient)
+func (s *mockSendMail) Client() smtpclient.SMTPClient {
+	return s.do(smClient).(smtpclient.SMTPClient)
 }
 
 func (s *mockSendMail) Hello(localName string) error {
@@ -113,6 +111,8 @@ func (s *mockSendMail) Close() error {
 }
 
 func (s *mockSendMail) do(cmd string) interface{} {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	if s.i >= len(s.want) {
 		s.t.Fatalf("Invalid command %q", cmd)
 	}
@@ -149,10 +149,6 @@ func (w *mockWriter) Close() error {
 }
 
 var defaultWantMap = map[string]sendMailWant{
-	smSetClient: {
-		message: smSetClient,
-		ret:     simpleClient,
-	},
 	smHello: {
 		message: smHelloLocalhost,
 	},
@@ -181,7 +177,6 @@ var closeStageWant = sendMailWant{
 }
 
 var wantSuccessList = []string{
-	smSetClient,
 	smHello,
 	smAuth,
 	smMail,

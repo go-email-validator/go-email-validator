@@ -7,12 +7,12 @@ import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
 	"github.com/go-email-validator/go-email-validator/pkg/log"
+	"github.com/modern-go/reflect2"
 	"github.com/sethvargo/go-password/password"
 	"github.com/tevino/abool"
 	"go.uber.org/zap"
 	"net"
 	"net/smtp"
-	"sync"
 )
 
 // Configuration constants
@@ -51,6 +51,16 @@ type CheckerWithRandomRCPT interface {
 	RandomRCPT
 }
 
+// RandomRCPTFunc is function for checking of Catching All
+type RandomRCPTFunc func(sm SendMail, email evmail.Address) (errs []error)
+
+// RandomRCPT Need to realize of is-a relation (inheritance)
+type RandomRCPT interface {
+	Call(sm SendMail, email evmail.Address) []error
+	set(fn RandomRCPTFunc)
+	get() RandomRCPTFunc
+}
+
 // RandomEmail is function type to generate random email for checking of Catching All emails by RCPTs
 type RandomEmail func(domain string) (evmail.Address, error)
 
@@ -64,20 +74,15 @@ func randomEmail(domain string) (evmail.Address, error) {
 
 // CheckerDTO is DTO for NewChecker
 type CheckerDTO struct {
-	DialFunc    DialFunc
-	SendMail    SendMail
-	RandomEmail RandomEmail
-	Options     Options
+	SendMailFactory SendMailDialerFactory
+	RandomEmail     RandomEmail
+	Options         Options
 }
 
 // NewChecker instantiates Checker
 func NewChecker(dto CheckerDTO) Checker {
-	if dto.DialFunc == nil {
-		dto.DialFunc = DirectDial
-	}
-
-	if dto.SendMail == nil {
-		dto.SendMail = NewSendMail(nil)
+	if dto.SendMailFactory == nil {
+		dto.SendMailFactory = NewSendMailFactory(DirectDial, nil)
 	}
 
 	if dto.RandomEmail == nil {
@@ -98,11 +103,10 @@ func NewChecker(dto CheckerDTO) Checker {
 	}
 
 	c := checker{
-		dialFunc:    dto.DialFunc,
-		Auth:        nil,
-		sendMail:    dto.SendMail,
-		randomEmail: dto.RandomEmail,
-		options:     NewOptions(opts),
+		sendMailFactory: dto.SendMailFactory,
+		Auth:            nil,
+		randomEmail:     dto.RandomEmail,
+		options:         NewOptions(opts),
 	}
 	c.RandomRCPT = &ARandomRCPT{fn: c.randomRCPT}
 
@@ -115,51 +119,51 @@ Some SMTP server send additional message and we should read it
 */
 type checker struct {
 	RandomRCPT
-	dialFunc    DialFunc // use for get connection to smtp server
-	Auth        smtp.Auth
-	sendMail    SendMail
-	randomEmail RandomEmail
-	options     Options
+	sendMailFactory SendMailDialerFactory
+	Auth            smtp.Auth
+	randomEmail     RandomEmail
+	options         Options
 }
 
 func (c checker) Validate(mxs MXs, input Input) (errs []error) {
-	var client interface{}
-	var clientRWMutex sync.RWMutex
+	var sm SendMail
 	var err error
 	errs = make([]error, 0)
 	var host string
 
 	email := input.Email()
-
-	port := utils.DefaultInt(input.Port(), c.options.Port())
-	timeout := utils.DefaultDuration(input.TimeoutConnection(), c.options.TimeoutConnection())
-	proxy := utils.DefaultString(input.Proxy(), c.options.Proxy())
+	opts := NewOptions(OptionsDTO{
+		EmailFrom:   evmail.EmptyEmail(input.EmailFrom(), c.options.EmailFrom()),
+		HelloName:   utils.DefaultString(input.HelloName(), c.options.HelloName()),
+		Proxy:       utils.DefaultString(input.Proxy(), c.options.Proxy()),
+		TimeoutCon:  utils.DefaultDuration(input.TimeoutConnection(), c.options.TimeoutConnection()),
+		TimeoutResp: utils.DefaultDuration(input.TimeoutResponse(), c.options.TimeoutResponse()),
+		Port:        utils.DefaultInt(input.Port(), c.options.Port()),
+	})
 
 	stopFor := abool.New()
 	for _, mx := range mxs {
-		host = fmt.Sprintf("%v:%v", mx.Host, port)
+		host = fmt.Sprintf("%v:%v", mx.Host, opts.Port())
 
 		func() {
 			var cancel context.CancelFunc
 			var ctx context.Context
 			ctx = context.Background()
-			if timeout > 0 {
+			if opts.TimeoutConnection() > 0 {
 				// TODO think about logging of timeout connection error
-				ctx, cancel = context.WithTimeout(ctx, timeout)
+				ctx, cancel = context.WithTimeout(ctx, opts.TimeoutConnection())
 				defer cancel()
 			}
 
 			done := make(chan struct{}, 1)
 			go func() {
-				var errDial error
+				defer func() { close(done) }()
+				var errSM error
 
-				clientRWMutex.Lock()
-				client, errDial = c.dialFunc(ctx, host, proxy)
-				clientRWMutex.Unlock()
-				if errDial == nil {
+				sm, errSM = c.sendMailFactory(ctx, host, input)
+				if errSM == nil {
 					stopFor.Set()
 				}
-				done <- struct{}{}
 			}()
 
 			select {
@@ -175,21 +179,16 @@ func (c checker) Validate(mxs MXs, input Input) (errs []error) {
 	}
 
 	stage := SafeSendMailStage{SendMailStage: ConnectionStage}
-	clientRWMutex.RLock()
-	clientIsNil := client == nil
-	clientRWMutex.RUnlock()
-	if clientIsNil {
+	if reflect2.IsNil(sm) {
 		return append(errs, ErrConnection)
 	}
 
-	c.sendMail.SetClient(client)
-	needClose := abool.New()
+	needClose := abool.NewBool(true)
 	defer func() {
 		if needClose.IsNotSet() {
 			return
 		}
-		needClose.UnSet()
-		if err = c.sendMail.Close(); err != nil {
+		if err := sm.Close(); err != nil {
 			log.Logger().Error(fmt.Sprintf("sendMail.Close %v", err),
 				zap.String("email", email.String()),
 				zap.String("mxs", fmt.Sprint(mxs)),
@@ -215,55 +214,55 @@ func (c checker) Validate(mxs MXs, input Input) (errs []error) {
 	}
 
 	go func() {
-		defer func() { done <- struct{}{} }()
+		defer func() { close(done) }()
+
 		stage.Set(HelloStage)
-		if err = c.sendMail.Hello(utils.DefaultString(input.HelloName(), c.options.HelloName())); err != nil {
+		if err = sm.Hello(opts.HelloName()); err != nil {
 			errAppend(NewError(stage.Get(), err))
 			return
 		}
+
 		stage.Set(AuthStage)
-		if err = c.sendMail.Auth(c.Auth); err != nil {
+		if err = sm.Auth(c.Auth); err != nil {
 			errAppend(NewError(stage.Get(), err))
 			return
 		}
 
 		stage.Set(MailStage)
-		err = c.sendMail.Mail(evmail.EmptyEmail(input.EmailFrom(), c.options.EmailFrom()).String())
-		if err != nil {
+		if err = sm.Mail(opts.EmailFrom().String()); err != nil {
 			errAppend(NewError(stage.Get(), err))
 			return
 		}
 
 		stage.Set(RandomRCPTStage)
-		if errsRandomRCPTs := c.RandomRCPT.Call(email); len(errsRandomRCPTs) > 0 {
+		if errsRandomRCPTs := c.randomRCPT(sm, email); len(errsRandomRCPTs) > 0 {
 			if errAppend(errsRandomRCPTs...) {
 				return
 			}
 			stage.Set(RCPTsStage)
-			if errsRCPTs := c.sendMail.RCPTs([]string{email.String()}); len(errsRCPTs) > 0 {
+			if errsRCPTs := sm.RCPTs([]string{email.String()}); len(errsRCPTs) > 0 {
 				errAppend(NewError(stage.Get(), errsRCPTs[email.String()]))
 			}
 		}
 
 		stage.Set(QuitStage)
-		if err = c.sendMail.Quit(); err != nil {
+		if err = sm.Quit(); err != nil {
 			errAppend(NewError(stage.Get(), err))
 		}
 		needClose.UnSet()
 	}()
 
+	defer isDone.Set()
 	select {
 	case <-ctx.Done():
 		errAppend(NewError(stage.Get(), ctx.Err()))
-		isDone.Set()
 		return
 	case <-done:
-		isDone.Set()
 		return
 	}
 }
 
-func (c checker) randomRCPT(email evmail.Address) (errs []error) {
+func (c checker) randomRCPT(sm SendMail, email evmail.Address) (errs []error) {
 	randomEmail, err := c.randomEmail(email.Domain())
 	if err != nil {
 		randomEmailErr := NewError(RandomRCPTStage, err)
@@ -273,7 +272,7 @@ func (c checker) randomRCPT(email evmail.Address) (errs []error) {
 		return append(errs, randomEmailErr)
 	}
 
-	if errsRCPTs := c.sendMail.RCPTs([]string{randomEmail.String()}); len(errsRCPTs) > 0 {
+	if errsRCPTs := sm.RCPTs([]string{randomEmail.String()}); len(errsRCPTs) > 0 {
 		return append(errs, NewError(RandomRCPTStage, errsRCPTs[randomEmail.String()]))
 	}
 

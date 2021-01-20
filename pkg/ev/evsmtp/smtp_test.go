@@ -2,6 +2,7 @@ package evsmtp
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"github.com/allegro/bigcache"
@@ -112,10 +113,9 @@ func localIP() string {
 
 func Test_checker_Validate(t *testing.T) {
 	type fields struct {
-		dialFunc    DialFunc
-		sendMail    SendMail
-		randomEmail RandomEmail
-		options     Options
+		sendMailFactory SendMailDialerFactory
+		randomEmail     RandomEmail
+		options         Options
 	}
 	type args struct {
 		mx    MXs
@@ -137,15 +137,14 @@ func Test_checker_Validate(t *testing.T) {
 	}{
 		{
 			name:     "empty mx",
-			fields:   fields{},
 			args:     args{},
 			wantErrs: utils.Errs(errConnection),
 		},
 		{
 			name: "cannot connection to mx",
 			fields: fields{
-				dialFunc: dialFunc(t, nil, errorSimple, context.Background(), smtpLocalhost, "", 0),
-				options:  &options{},
+				sendMailFactory: NewSendMailFactory(dialFunc(t, nil, errorSimple, context.Background(), smtpLocalhost, "", 0), nil),
+				options:         &options{},
 			},
 			args: args{
 				mx: mxs,
@@ -155,11 +154,13 @@ func Test_checker_Validate(t *testing.T) {
 		{
 			name: "Bad hello with helloName",
 			fields: fields{
-				dialFunc: successDialFunc,
-				sendMail: &mockSendMail{
-					t:    t,
-					want: failWant(&sendMailWant{stage: smHello, message: smHello + helloName, ret: errorSimple}, true),
-				},
+				sendMailFactory: NewSendMailCustom(successDialFunc, nil,
+					func(client smtpclient.SMTPClient, tlsConfig *tls.Config) SendMail {
+						return &mockSendMail{
+							t:    t,
+							want: failWant(&sendMailWant{stage: smHello, message: smHello + helloName, ret: errorSimple}, true),
+						}
+					}),
 				options: &options{
 					helloName: helloName,
 				},
@@ -172,15 +173,17 @@ func Test_checker_Validate(t *testing.T) {
 		{
 			name: "Bad auth",
 			fields: fields{
-				dialFunc: successDialFunc,
-				sendMail: &mockSendMail{
-					t: t,
-					want: failWant(&sendMailWant{
-						stage:   smAuth,
-						message: smAuth,
-						ret:     []interface{}{nil, errorSimple},
-					}, true),
-				},
+				sendMailFactory: NewSendMailCustom(successDialFunc, nil,
+					func(client smtpclient.SMTPClient, tlsConfig *tls.Config) SendMail {
+						return &mockSendMail{
+							t: t,
+							want: failWant(&sendMailWant{
+								stage:   smAuth,
+								message: smAuth,
+								ret:     []interface{}{nil, errorSimple},
+							}, true),
+						}
+					}),
 				options: &options{},
 			},
 			args: args{
@@ -191,15 +194,17 @@ func Test_checker_Validate(t *testing.T) {
 		{
 			name: "Bad Mail stage",
 			fields: fields{
-				dialFunc: successDialFunc,
-				sendMail: &mockSendMail{
-					t: t,
-					want: failWant(&sendMailWant{
-						stage:   smMail,
-						message: smMail + emailFrom.String(),
-						ret:     errorSimple,
-					}, true),
-				},
+				sendMailFactory: NewSendMailCustom(successDialFunc, nil,
+					func(client smtpclient.SMTPClient, tlsConfig *tls.Config) SendMail {
+						return &mockSendMail{
+							t: t,
+							want: failWant(&sendMailWant{
+								stage:   smMail,
+								message: smMail + emailFrom.String(),
+								ret:     errorSimple,
+							}, true),
+						}
+					}),
 				options: &options{
 					emailFrom: emailFrom,
 				},
@@ -212,23 +217,25 @@ func Test_checker_Validate(t *testing.T) {
 		{
 			name: "Problem with generation Random email",
 			fields: fields{
-				dialFunc: successDialFunc,
-				sendMail: &mockSendMail{
-					t: t,
-					want: append(failWant(&sendMailWant{
-						stage:   smMail,
-						message: smMail + emailFrom.String(),
-						ret:     nil,
-					}, false),
-						sendMailWant{
-							stage:   smRCPTs,
-							message: smRCPTs + emailTo.String(),
-							ret:     errorSimple,
-						},
-						quitStageWant,
-						closeStageWant,
-					),
-				},
+				sendMailFactory: NewSendMailCustom(successDialFunc, nil,
+					func(client smtpclient.SMTPClient, tlsConfig *tls.Config) SendMail {
+						return &mockSendMail{
+							t: t,
+							want: append(failWant(&sendMailWant{
+								stage:   smMail,
+								message: smMail + emailFrom.String(),
+								ret:     nil,
+							}, false),
+								sendMailWant{
+									stage:   smRCPTs,
+									message: smRCPTs + emailTo.String(),
+									ret:     errorSimple,
+								},
+								quitStageWant,
+								closeStageWant,
+							),
+						}
+					}),
 				randomEmail: mockRandomEmail(t, randomAddress, errorRandom),
 				options: &options{
 					emailFrom: emailFrom,
@@ -246,23 +253,25 @@ func Test_checker_Validate(t *testing.T) {
 		{
 			name: "Problem with RCPTs Random email",
 			fields: fields{
-				dialFunc: successDialFunc,
-				sendMail: &mockSendMail{
-					t: t,
-					want: append(failWant(&sendMailWant{
-						stage:   smRCPTs,
-						message: smRCPTs + randomAddress.String(),
-						ret:     errorSimple,
-					}, false),
-						sendMailWant{
-							stage:   smRCPTs,
-							message: smRCPTs + emailTo.String(),
-							ret:     errorSimple,
-						},
-						quitStageWant,
-						closeStageWant,
-					),
-				},
+				sendMailFactory: NewSendMailCustom(successDialFunc, nil,
+					func(client smtpclient.SMTPClient, tlsConfig *tls.Config) SendMail {
+						return &mockSendMail{
+							t: t,
+							want: append(failWant(&sendMailWant{
+								stage:   smRCPTs,
+								message: smRCPTs + randomAddress.String(),
+								ret:     errorSimple,
+							}, false),
+								sendMailWant{
+									stage:   smRCPTs,
+									message: smRCPTs + emailTo.String(),
+									ret:     errorSimple,
+								},
+								quitStageWant,
+								closeStageWant,
+							),
+						}
+					}),
 				randomEmail: mockRandomEmail(t, randomAddress, nil),
 				options: &options{
 					emailFrom: emailFrom,
@@ -280,15 +289,17 @@ func Test_checker_Validate(t *testing.T) {
 		{
 			name: "Quit problem",
 			fields: fields{
-				dialFunc: successDialFunc,
-				sendMail: &mockSendMail{
-					t: t,
-					want: failWant(&sendMailWant{
-						stage:   smQuit,
-						message: smQuit,
-						ret:     errorSimple,
-					}, true),
-				},
+				sendMailFactory: NewSendMailCustom(successDialFunc, nil,
+					func(client smtpclient.SMTPClient, tlsConfig *tls.Config) SendMail {
+						return &mockSendMail{
+							t: t,
+							want: failWant(&sendMailWant{
+								stage:   smQuit,
+								message: smQuit,
+								ret:     errorSimple,
+							}, true),
+						}
+					}),
 				randomEmail: mockRandomEmail(t, randomAddress, nil),
 				options: &options{
 					emailFrom: emailFrom,
@@ -303,11 +314,13 @@ func Test_checker_Validate(t *testing.T) {
 		{
 			name: "Success",
 			fields: fields{
-				dialFunc: successDialFunc,
-				sendMail: &mockSendMail{
-					t:    t,
-					want: failWant(nil, true),
-				},
+				sendMailFactory: NewSendMailCustom(successDialFunc, nil,
+					func(client smtpclient.SMTPClient, tlsConfig *tls.Config) SendMail {
+						return &mockSendMail{
+							t:    t,
+							want: failWant(nil, true),
+						}
+					}),
 				randomEmail: mockRandomEmail(t, randomAddress, nil),
 				options: &options{
 					emailFrom: emailFrom,
@@ -322,11 +335,15 @@ func Test_checker_Validate(t *testing.T) {
 		{
 			name: "with timeout success",
 			fields: fields{
-				dialFunc: dialFunc(t, simpleClient, nil, ctxTimeout, smtpLocalhost, "", 0),
-				sendMail: &mockSendMail{
-					t:    t,
-					want: failWant(nil, true),
-				},
+				sendMailFactory: NewSendMailCustom(
+					dialFunc(t, simpleClient, nil, ctxTimeout, smtpLocalhost, "", 0),
+					nil,
+					func(client smtpclient.SMTPClient, tlsConfig *tls.Config) SendMail {
+						return &mockSendMail{
+							t:    t,
+							want: failWant(nil, true),
+						}
+					}),
 				randomEmail: mockRandomEmail(t, randomAddress, nil),
 				options: &options{
 					emailFrom:   emailFrom,
@@ -343,11 +360,15 @@ func Test_checker_Validate(t *testing.T) {
 		{
 			name: "with expired connection timeout",
 			fields: fields{
-				dialFunc: dialFunc(t, simpleClient, nil, ctxTimeout, smtpLocalhost, "", 2*time.Millisecond),
-				sendMail: &mockSendMail{
-					t:    t,
-					want: failWant(nil, true),
-				},
+				sendMailFactory: NewSendMailCustom(
+					dialFunc(t, simpleClient, nil, ctxTimeout, smtpLocalhost, "", 2*time.Millisecond),
+					nil,
+					func(client smtpclient.SMTPClient, tlsConfig *tls.Config) SendMail {
+						return &mockSendMail{
+							t:    t,
+							want: failWant(nil, true),
+						}
+					}),
 				randomEmail: mockRandomEmail(t, randomAddress, nil),
 				options: &options{
 					emailFrom:  emailFrom,
@@ -363,14 +384,21 @@ func Test_checker_Validate(t *testing.T) {
 		{
 			name: "with expired response timeout",
 			fields: fields{
-				dialFunc: successDialFunc,
-				sendMail: &mockSendMail{
-					t: t,
-					want: append(
-						failWant(&sendMailWant{stage: smSetClient, message: smSetClient, ret: simpleClient}, false),
-						sendMailWant{sleep: 2 * time.Millisecond, stage: smHello, message: smHelloLocalhost, ret: context.DeadlineExceeded},
-						closeStageWant),
-				},
+				sendMailFactory: NewSendMailCustom(successDialFunc, nil,
+					func(client smtpclient.SMTPClient, tlsConfig *tls.Config) SendMail {
+						return &mockSendMail{
+							t: t,
+							want: []sendMailWant{
+								{
+									sleep:   2 * time.Millisecond,
+									stage:   smHello,
+									message: smHelloLocalhost,
+									ret:     context.DeadlineExceeded,
+								},
+								closeStageWant,
+							},
+						}
+					}),
 				randomEmail: mockRandomEmail(t, randomAddress, nil),
 				options: &options{
 					emailFrom:   emailFrom,
@@ -387,10 +415,9 @@ func Test_checker_Validate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := NewChecker(CheckerDTO{
-				DialFunc:    tt.fields.dialFunc,
-				SendMail:    tt.fields.sendMail,
-				RandomEmail: tt.fields.randomEmail,
-				Options:     tt.fields.options,
+				SendMailFactory: tt.fields.sendMailFactory,
+				RandomEmail:     tt.fields.randomEmail,
+				Options:         tt.fields.options,
 			})
 			gotErrs := c.Validate(tt.args.mx, NewInput(tt.args.email, nil))
 			if !reflect.DeepEqual(gotErrs, tt.wantErrs) {
@@ -437,12 +464,11 @@ func TestChecker_Validate_WithProxy_Local(t *testing.T) {
 	//}
 
 	type fields struct {
-		GetConn     DialFunc
-		Auth        smtp.Auth
-		SendMail    SendMail
-		RandomEmail RandomEmail
-		Server      []string
-		OptionsDTO  OptionsDTO
+		SendMailFactory SendMailDialerFactory
+		Auth            smtp.Auth
+		RandomEmail     RandomEmail
+		Server          []string
+		OptionsDTO      OptionsDTO
 	}
 	type args struct {
 		mxs   MXs
@@ -467,11 +493,10 @@ func TestChecker_Validate_WithProxy_Local(t *testing.T) {
 		{
 			name: "without proxy",
 			fields: fields{
-				GetConn:     DirectDial,
-				Auth:        nil,
-				SendMail:    NewSendMail(nil),
-				RandomEmail: mockRandomEmail(t, getRandomAddress(emailTest), nil),
-				Server:      successServer,
+				SendMailFactory: NewSendMailFactory(DirectDial, nil),
+				Auth:            nil,
+				RandomEmail:     mockRandomEmail(t, getRandomAddress(emailTest), nil),
+				Server:          successServer,
 				OptionsDTO: OptionsDTO{
 					EmailFrom: emailFrom,
 					HelloName: helloName,
@@ -543,11 +568,10 @@ func TestChecker_Validate_WithProxy_Local(t *testing.T) {
 			}
 
 			c := checker{
-				dialFunc:    tt.fields.GetConn,
-				Auth:        tt.fields.Auth,
-				sendMail:    tt.fields.SendMail,
-				randomEmail: tt.fields.RandomEmail,
-				options:     NewOptions(tt.fields.OptionsDTO),
+				sendMailFactory: tt.fields.SendMailFactory,
+				Auth:            tt.fields.Auth,
+				randomEmail:     tt.fields.RandomEmail,
+				options:         NewOptions(tt.fields.OptionsDTO),
 			}
 			c.RandomRCPT = &ARandomRCPT{fn: c.randomRCPT}
 
@@ -619,7 +643,7 @@ func Test_checkerCacheRandomRCPT_RandomRCPT(t *testing.T) {
 					mock := NewMockCheckerWithRandomRCPT(ctrl)
 					mock.EXPECT().get().Return(mock.Call).Times(1)
 					mock.EXPECT().set(gomock.Any()).Times(1)
-					mock.EXPECT().Call(validEmail).Return(errs).Times(1)
+					mock.EXPECT().Call(gomock.Any(), validEmail).Return(errs).Times(1)
 
 					return mock
 				},
@@ -641,7 +665,7 @@ func Test_checkerCacheRandomRCPT_RandomRCPT(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := NewCheckerCacheRandomRCPT(tt.fields.checkerWithRandomRPCT(), tt.fields.cache(), tt.fields.getKey).(*checkerCacheRandomRCPT)
-			if gotErrs := c.RandomRCPT(tt.args.email); !reflect.DeepEqual(gotErrs, tt.wantErrs) {
+			if gotErrs := c.RandomRCPT(nil, tt.args.email); !reflect.DeepEqual(gotErrs, tt.wantErrs) {
 				t.Errorf("RandomRCPT() = %v, want %v", gotErrs, tt.wantErrs)
 			}
 		})
@@ -808,7 +832,7 @@ func Test_checkerCacheRandomRCPT_RandomRCPT_RealCache(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := NewCheckerCacheRandomRCPT(tt.fields.CheckerWithRandomRCPT(), tt.fields.cache(), DefaultRandomCacheKeyGetter).(*checkerCacheRandomRCPT)
-			if gotErrs := c.RandomRCPT(tt.args.email); !reflect.DeepEqual(gotErrs, tt.wantErrs) {
+			if gotErrs := c.RandomRCPT(nil, tt.args.email); !reflect.DeepEqual(gotErrs, tt.wantErrs) {
 				t.Errorf("RandomRCPT() = %v, want %v", gotErrs, tt.wantErrs)
 			}
 		})

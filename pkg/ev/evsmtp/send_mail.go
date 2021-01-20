@@ -1,6 +1,7 @@
 package evsmtp
 
 import (
+	"context"
 	"crypto/tls"
 	"errors"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp/smtpclient"
@@ -47,9 +48,8 @@ const (
 
 // SendMail is interface of custom realization as smtp.SendMail
 type SendMail interface {
-	SetClient(interface{})
-	Client() interface{}
-	Hello(localName string) error
+	Client() smtpclient.SMTPClient
+	Hello(helloName string) error
 	Auth(a smtp.Auth) error
 	Mail(from string) error
 	RCPTs(addrs []string) map[string]error
@@ -61,9 +61,33 @@ type SendMail interface {
 
 var testHookStartTLS func(*tls.Config)
 
+// SendMailFactory is factory for SendMail with dialing
+type SendMailDialerFactory func(ctx context.Context, host string, opts Options) (SendMail, error)
+
+// NewSendMailFactory creates SendMailDialerFactory
+func NewSendMailFactory(dialFunc DialFunc, tlsConfig *tls.Config) SendMailDialerFactory {
+	return NewSendMailCustom(dialFunc, tlsConfig, NewSendMail)
+}
+
+// SendMailFactory is factory for SendMail
+type SendMailFactory func(client smtpclient.SMTPClient, tlsConfig *tls.Config) SendMail
+
+// NewSendMailCustom creates SendMailFactory with dialing and customization calling of SendMailFactory
+func NewSendMailCustom(dialFunc DialFunc, tlsConfig *tls.Config, factory SendMailFactory) SendMailDialerFactory {
+	return func(ctx context.Context, host string, opts Options) (SendMail, error) {
+		conn, err := dialFunc(ctx, host, opts.Proxy())
+		if err != nil {
+			return nil, err
+		}
+
+		return factory(conn, tlsConfig), nil
+	}
+}
+
 // NewSendMail instantiates SendMail
-func NewSendMail(tlsConfig *tls.Config) SendMail {
+func NewSendMail(client smtpclient.SMTPClient, tlsConfig *tls.Config) SendMail {
 	return &sendMail{
+		client:    client,
 		tlsConfig: tlsConfig,
 	}
 }
@@ -73,16 +97,12 @@ type sendMail struct {
 	tlsConfig *tls.Config
 }
 
-func (s *sendMail) SetClient(client interface{}) {
-	s.client = client.(smtpclient.SMTPClient)
-}
-
-func (s *sendMail) Client() interface{} {
+func (s *sendMail) Client() smtpclient.SMTPClient {
 	return s.client
 }
 
-func (s *sendMail) Hello(localName string) error {
-	return s.client.Hello(localName)
+func (s *sendMail) Hello(helloName string) error {
+	return s.client.Hello(helloName)
 }
 
 func (s *sendMail) Auth(a smtp.Auth) error {

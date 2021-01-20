@@ -12,8 +12,6 @@ import (
 // test monicaramirezrestrepo@hotmail.com.
 func newSMTPValidator() Validator {
 	return NewSMTPValidator(evsmtp.NewChecker(evsmtp.CheckerDTO{
-		DialFunc: evsmtp.DirectDial,
-		SendMail: evsmtp.NewSendMail(nil),
 		Options: evsmtp.NewOptions(evsmtp.OptionsDTO{
 			EmailFrom: evmail.FromString(evsmtp.DefaultEmail),
 		}),

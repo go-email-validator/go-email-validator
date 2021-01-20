@@ -8,24 +8,14 @@ import (
 	"go.uber.org/zap"
 )
 
-// RandomRCPTFunc is function for checking of Catching All
-type RandomRCPTFunc func(email evmail.Address) (errs []error)
-
-// RandomRCPT Need to realize of is-a relation (inheritance)
-type RandomRCPT interface {
-	Call(email evmail.Address) []error
-	set(fn RandomRCPTFunc)
-	get() RandomRCPTFunc
-}
-
 // ARandomRCPT is abstract realization of RandomRCPT
 type ARandomRCPT struct {
 	fn RandomRCPTFunc
 }
 
 // Call is calling of RandomRCPTFunc
-func (a *ARandomRCPT) Call(email evmail.Address) []error {
-	return a.fn(email)
+func (a *ARandomRCPT) Call(sm SendMail, email evmail.Address) []error {
+	return a.fn(sm, email)
 }
 
 func (a *ARandomRCPT) set(fn RandomRCPTFunc) {
@@ -69,13 +59,13 @@ type checkerCacheRandomRCPT struct {
 	getKey     RandomCacheKeyGetter
 }
 
-func (c checkerCacheRandomRCPT) RandomRCPT(email evmail.Address) (errs []error) {
+func (c checkerCacheRandomRCPT) RandomRCPT(sm SendMail, email evmail.Address) (errs []error) {
 	key := c.getKey(email)
 	resultInterface, err := c.cache.Get(key)
 	if err == nil && resultInterface != nil {
 		errs = *resultInterface.(*[]error)
 	} else {
-		errs = c.randomRCPT.Call(email)
+		errs = c.randomRCPT.Call(sm, email)
 		if err = c.cache.Set(key, ErrorsToEVSMTPErrors(errs)); err != nil {
 			log.Logger().Error(fmt.Sprintf("cache RandomRCPT: %s", err),
 				zap.String("email", email.String()),

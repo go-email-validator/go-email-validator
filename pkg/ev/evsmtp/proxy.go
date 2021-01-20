@@ -36,7 +36,7 @@ func H12IODial(ctx context.Context, addr, proxyURL string) (smtpclient.SMTPClien
 		return directDial(ctx, addr, proxyURL)
 	}
 	var c net.Conn
-	var client smtpclient.SMTPClient
+	var client smtpclient.SMTPClient = nil
 	var err error
 	p := h12ioDial(proxyURL)
 
@@ -45,7 +45,7 @@ func H12IODial(ctx context.Context, addr, proxyURL string) (smtpclient.SMTPClien
 	go func() {
 		c, err = p("tcp", addr)
 		defer func() {
-			defer func() { done <- struct{}{} }()
+			defer func() { close(done) }()
 
 			if needClose.IsSet() && c != nil {
 				c.Close()

@@ -29,7 +29,7 @@ func TestNewSendMail(t *testing.T) {
 		},
 	}
 
-	if got := NewSendMail(tt.args.tlsConfig); !reflect.DeepEqual(got, tt.want) {
+	if got := NewSendMail(nil, tt.args.tlsConfig); !reflect.DeepEqual(got, tt.want) {
 		t.Errorf("NewSendMail() = %v, want %v", got, tt.want)
 	}
 }
@@ -414,43 +414,6 @@ func Test_sendMail_RCPTs(t *testing.T) {
 			}
 			if got := s.RCPTs(tt.args.addrs); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("RCPTs() got = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func Test_sendMail_SetClient(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	type fields struct {
-		client smtpclient.SMTPClient
-	}
-	type args struct {
-		client interface{}
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		args   args
-		want   SendMail
-	}{
-		{
-			name: "success",
-			fields: fields{
-				client: simpleClient,
-			},
-			args: args{
-				client: simpleClient,
-			},
-			want: &sendMail{client: simpleClient},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			s := &sendMail{}
-			if s.SetClient(tt.fields.client); !reflect.DeepEqual(tt.want, s) {
-				t.Errorf("SetClient() server = %v, want %v", s, tt.want)
 			}
 		})
 	}
