@@ -5,7 +5,7 @@ go 1.15
 require (
 	github.com/FGRibreau/mailchecker/v4 v4.0.3
 	github.com/allegro/bigcache v1.2.1
-	github.com/eko/gocache v1.1.0
+	github.com/eko/gocache v1.1.1
 	github.com/emirpasic/gods v1.12.0
 	github.com/golang/mock v1.4.4
 	github.com/joho/godotenv v1.3.0
