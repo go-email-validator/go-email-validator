@@ -7,8 +7,8 @@ import (
 )
 
 func init() {
-	msgpack.RegisterExt(evsmtp.ExtId(), new(DepsError))
-	msgpack.RegisterExt(evsmtp.ExtId(), new(AValidationResult))
+	msgpack.RegisterExt(evsmtp.ExtID(), new(DepsError))
+	msgpack.RegisterExt(evsmtp.ExtID(), new(AValidationResult))
 }
 
 // OtherValidator is ValidatorName for unknown Validator

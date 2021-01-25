@@ -19,46 +19,46 @@ const (
 )
 
 // Used 0 because of https://github.com/msgpack/msgpack/blob/master/spec.md#extension-types
-var registerExtId int8 = 0
+var registerExtID int8 = 0
 
-// ExtId returns register extent id, used for msgpack.RegisterExt
-func ExtId() int8 {
-	registerExtId++
-	return registerExtId - 1
+// ExtID returns register extent id, used for msgpack.RegisterExt
+func ExtID() int8 {
+	registerExtID++
+	return registerExtID - 1
 }
 
-// SetExtId sets register extent id, used for msgpack.RegisterExt
-func SetExtId(rExt int8) {
-	registerExtId = rExt
+// SetExtID sets register extent id, used for msgpack.RegisterExt
+func SetExtID(rExt int8) {
+	registerExtID = rExt
 }
 
 // Import different error types from packages, used in smtp.Client
 func init() {
-	msgpack.RegisterExt(ExtId(), new(DefaultError))
-	msgpack.RegisterExt(ExtId(), new(ASMTPError))
+	msgpack.RegisterExt(ExtID(), new(DefaultError))
+	msgpack.RegisterExt(ExtID(), new(ASMTPError))
 
-	msgpack.RegisterExt(ExtId(), new(textproto.Error))
-	msgpack.RegisterExt(ExtId(), new(textproto.ProtocolError))
+	msgpack.RegisterExt(ExtID(), new(textproto.Error))
+	msgpack.RegisterExt(ExtID(), new(textproto.ProtocolError))
 
-	msgpack.RegisterExt(ExtId(), new(net.AddrError))
-	msgpack.RegisterExt(ExtId(), new(net.DNSConfigError))
-	msgpack.RegisterExt(ExtId(), new(net.DNSError))
-	msgpack.RegisterExt(ExtId(), new(net.InvalidAddrError))
-	msgpack.RegisterExt(ExtId(), new(net.OpError))
-	msgpack.RegisterExt(ExtId(), new(net.ParseError))
-	msgpack.RegisterExt(ExtId(), new(net.UnknownNetworkError))
+	msgpack.RegisterExt(ExtID(), new(net.AddrError))
+	msgpack.RegisterExt(ExtID(), new(net.DNSConfigError))
+	msgpack.RegisterExt(ExtID(), new(net.DNSError))
+	msgpack.RegisterExt(ExtID(), new(net.InvalidAddrError))
+	msgpack.RegisterExt(ExtID(), new(net.OpError))
+	msgpack.RegisterExt(ExtID(), new(net.ParseError))
+	msgpack.RegisterExt(ExtID(), new(net.UnknownNetworkError))
 
-	msgpack.RegisterExt(ExtId(), new(url.Error))
-	msgpack.RegisterExt(ExtId(), new(url.EscapeError))
-	msgpack.RegisterExt(ExtId(), new(url.InvalidHostError))
+	msgpack.RegisterExt(ExtID(), new(url.Error))
+	msgpack.RegisterExt(ExtID(), new(url.EscapeError))
+	msgpack.RegisterExt(ExtID(), new(url.InvalidHostError))
 
-	msgpack.RegisterExt(ExtId(), new(tls.RecordHeaderError))
-	msgpack.RegisterExt(ExtId(), new(x509.CertificateInvalidError))
-	msgpack.RegisterExt(ExtId(), new(x509.HostnameError))
-	msgpack.RegisterExt(ExtId(), new(x509.UnknownAuthorityError))
-	msgpack.RegisterExt(ExtId(), new(x509.SystemRootsError))
-	msgpack.RegisterExt(ExtId(), new(x509.InsecureAlgorithmError))
-	msgpack.RegisterExt(ExtId(), new(x509.ConstraintViolationError))
+	msgpack.RegisterExt(ExtID(), new(tls.RecordHeaderError))
+	msgpack.RegisterExt(ExtID(), new(x509.CertificateInvalidError))
+	msgpack.RegisterExt(ExtID(), new(x509.HostnameError))
+	msgpack.RegisterExt(ExtID(), new(x509.UnknownAuthorityError))
+	msgpack.RegisterExt(ExtID(), new(x509.SystemRootsError))
+	msgpack.RegisterExt(ExtID(), new(x509.InsecureAlgorithmError))
+	msgpack.RegisterExt(ExtID(), new(x509.ConstraintViolationError))
 
 	msgpack.Register(errors.New(""), func(e *msgpack.Encoder, v reflect.Value) error {
 		if v.IsNil() {

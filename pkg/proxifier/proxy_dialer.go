@@ -25,6 +25,7 @@ type Dialer interface {
 // ProxyDialerFunc is type of function, which generates connection through out proxyURI
 type ProxyDialerFunc func(proxyURI string) func(ctx context.Context, network string, addr string) (net.Conn, error)
 
+// SocksDialContext returns Dial for socks with context
 func SocksDialContext(proxyURI string) func(ctx context.Context, network string, addr string) (net.Conn, error) {
 	p := socks.Dial(proxyURI)
 

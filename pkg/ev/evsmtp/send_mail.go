@@ -61,7 +61,7 @@ type SendMail interface {
 
 var testHookStartTLS func(*tls.Config)
 
-// SendMailFactory is factory for SendMail with dialing
+// SendMailDialerFactory is factory for SendMail with dialing
 type SendMailDialerFactory func(ctx context.Context, host string, opts Options) (SendMail, error)
 
 // NewSendMailFactory creates SendMailDialerFactory

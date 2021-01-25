@@ -96,7 +96,7 @@ var defaultOptions = NewGravatarOptions(GravatarOptionsDTO{
 	Timeout: DefaultGravatarTimeout,
 })
 
-// DefaultOptions returns options with default values
+// DefaultGravatarOptions returns options with default values
 func DefaultGravatarOptions() GravatarOptions {
 	return defaultOptions
 }
