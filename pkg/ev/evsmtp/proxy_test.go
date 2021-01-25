@@ -119,7 +119,7 @@ func TestDirectDial(t *testing.T) {
 			var done chan string
 			addr := tt.args.addr
 			if len(tt.fields.server) > 0 {
-				addr, done = mockevsmtp.Server(t, tt.fields.server, time.Second)
+				addr, done = mockevsmtp.Server(t, tt.fields.server, time.Second, "", false)
 			}
 
 			gotClient, err := DirectDial(tt.args.ctx(), addr, tt.args.proxyURL)
@@ -267,7 +267,7 @@ func TestH12IODial(t *testing.T) {
 			var done chan string
 			addr := tt.args.addr
 			if len(tt.fields.server) > 0 {
-				addr, done = mockevsmtp.Server(t, tt.fields.server, 1*time.Second)
+				addr, done = mockevsmtp.Server(t, tt.fields.server, 1*time.Second, "", false)
 				addr = localIP() + addr[4:]
 			}
 
@@ -292,18 +292,18 @@ func TestH12IODial(t *testing.T) {
 
 func TestH12IODial_Direct(t *testing.T) {
 	wantAddr := localhost
-	wantProxyUrl := ""
+	wantProxyURL := ""
 	var wantErr error = nil
 	var wantClient = false
 	wantCtx := context.Background()
 	directDial = func(ctx context.Context, addr, proxyURL string) (smtpclient.SMTPClient, error) {
 		require.Equal(t, wantCtx, ctx)
 		require.Equal(t, wantAddr, addr)
-		require.Equal(t, wantProxyUrl, proxyURL)
+		require.Equal(t, wantProxyURL, proxyURL)
 
 		return nil, nil
 	}
-	gpt, err := H12IODial(wantCtx, wantAddr, wantProxyUrl)
+	gpt, err := H12IODial(wantCtx, wantAddr, wantProxyURL)
 	directDial = DirectDial
 
 	if !reflect.DeepEqual(err, wantErr) {

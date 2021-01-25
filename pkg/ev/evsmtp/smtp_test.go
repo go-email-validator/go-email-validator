@@ -430,15 +430,6 @@ func Test_checker_Validate(t *testing.T) {
 func TestChecker_Validate_WithProxy_Local(t *testing.T) {
 	evtests.FunctionalSkip(t)
 
-	successServer := []string{
-		"220 hello world",
-		"502 EH?",
-		"250 mx.google.com at your service",
-		"250 Sender ok",
-		"550 address does not exist",
-		"250 Receiver ok",
-		"221 Goodbye",
-	}
 	successWantSMTP := []string{
 		"EHLO helloName",
 		"HELO helloName",
@@ -496,7 +487,7 @@ func TestChecker_Validate_WithProxy_Local(t *testing.T) {
 				SendMailFactory: NewSendMailFactory(DirectDial, nil),
 				Auth:            nil,
 				RandomEmail:     mockRandomEmail(t, getRandomAddress(emailTest), nil),
-				Server:          successServer,
+				Server:          mockevsmtp.SuccessServer,
 				OptionsDTO: OptionsDTO{
 					EmailFrom: emailFrom,
 					HelloName: helloName,
@@ -560,7 +551,7 @@ func TestChecker_Validate_WithProxy_Local(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			addr, done := mockevsmtp.Server(t, tt.fields.Server, time.Second)
+			addr, done := mockevsmtp.Server(t, tt.fields.Server, time.Second, "", false)
 
 			if tt.fields.OptionsDTO.Port == 0 {
 				u, _ := url.Parse("http://" + addr)

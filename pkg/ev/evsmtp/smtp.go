@@ -157,7 +157,7 @@ func (c checker) Validate(mxs MXs, input Input) (errs []error) {
 
 			done := make(chan struct{}, 1)
 			go func() {
-				defer func() { close(done) }()
+				defer close(done)
 				var errSM error
 
 				sm, errSM = c.sendMailFactory(ctx, host, input)
@@ -214,7 +214,7 @@ func (c checker) Validate(mxs MXs, input Input) (errs []error) {
 	}
 
 	go func() {
-		defer func() { close(done) }()
+		defer close(done)
 
 		stage.Set(HelloStage)
 		if err = sm.Hello(opts.HelloName()); err != nil {
