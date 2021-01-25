@@ -235,7 +235,7 @@ func (c checker) Validate(mxs MXs, input Input) (errs []error) {
 		}
 
 		stage.Set(RandomRCPTStage)
-		if errsRandomRCPTs := c.randomRCPT(sm, email); len(errsRandomRCPTs) > 0 {
+		if errsRandomRCPTs := c.RandomRCPT.Call(sm, email); len(errsRandomRCPTs) > 0 {
 			if errAppend(errsRandomRCPTs...) {
 				return
 			}

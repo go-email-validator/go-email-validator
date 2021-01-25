@@ -430,6 +430,9 @@ func Test_checker_Validate(t *testing.T) {
 func TestChecker_Validate_WithProxy_Local(t *testing.T) {
 	evtests.FunctionalSkip(t)
 
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
 	successWantSMTP := []string{
 		"EHLO helloName",
 		"HELO helloName",
@@ -470,9 +473,6 @@ func TestChecker_Validate_WithProxy_Local(t *testing.T) {
 
 	emailFrom := evmail.FromString(DefaultEmail)
 	emailTest := evmail.FromString(emailString)
-
-	emptyError := make([]error, 0)
-	_ = emptyError
 
 	tests := []struct {
 		name     string
@@ -564,7 +564,10 @@ func TestChecker_Validate_WithProxy_Local(t *testing.T) {
 				randomEmail:     tt.fields.RandomEmail,
 				options:         NewOptions(tt.fields.OptionsDTO),
 			}
-			c.RandomRCPT = &ARandomRCPT{fn: c.randomRCPT}
+			mockRandomRCPT := NewMockRandomRCPT(ctrl)
+			mockRandomRCPT.EXPECT().Call(gomock.Any(), gomock.Any()).DoAndReturn(c.randomRCPT).Times(1)
+			c.RandomRCPT = mockRandomRCPT
+			//c.RandomRCPT = &ARandomRCPT{fn: c.randomRCPT}
 
 			gotErrs := c.Validate(tt.args.mxs, NewInput(tt.args.email, nil))
 			actualClient := <-done
