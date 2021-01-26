@@ -3,11 +3,15 @@ package evsmtp
 import (
 	"context"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp/smtpclient"
-	"github.com/go-email-validator/go-email-validator/pkg/proxifier"
 	"github.com/tevino/abool"
 	"h12.io/socks"
 	"net"
 	"net/smtp"
+)
+
+// Constants to choose type of connection.
+const (
+	TCPConnection = "tcp"
 )
 
 // DialFunc is function type to create smtpclient.SMTPClient
@@ -20,7 +24,7 @@ var directDial = DirectDial
 // DirectDial generates smtpclient.SMTPClient (smtp.Client)
 func DirectDial(ctx context.Context, addr, proxyURL string) (smtpclient.SMTPClient, error) {
 	d := net.Dialer{}
-	conn, err := d.DialContext(ctx, proxifier.TCPConnection, addr)
+	conn, err := d.DialContext(ctx, TCPConnection, addr)
 	if err != nil {
 		return nil, err
 	}

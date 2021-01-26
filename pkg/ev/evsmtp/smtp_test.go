@@ -13,7 +13,6 @@ import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evsmtp/smtpclient"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evtests"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
-	"github.com/go-email-validator/go-email-validator/pkg/proxifier"
 	mockevcache "github.com/go-email-validator/go-email-validator/test/mock/ev/evcache"
 	mockevmail "github.com/go-email-validator/go-email-validator/test/mock/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/test/mock/ev/evsmtp"
@@ -29,8 +28,6 @@ import (
 	"testing"
 	"time"
 )
-
-const EnvPath = "../../../.env"
 
 func TestMain(m *testing.M) {
 	evtests.TestMain(m)
@@ -84,17 +81,6 @@ func mockRandomEmail(t *testing.T, email evmail.Address, err error) RandomEmail 
 	}
 }
 
-func getSMTPProxy(dialerFunc proxifier.ProxyDialerFunc, proxies ...string) proxifier.SMTPDialler {
-	proxyList, _ := proxifier.NewListFromStrings(
-		proxifier.ListDTO{
-			Addresses:     proxies,
-			AddressGetter: proxifier.CreateCircleAddress(0),
-		},
-	)
-	return proxifier.NewSMTPDialer(proxifier.NewProxyDialer(proxyList, dialerFunc), "")
-}
-
-// TODO delete after remove proxifier
 func localIP() string {
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
@@ -443,20 +429,6 @@ func TestChecker_Validate_WithProxy_Local(t *testing.T) {
 		"",
 	}
 
-	utils.LoadEnv(EnvPath)
-	proxyList := proxifier.EnvProxies()
-	if len(proxyList) == 0 {
-		t.Error("PROXIES env should be set")
-		return
-	}
-
-	// TODO delete after deleting of proxifier
-	//lIP := localIP()
-	//
-	//invalidProxies := []string{
-	//	"socks5://0.0.0.0:0", //invalid
-	//}
-
 	type fields struct {
 		SendMailFactory SendMailDialerFactory
 		Auth            smtp.Auth
@@ -503,51 +475,6 @@ func TestChecker_Validate_WithProxy_Local(t *testing.T) {
 			})},
 			wantSMTP: successWantSMTP,
 		},
-		// TODO delete after deleting of proxifier
-		//{
-		//	name: "with proxy success after ban",
-		//	fields: fields{
-		//		GetConn:     getSMTPProxy(nil, append(invalidProxies, proxyList...)...).DialContext,
-		//		Auth:        nil,
-		//		SendMail:    NewSendMail(nil),
-		//		RandomEmail: mockRandomEmail(t, getRandomAddress(emailTest), nil),
-		//		Server:      successServer,
-		//		OptionsDTO: OptionsDTO{
-		//			EmailFrom: emailFrom,
-		//			HelloName: helloName,
-		//		},
-		//	},
-		//	args: args{
-		//		mxs: MXs{&net.MX{
-		//			Host: lIP,
-		//		}},
-		//		email: emailTest,
-		//	},
-		//	wantErrs: []error{NewError(RandomRCPTStage, &textproto.Error{
-		//		Code: 550,
-		//		Msg:  "address does not exist",
-		//	})},
-		//	wantSMTP: successWantSMTP,
-		//},
-		//{
-		//	name: "with invalid proxy",
-		//	fields: fields{
-		//		GetConn:     getSMTPProxy(nil, invalidProxies...).DialContext,
-		//		Auth:        nil,
-		//		SendMail:    NewSendMail(nil),
-		//		RandomEmail: mockRandomEmail(t, getRandomAddress(emailTest), nil),
-		//		OptionsDTO: OptionsDTO{
-		//			EmailFrom: emailFrom,
-		//			HelloName: helloName,
-		//		},
-		//	},
-		//	args: args{
-		//		mxs:   mxs,
-		//		email: emailTest,
-		//	},
-		//	wantErrs: []error{NewError(ConnectionStage, proxifier.ErrEmptyPool)},
-		//	wantSMTP: []string{},
-		//},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -10,10 +10,10 @@ import (
 func TestNewInput(t *testing.T) {
 	type args struct {
 		email     evmail.Address
-		kvOptions []kvOption
+		kvOptions []KVOption
 	}
 
-	kvOptions := []kvOption{
+	kvOptions := []KVOption{
 		{Name: OtherValidator, Option: 1},
 		{Name: OtherValidator, Option: 3},
 		{Name: SMTPValidatorName, Option: 2},
@@ -41,10 +41,10 @@ func TestNewInput(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			opts := make([]kvOption, 0)
+			opts := make([]KVOption, 0)
 
 			for _, opt := range tt.args.kvOptions {
-				opts = append(opts, KVOption(opt.Name, opt.Option))
+				opts = append(opts, NewKVOption(opt.Name, opt.Option))
 			}
 
 			if got := NewInput(tt.args.email, opts...); !reflect.DeepEqual(got, tt.want) {

@@ -4,6 +4,8 @@
 
 ## Library under development (Interfaces may be changed slightly)
 
+## Demo on [rapidapi.com](https://rapidapi.com/maranqz/api/Email%20Validator)
+
 ## Install
 
 ```go get -u github.com/go-email-validator/go-email-validator```

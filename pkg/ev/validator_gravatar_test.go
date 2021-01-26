@@ -17,7 +17,7 @@ func Test_gravatarValidator_Validate(t *testing.T) {
 
 	type args struct {
 		email   evmail.Address
-		options []kvOption
+		options []KVOption
 		results []ValidationResult
 	}
 
@@ -55,7 +55,7 @@ func Test_gravatarValidator_Validate(t *testing.T) {
 			args: args{
 				email:   evmail.FromString("some.none.exist@with.non.exist.domain"),
 				results: []ValidationResult{NewValidResult(SyntaxValidatorName)},
-				options: []kvOption{KVOption(
+				options: []KVOption{NewKVOption(
 					GravatarValidatorName,
 					NewGravatarOptions(GravatarOptionsDTO{Timeout: 1}),
 				)},
