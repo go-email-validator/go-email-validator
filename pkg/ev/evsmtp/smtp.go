@@ -160,8 +160,9 @@ func (c checker) Validate(mxs MXs, input Input) (errs []error) {
 				defer close(done)
 				var errSM error
 
-				sm, errSM = c.sendMailFactory(ctx, host, input)
+				sendMail, errSM := c.sendMailFactory(ctx, host, input)
 				if errSM == nil {
+					sm = sendMail
 					stopFor.Set()
 				}
 			}()

@@ -33,6 +33,10 @@ go.mocks.gen:
 	mockgen -source=pkg/ev/evsmtp/smtp.go -destination=pkg/ev/evsmtp/mock_smtp.go --package=evsmtp # https://github.com/golang/mock/issues/352
 	mockgen -source=pkg/ev/validator.go -destination=test/mock/ev/validator.go --package=mockev
 
+# wait https://github.com/golang/mock/issues/510
+go.mocks.nets:
+	mockgen -source=$(GOROOT)/go1.15.6/src/net/net.go -destination=test/mock/net/Conn.go --package=mocknet
+
 go.link:
 	golint ./...
 
