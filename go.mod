@@ -1,6 +1,6 @@
 module github.com/go-email-validator/go-email-validator
 
-go 1.15
+go 1.16
 
 require (
 	github.com/FGRibreau/mailchecker/v4 v4.0.7
