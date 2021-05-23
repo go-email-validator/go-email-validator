@@ -37,7 +37,7 @@ go.mocks.gen:
 go.mocks.nets:
 	mockgen -source=$(GOROOT)/go1.15.6/src/net/net.go -destination=test/mock/net/Conn.go --package=mocknet
 
-go.link:
+go.lint:
 	golint ./...
 
 GO_COVER=go tool cover -func=$(COVERAGE_FILE)

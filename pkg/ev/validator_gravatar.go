@@ -21,6 +21,17 @@ const (
 // GravatarErr is text for GravatarError.Error
 const GravatarErr = "GravatarError"
 
+// GravatarValidationResult is result of GravatarValidatorName
+type GravatarValidationResult interface {
+	URL() string
+	ValidationResult
+}
+
+// NewGravatarValidationResult instantiates result of GravatarValidationResult
+func NewGravatarValidationResult(url string, result *AValidationResult) GravatarValidationResult {
+	return gravatarValidationResult{url: url, AValidationResult: result}
+}
+
 // GravatarError is GravatarValidatorName error
 type GravatarError struct{}
 
@@ -66,7 +77,9 @@ func (g gravatarValidator) Validate(input Input, results ...ValidationResult) Va
 
 	g.h.Reset()
 	g.h.Write([]byte(input.Email().String()))
-	resp, err := client.Head(fmt.Sprintf(GravatarURL, g.h.Sum(nil)))
+
+	gravatarURL := fmt.Sprintf(GravatarURL, g.h.Sum(nil))
+	resp, err := client.Head(gravatarURL)
 	if err != nil {
 		return gravatarGetError(err)
 	}
@@ -75,11 +88,26 @@ func (g gravatarValidator) Validate(input Input, results ...ValidationResult) Va
 		return gravatarGetError(GravatarError{})
 	}
 
-	return NewValidResult(GravatarValidatorName)
+	return NewGravatarValidationResult(
+		gravatarURL,
+		NewValidResult(GravatarValidatorName).(*AValidationResult),
+	)
 }
 
 func gravatarGetError(err error) ValidationResult {
-	return NewResult(false, utils.Errs(err), nil, GravatarValidatorName)
+	return NewGravatarValidationResult(
+		"",
+		NewResult(false, utils.Errs(err), nil, GravatarValidatorName).(*AValidationResult),
+	)
+}
+
+type gravatarValidationResult struct {
+	*AValidationResult
+	url string
+}
+
+func (v gravatarValidationResult) URL() string {
+	return v.url
 }
 
 // GravatarOptions describes gravatar options
