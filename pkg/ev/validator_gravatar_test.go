@@ -10,6 +10,7 @@ import (
 )
 
 const GravatarExistEmail = "beau@dentedreality.com.au"
+const GravatarExistEmailURL = "https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50?d=404"
 
 // TODO mocking Gravatar
 func Test_gravatarValidator_Validate(t *testing.T) {
@@ -32,7 +33,10 @@ func Test_gravatarValidator_Validate(t *testing.T) {
 				email:   evmail.FromString(GravatarExistEmail),
 				results: []ValidationResult{NewValidResult(SyntaxValidatorName)},
 			},
-			want: NewValidResult(GravatarValidatorName),
+			want: NewGravatarValidationResult(
+				GravatarExistEmailURL,
+				NewValidResult(GravatarValidatorName).(*AValidationResult),
+			),
 		},
 		{
 			name: "invalid syntax",
@@ -75,8 +79,8 @@ func Test_gravatarValidator_Validate(t *testing.T) {
 			w := NewGravatarValidator()
 			gotInterface := w.Validate(NewInput(tt.args.email, tt.args.options...), tt.args.results...)
 
-			got := gotInterface.(*validationResult)
-			want := tt.want.(*validationResult)
+			got := gotInterface.(gravatarValidationResult)
+			want := tt.want.(gravatarValidationResult)
 
 			if len(got.errors) > 0 && len(want.errors) > 0 {
 				if errOp, ok := got.errors[0].(*url.Error); ok && errOp.Err != nil {
@@ -91,7 +95,7 @@ func Test_gravatarValidator_Validate(t *testing.T) {
 				}
 			}
 
-			if !reflect.DeepEqual(got, want) && errStr != wantErrStr {
+			if !reflect.DeepEqual(got, want) || got.URL() != want.URL() || errStr != wantErrStr {
 				t.Errorf("Validate() = %v, want %v", gotInterface, tt.want)
 			}
 		})
