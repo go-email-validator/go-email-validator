@@ -40,8 +40,6 @@ const (
 	AuthStage
 	MailStage
 	RCPTsStage
-	DataStage
-	WriteStage
 	QuitStage
 	CloseStage
 )

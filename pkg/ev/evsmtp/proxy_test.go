@@ -294,7 +294,6 @@ func TestH12IODial_Direct(t *testing.T) {
 	wantAddr := localhost
 	wantProxyURL := ""
 	var wantErr error = nil
-	var wantClient = false
 	wantCtx := context.Background()
 	directDial = func(ctx context.Context, addr, proxyURL string) (smtpclient.SMTPClient, error) {
 		require.Equal(t, wantCtx, ctx)
@@ -303,14 +302,15 @@ func TestH12IODial_Direct(t *testing.T) {
 
 		return nil, nil
 	}
-	gpt, err := H12IODial(wantCtx, wantAddr, wantProxyURL)
+	got, err := H12IODial(wantCtx, wantAddr, wantProxyURL)
 	directDial = DirectDial
 
 	if !reflect.DeepEqual(err, wantErr) {
 		t.Errorf("H12IODial() error = %v, wantErr %v", err, wantErr)
 		return
 	}
-	if (gpt == nil) == wantClient {
-		t.Errorf("H12IODial() got = %v, want %v", gpt, wantClient)
+
+	if got == nil {
+		t.Errorf("H12IODial() should not be null")
 	}
 }

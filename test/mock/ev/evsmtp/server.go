@@ -26,7 +26,13 @@ var SuccessServer = []string{
 
 // Server to testing SMTP
 // Partial copy of TestSendMail  from smtp.TestSendMail
-func Server(t testing.TB, server []string, timeout time.Duration, addr string, infinite bool) (string, chan string) {
+func Server(
+	t testing.TB,
+	server []string,
+	timeout time.Duration,
+	addr string,
+	infinite bool,
+) (string, chan string) {
 	var cmdbuf bytes.Buffer
 	bcmdbuf := bufio.NewWriter(&cmdbuf)
 
