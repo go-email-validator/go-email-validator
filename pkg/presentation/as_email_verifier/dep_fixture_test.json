@@ -1,0 +1,512 @@
+[
+  {
+    "email": "asdas.da2da",
+    "disposable": false,
+    "reachable": "unknown",
+    "role_account": false,
+    "free": false,
+    "syntax": {
+      "username": "",
+      "domain": "",
+      "valid": false
+    },
+    "has_mx_records": false,
+    "smtp": null,
+    "gravatar": null,
+    "suggestion": ""
+  },
+  {
+    "email": "asdas.dada",
+    "disposable": false,
+    "reachable": "unknown",
+    "role_account": false,
+    "free": false,
+    "syntax": {
+      "username": "",
+      "domain": "",
+      "valid": false
+    },
+    "has_mx_records": false,
+    "smtp": null,
+    "gravatar": null,
+    "suggestion": ""
+  },
+  {
+    "email": "asd@asd@asd",
+    "disposable": false,
+    "reachable": "unknown",
+    "role_account": false,
+    "free": false,
+    "syntax": {
+      "username": "",
+      "domain": "",
+      "valid": false
+    },
+    "has_mx_records": false,
+    "smtp": null,
+    "gravatar": null,
+    "suggestion": ""
+  },
+  {
+    "email": "zxczxczxc@joycasinoru",
+    "disposable": false,
+    "reachable": "unknown",
+    "role_account": false,
+    "free": false,
+    "syntax": {
+      "username": "",
+      "domain": "",
+      "valid": false
+    },
+    "has_mx_records": false,
+    "smtp": null,
+    "gravatar": null,
+    "suggestion": ""
+  },
+  {
+    "email": "sewag33689@gmail.com",
+    "disposable": false,
+    "reachable": "no",
+    "role_account": false,
+    "free": true,
+    "syntax": {
+      "username": "sewag33689",
+      "domain": "gmail.com",
+      "valid": true
+    },
+    "has_mx_records": true,
+    "smtp": {
+      "host_exists": true,
+      "full_inbox": false,
+      "catch_all": false,
+      "deliverable": false,
+      "disabled": false
+    },
+    "gravatar": {
+      "HasGravatar": false,
+      "GravatarUrl": ""
+    },
+    "suggestion": ""
+  },
+  {
+    "email": "user99.doesnot.exist@gmail.com",
+    "disposable": false,
+    "reachable": "no",
+    "role_account": false,
+    "free": true,
+    "syntax": {
+      "username": "user99.doesnot.exist",
+      "domain": "gmail.com",
+      "valid": true
+    },
+    "has_mx_records": true,
+    "smtp": {
+      "host_exists": true,
+      "full_inbox": false,
+      "catch_all": false,
+      "deliverable": false,
+      "disabled": false
+    },
+    "gravatar": {
+      "HasGravatar": false,
+      "GravatarUrl": ""
+    },
+    "suggestion": ""
+  },
+  {
+    "email": "amazedfuckporno@gmail.com",
+    "disposable": false,
+    "reachable": "no",
+    "role_account": false,
+    "free": true,
+    "syntax": {
+      "username": "amazedfuckporno",
+      "domain": "gmail.com",
+      "valid": true
+    },
+    "has_mx_records": true,
+    "smtp": {
+      "host_exists": true,
+      "full_inbox": false,
+      "catch_all": false,
+      "deliverable": false,
+      "disabled": false
+    },
+    "gravatar": {
+      "HasGravatar": false,
+      "GravatarUrl": ""
+    },
+    "suggestion": ""
+  },
+  {
+    "email": "sewag33689@itymail.com",
+    "disposable": true,
+    "reachable": "unknown",
+    "role_account": false,
+    "free": false,
+    "syntax": {
+      "username": "sewag33689",
+      "domain": "itymail.com",
+      "valid": true
+    },
+    "has_mx_records": false,
+    "smtp": null,
+    "gravatar": null,
+    "suggestion": ""
+  },
+  {
+    "email": "derduzikne@nedoz.com",
+    "disposable": true,
+    "reachable": "unknown",
+    "role_account": false,
+    "free": false,
+    "syntax": {
+      "username": "derduzikne",
+      "domain": "nedoz.com",
+      "valid": true
+    },
+    "has_mx_records": false,
+    "smtp": null,
+    "gravatar": null,
+    "suggestion": ""
+  },
+  {
+    "email": "tvzamhkdc@emlhub.com",
+    "disposable": true,
+    "reachable": "unknown",
+    "role_account": false,
+    "free": false,
+    "syntax": {
+      "username": "tvzamhkdc",
+      "domain": "emlhub.com",
+      "valid": true
+    },
+    "has_mx_records": false,
+    "smtp": null,
+    "gravatar": null,
+    "suggestion": ""
+  },
+  {
+    "email": "theofanis.giot2is@12pm.gr",
+    "disposable": false,
+    "reachable": "unknown",
+    "role_account": false,
+    "free": false,
+    "syntax": {
+      "username": "theofanis.giot2is",
+      "domain": "12pm.gr",
+      "valid": true
+    },
+    "has_mx_records": true,
+    "smtp": {
+      "host_exists": true,
+      "full_inbox": false,
+      "catch_all": true,
+      "deliverable": false,
+      "disabled": false
+    },
+    "gravatar": {
+      "HasGravatar": false,
+      "GravatarUrl": ""
+    },
+    "suggestion": ""
+  },
+  {
+    "email": "theofanisgiotis@12pm.gr",
+    "disposable": false,
+    "reachable": "unknown",
+    "role_account": false,
+    "free": false,
+    "syntax": {
+      "username": "theofanisgiotis",
+      "domain": "12pm.gr",
+      "valid": true
+    },
+    "has_mx_records": true,
+    "smtp": {
+      "host_exists": true,
+      "full_inbox": false,
+      "catch_all": true,
+      "deliverable": false,
+      "disabled": false
+    },
+    "gravatar": {
+      "HasGravatar": false,
+      "GravatarUrl": ""
+    },
+    "suggestion": ""
+  },
+  {
+    "email": "asdasd@tradepro.net",
+    "disposable": false,
+    "reachable": "unknown",
+    "role_account": false,
+    "free": false,
+    "syntax": {
+      "username": "asdasd",
+      "domain": "tradepro.net",
+      "valid": true
+    },
+    "has_mx_records": true,
+    "smtp": {
+      "host_exists": true,
+      "full_inbox": false,
+      "catch_all": true,
+      "deliverable": false,
+      "disabled": false
+    },
+    "gravatar": {
+      "HasGravatar": false,
+      "GravatarUrl": ""
+    },
+    "suggestion": ""
+  },
+  {
+    "email": "credit@mail.ru",
+    "disposable": false,
+    "reachable": "unknown",
+    "role_account": false,
+    "free": true,
+    "syntax": {
+      "username": "credit",
+      "domain": "mail.ru",
+      "valid": true
+    },
+    "has_mx_records": true,
+    "smtp": {
+      "host_exists": true,
+      "full_inbox": false,
+      "catch_all": true,
+      "deliverable": false,
+      "disabled": false
+    },
+    "gravatar": {
+      "HasGravatar": false,
+      "GravatarUrl": ""
+    },
+    "suggestion": ""
+  },
+  {
+    "email": "salestrade86@hotmail.com",
+    "disposable": false,
+    "reachable": "unknown",
+    "role_account": false,
+    "free": true,
+    "syntax": {
+      "username": "salestrade86",
+      "domain": "hotmail.com",
+      "valid": true
+    },
+    "has_mx_records": true,
+    "smtp": null,
+    "gravatar": null,
+    "suggestion": ""
+  },
+  {
+    "email": "some.user.99@gmail.com",
+    "disposable": false,
+    "reachable": "yes",
+    "role_account": false,
+    "free": true,
+    "syntax": {
+      "username": "some.user.99",
+      "domain": "gmail.com",
+      "valid": true
+    },
+    "has_mx_records": true,
+    "smtp": {
+      "host_exists": true,
+      "full_inbox": false,
+      "catch_all": false,
+      "deliverable": true,
+      "disabled": false
+    },
+    "gravatar": {
+      "HasGravatar": false,
+      "GravatarUrl": ""
+    },
+    "suggestion": ""
+  },
+  {
+    "email": "monicaramirezrestrepo@hotmail.com",
+    "disposable": false,
+    "reachable": "unknown",
+    "role_account": false,
+    "free": true,
+    "syntax": {
+      "username": "monicaramirezrestrepo",
+      "domain": "hotmail.com",
+      "valid": true
+    },
+    "has_mx_records": true,
+    "smtp": null,
+    "gravatar": null,
+    "suggestion": ""
+  },
+  {
+    "email": "admin@gmail.com",
+    "disposable": false,
+    "reachable": "no",
+    "role_account": true,
+    "free": true,
+    "syntax": {
+      "username": "admin",
+      "domain": "gmail.com",
+      "valid": true
+    },
+    "has_mx_records": true,
+    "smtp": {
+      "host_exists": true,
+      "full_inbox": false,
+      "catch_all": false,
+      "deliverable": false,
+      "disabled": false
+    },
+    "gravatar": {
+      "HasGravatar": false,
+      "GravatarUrl": ""
+    },
+    "suggestion": ""
+  },
+  {
+    "email": "name@yandex.ru",
+    "disposable": false,
+    "reachable": "no",
+    "role_account": false,
+    "free": true,
+    "syntax": {
+      "username": "name",
+      "domain": "yandex.ru",
+      "valid": true
+    },
+    "has_mx_records": true,
+    "smtp": {
+      "host_exists": true,
+      "full_inbox": false,
+      "catch_all": false,
+      "deliverable": false,
+      "disabled": false
+    },
+    "gravatar": {
+      "HasGravatar": false,
+      "GravatarUrl": ""
+    },
+    "suggestion": ""
+  },
+  {
+    "email": "admin@huntgear.ru",
+    "disposable": false,
+    "reachable": "yes",
+    "role_account": true,
+    "free": false,
+    "syntax": {
+      "username": "admin",
+      "domain": "huntgear.ru",
+      "valid": true
+    },
+    "has_mx_records": true,
+    "smtp": {
+      "host_exists": true,
+      "full_inbox": false,
+      "catch_all": false,
+      "deliverable": true,
+      "disabled": false
+    },
+    "gravatar": {
+      "HasGravatar": false,
+      "GravatarUrl": ""
+    },
+    "suggestion": ""
+  },
+  {
+    "email": "go.email.validator@gmail.com",
+    "disposable": false,
+    "reachable": "yes",
+    "role_account": false,
+    "free": true,
+    "syntax": {
+      "username": "go.email.validator",
+      "domain": "gmail.com",
+      "valid": true
+    },
+    "has_mx_records": true,
+    "smtp": {
+      "host_exists": true,
+      "full_inbox": false,
+      "catch_all": false,
+      "deliverable": true,
+      "disabled": false
+    },
+    "gravatar": {
+      "HasGravatar": false,
+      "GravatarUrl": ""
+    },
+    "suggestion": ""
+  },
+  {
+    "email": "radmal1982@yandex-team.ru",
+    "disposable": false,
+    "reachable": "yes",
+    "role_account": false,
+    "free": false,
+    "syntax": {
+      "username": "radmal1982",
+      "domain": "yandex-team.ru",
+      "valid": true
+    },
+    "has_mx_records": true,
+    "smtp": {
+      "host_exists": true,
+      "full_inbox": false,
+      "catch_all": false,
+      "deliverable": true,
+      "disabled": false
+    },
+    "gravatar": {
+      "HasGravatar": false,
+      "GravatarUrl": ""
+    },
+    "suggestion": ""
+  },
+  {
+    "email": "pr@yandex-team.ru",
+    "disposable": false,
+    "reachable": "yes",
+    "role_account": true,
+    "free": false,
+    "syntax": {
+      "username": "pr",
+      "domain": "yandex-team.ru",
+      "valid": true
+    },
+    "has_mx_records": true,
+    "smtp": {
+      "host_exists": true,
+      "full_inbox": false,
+      "catch_all": false,
+      "deliverable": true,
+      "disabled": false
+    },
+    "gravatar": {
+      "HasGravatar": false,
+      "GravatarUrl": ""
+    },
+    "suggestion": ""
+  },
+  {
+    "email": "y-numata@senko.ed.jp",
+    "disposable": false,
+    "reachable": "unknown",
+    "role_account": false,
+    "free": false,
+    "syntax": {
+      "username": "y-numata",
+      "domain": "senko.ed.jp",
+      "valid": true
+    },
+    "has_mx_records": true,
+    "smtp": null,
+    "gravatar": null,
+    "suggestion": ""
+  }
+]

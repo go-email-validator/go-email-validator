@@ -59,3 +59,15 @@ act: act.build act.run
 
 install.lint:
     curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.33.0
+
+
+# Mount own self in go path
+LIBRARY_PATH := $(GOROOT)/src$(GITHUB_VENDOR)
+
+mount.for_adapter: umount.for_adapter
+	rm -fr $(LIBRARY_PATH)
+	mkdir -p $(LIBRARY_PATH)
+	sudo mount -Br ~/go/src/github.com/go-email-validator/ $(LIBRARY_PATH)
+
+umount.for_adapter:
+	sudo umount $(LIBRARY_PATH) -q | exit 0

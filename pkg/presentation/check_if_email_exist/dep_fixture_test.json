@@ -1,0 +1,695 @@
+[
+  {
+    "input": "asdas.da2da",
+    "is_reachable": "invalid",
+    "misc": {
+      "is_disposable": false,
+      "is_role_account": false
+    },
+    "mx": {
+      "accepts_mail": false,
+      "records": []
+    },
+    "smtp": {
+      "can_connect_smtp": false,
+      "has_full_inbox": false,
+      "is_catch_all": false,
+      "is_deliverable": false,
+      "is_disabled": false
+    },
+    "syntax": {
+      "address": null,
+      "username": "",
+      "domain": "",
+      "is_valid_syntax": false
+    },
+    "error": ""
+  },
+  {
+    "input": "asdas.dada",
+    "is_reachable": "invalid",
+    "misc": {
+      "is_disposable": false,
+      "is_role_account": false
+    },
+    "mx": {
+      "accepts_mail": false,
+      "records": []
+    },
+    "smtp": {
+      "can_connect_smtp": false,
+      "has_full_inbox": false,
+      "is_catch_all": false,
+      "is_deliverable": false,
+      "is_disabled": false
+    },
+    "syntax": {
+      "address": null,
+      "username": "",
+      "domain": "",
+      "is_valid_syntax": false
+    },
+    "error": ""
+  },
+  {
+    "input": "asd@asd@asd",
+    "is_reachable": "invalid",
+    "misc": {
+      "is_disposable": false,
+      "is_role_account": false
+    },
+    "mx": {
+      "accepts_mail": false,
+      "records": []
+    },
+    "smtp": {
+      "can_connect_smtp": false,
+      "has_full_inbox": false,
+      "is_catch_all": false,
+      "is_deliverable": false,
+      "is_disabled": false
+    },
+    "syntax": {
+      "address": null,
+      "username": "",
+      "domain": "",
+      "is_valid_syntax": false
+    },
+    "error": ""
+  },
+  {
+    "input": "zxczxczxc@joycasinoru",
+    "is_reachable": "invalid",
+    "misc": {
+      "is_disposable": false,
+      "is_role_account": false
+    },
+    "mx": {
+      "accepts_mail": false,
+      "records": []
+    },
+    "smtp": {
+      "can_connect_smtp": false,
+      "has_full_inbox": false,
+      "is_catch_all": false,
+      "is_deliverable": false,
+      "is_disabled": false
+    },
+    "syntax": {
+      "address": null,
+      "username": "",
+      "domain": "",
+      "is_valid_syntax": false
+    },
+    "error": ""
+  },
+  {
+    "input": "sewag33689@gmail.com",
+    "is_reachable": "invalid",
+    "misc": {
+      "is_disposable": false,
+      "is_role_account": false
+    },
+    "mx": {
+      "accepts_mail": true,
+      "records": [
+        "alt1.gmail-smtp-in.l.google.com.",
+        "alt3.gmail-smtp-in.l.google.com.",
+        "alt4.gmail-smtp-in.l.google.com.",
+        "alt2.gmail-smtp-in.l.google.com.",
+        "gmail-smtp-in.l.google.com."
+      ]
+    },
+    "smtp": {
+      "can_connect_smtp": true,
+      "has_full_inbox": false,
+      "is_catch_all": false,
+      "is_deliverable": false,
+      "is_disabled": false
+    },
+    "syntax": {
+      "address": "sewag33689@gmail.com",
+      "username": "sewag33689",
+      "domain": "gmail.com",
+      "is_valid_syntax": true
+    },
+    "error": ""
+  },
+  {
+    "input": "user99.doesnot.exist@gmail.com",
+    "is_reachable": "invalid",
+    "misc": {
+      "is_disposable": false,
+      "is_role_account": false
+    },
+    "mx": {
+      "accepts_mail": true,
+      "records": [
+        "gmail-smtp-in.l.google.com.",
+        "alt3.gmail-smtp-in.l.google.com.",
+        "alt4.gmail-smtp-in.l.google.com.",
+        "alt1.gmail-smtp-in.l.google.com.",
+        "alt2.gmail-smtp-in.l.google.com."
+      ]
+    },
+    "smtp": {
+      "can_connect_smtp": true,
+      "has_full_inbox": false,
+      "is_catch_all": false,
+      "is_deliverable": false,
+      "is_disabled": false
+    },
+    "syntax": {
+      "address": "user99.doesnot.exist@gmail.com",
+      "username": "user99.doesnot.exist",
+      "domain": "gmail.com",
+      "is_valid_syntax": true
+    },
+    "error": ""
+  },
+  {
+    "input": "amazedfuckporno@gmail.com",
+    "is_reachable": "invalid",
+    "misc": {
+      "is_disposable": false,
+      "is_role_account": false
+    },
+    "mx": {
+      "accepts_mail": true,
+      "records": [
+        "alt4.gmail-smtp-in.l.google.com.",
+        "alt3.gmail-smtp-in.l.google.com.",
+        "alt1.gmail-smtp-in.l.google.com.",
+        "alt2.gmail-smtp-in.l.google.com.",
+        "gmail-smtp-in.l.google.com."
+      ]
+    },
+    "smtp": {
+      "can_connect_smtp": true,
+      "has_full_inbox": false,
+      "is_catch_all": false,
+      "is_deliverable": false,
+      "is_disabled": false
+    },
+    "syntax": {
+      "address": "amazedfuckporno@gmail.com",
+      "username": "amazedfuckporno",
+      "domain": "gmail.com",
+      "is_valid_syntax": true
+    },
+    "error": ""
+  },
+  {
+    "input": "sewag33689@itymail.com",
+    "is_reachable": "risky",
+    "misc": {
+      "is_disposable": true,
+      "is_role_account": false
+    },
+    "mx": {
+      "accepts_mail": true,
+      "records": [
+        "mail.mailerhost.net."
+      ]
+    },
+    "smtp": {
+      "can_connect_smtp": true,
+      "has_full_inbox": false,
+      "is_catch_all": false,
+      "is_deliverable": false,
+      "is_disabled": false
+    },
+    "syntax": {
+      "address": "sewag33689@itymail.com",
+      "username": "sewag33689",
+      "domain": "itymail.com",
+      "is_valid_syntax": true
+    },
+    "error": ""
+  },
+  {
+    "input": "derduzikne@nedoz.com",
+    "is_reachable": "risky",
+    "misc": {
+      "is_disposable": false,
+      "is_role_account": false
+    },
+    "mx": {
+      "accepts_mail": true,
+      "records": [
+        "mail.nedoz.com."
+      ]
+    },
+    "smtp": {
+      "can_connect_smtp": true,
+      "has_full_inbox": false,
+      "is_catch_all": true,
+      "is_deliverable": true,
+      "is_disabled": false
+    },
+    "syntax": {
+      "address": "derduzikne@nedoz.com",
+      "username": "derduzikne",
+      "domain": "nedoz.com",
+      "is_valid_syntax": true
+    },
+    "error": ""
+  },
+  {
+    "input": "tvzamhkdc@emlhub.com",
+    "is_reachable": "risky",
+    "misc": {
+      "is_disposable": true,
+      "is_role_account": false
+    },
+    "mx": {
+      "accepts_mail": true,
+      "records": [
+        "mx.emlhub.com."
+      ]
+    },
+    "smtp": {
+      "can_connect_smtp": true,
+      "has_full_inbox": false,
+      "is_catch_all": false,
+      "is_deliverable": false,
+      "is_disabled": false
+    },
+    "syntax": {
+      "address": "tvzamhkdc@emlhub.com",
+      "username": "tvzamhkdc",
+      "domain": "emlhub.com",
+      "is_valid_syntax": true
+    },
+    "error": ""
+  },
+  {
+    "input": "theofanis.giot2is@12pm.gr",
+    "is_reachable": "risky",
+    "misc": {
+      "is_disposable": false,
+      "is_role_account": false
+    },
+    "mx": {
+      "accepts_mail": true,
+      "records": [
+        "mailroot2.12pm.biz.",
+        "mailroot3.12pm.biz.",
+        "mailroot1.12pm.biz."
+      ]
+    },
+    "smtp": {
+      "can_connect_smtp": true,
+      "has_full_inbox": false,
+      "is_catch_all": true,
+      "is_deliverable": true,
+      "is_disabled": false
+    },
+    "syntax": {
+      "address": "theofanis.giot2is@12pm.gr",
+      "domain": "12pm.gr",
+      "is_valid_syntax": true,
+      "username": "theofanis.giot2is"
+    },
+    "error": ""
+  },
+  {
+    "input": "theofanis.giot2is@12pm.gr",
+    "is_reachable": "risky",
+    "misc": {
+      "is_disposable": false,
+      "is_role_account": false
+    },
+    "mx": {
+      "accepts_mail": true,
+      "records": [
+        "mailroot2.12pm.biz.",
+        "mailroot3.12pm.biz.",
+        "mailroot1.12pm.biz."
+      ]
+    },
+    "smtp": {
+      "can_connect_smtp": true,
+      "has_full_inbox": false,
+      "is_catch_all": true,
+      "is_deliverable": true,
+      "is_disabled": false
+    },
+    "syntax": {
+      "address": "theofanis.giot2is@12pm.gr",
+      "domain": "12pm.gr",
+      "is_valid_syntax": true,
+      "username": "theofanis.giot2is"
+    },
+    "error": ""
+  },
+  {
+    "input": "asdasd@tradepro.net",
+    "is_reachable": "invalid",
+    "misc": {
+      "is_disposable": false,
+      "is_role_account": false
+    },
+    "mx": {
+      "accepts_mail": true,
+      "records": [
+        "mail.tradepro.net."
+      ]
+    },
+    "smtp": {
+      "can_connect_smtp": true,
+      "has_full_inbox": false,
+      "is_catch_all": false,
+      "is_deliverable": false,
+      "is_disabled": false
+    },
+    "syntax": {
+      "address": "asdasd@tradepro.net",
+      "username": "asdasd",
+      "domain": "tradepro.net",
+      "is_valid_syntax": true
+    },
+    "error": ""
+  },
+  {
+    "input": "credit@mail.ru",
+    "is_reachable": "invalid",
+    "misc": {
+      "is_disposable": false,
+      "is_role_account": false
+    },
+    "mx": {
+      "accepts_mail": true,
+      "records": [
+        "mxs.mail.ru."
+      ]
+    },
+    "smtp": {
+      "can_connect_smtp": true,
+      "has_full_inbox": false,
+      "is_catch_all": false,
+      "is_deliverable": false,
+      "is_disabled": false
+    },
+    "syntax": {
+      "address": "credit@mail.ru",
+      "username": "credit",
+      "domain": "mail.ru",
+      "is_valid_syntax": true
+    },
+    "error": ""
+  },
+  {
+    "input": "salestrade86@hotmail.com",
+    "is_reachable": "unknown",
+    "misc": {
+      "is_disposable": false,
+      "is_role_account": false
+    },
+    "mx": {
+      "accepts_mail": true,
+      "records": [
+        "hotmail-com.olc.protection.outlook.com."
+      ]
+    },
+    "smtp": {
+      "can_connect_smtp": false,
+      "has_full_inbox": false,
+      "is_catch_all": false,
+      "is_deliverable": false,
+      "is_disabled": false
+    },
+    "syntax": {
+      "address": "salestrade86@hotmail.com",
+      "username": "salestrade86",
+      "domain": "hotmail.com",
+      "is_valid_syntax": true
+    },
+    "error": ""
+  },
+  {
+    "input": "some.user.99@gmail.com",
+    "is_reachable": "safe",
+    "misc": {
+      "is_disposable": false,
+      "is_role_account": false
+    },
+    "mx": {
+      "accepts_mail": true,
+      "records": [
+        "alt3.gmail-smtp-in.l.google.com.",
+        "gmail-smtp-in.l.google.com.",
+        "alt2.gmail-smtp-in.l.google.com.",
+        "alt4.gmail-smtp-in.l.google.com.",
+        "alt1.gmail-smtp-in.l.google.com."
+      ]
+    },
+    "smtp": {
+      "can_connect_smtp": true,
+      "has_full_inbox": false,
+      "is_catch_all": false,
+      "is_deliverable": true,
+      "is_disabled": false
+    },
+    "syntax": {
+      "address": "some.user.99@gmail.com",
+      "username": "some.user.99",
+      "domain": "gmail.com",
+      "is_valid_syntax": true
+    },
+    "error": ""
+  },
+  {
+    "input": "monicaramirezrestrepo@hotmail.com",
+    "is_reachable": "unknown",
+    "misc": {
+      "is_disposable": false,
+      "is_role_account": false
+    },
+    "mx": {
+      "accepts_mail": true,
+      "records": [
+        "hotmail-com.olc.protection.outlook.com."
+      ]
+    },
+    "smtp": {
+      "can_connect_smtp": false,
+      "has_full_inbox": false,
+      "is_catch_all": false,
+      "is_deliverable": false,
+      "is_disabled": false
+    },
+    "syntax": {
+      "address": "monicaramirezrestrepo@hotmail.com",
+      "username": "monicaramirezrestrepo",
+      "domain": "hotmail.com",
+      "is_valid_syntax": true
+    },
+    "error": ""
+  },
+  {
+    "input": "admin@gmail.com",
+    "is_reachable": "risky",
+    "misc": {
+      "is_disposable": false,
+      "is_role_account": true
+    },
+    "mx": {
+      "accepts_mail": true,
+      "records": [
+        "alt2.gmail-smtp-in.l.google.com.",
+        "gmail-smtp-in.l.google.com.",
+        "alt1.gmail-smtp-in.l.google.com.",
+        "alt4.gmail-smtp-in.l.google.com.",
+        "alt3.gmail-smtp-in.l.google.com."
+      ]
+    },
+    "smtp": {
+      "can_connect_smtp": true,
+      "has_full_inbox": false,
+      "is_catch_all": false,
+      "is_deliverable": false,
+      "is_disabled": false
+    },
+    "syntax": {
+      "address": "admin@gmail.com",
+      "username": "admin",
+      "domain": "gmail.com",
+      "is_valid_syntax": true
+    },
+    "error": ""
+  },
+  {
+    "input": "name@yandex.ru",
+    "is_reachable": "invalid",
+    "misc": {
+      "is_disposable": false,
+      "is_role_account": false
+    },
+    "mx": {
+      "accepts_mail": true,
+      "records": [
+        "mx.yandex.ru."
+      ]
+    },
+    "smtp": {
+      "can_connect_smtp": true,
+      "has_full_inbox": false,
+      "is_catch_all": false,
+      "is_deliverable": false,
+      "is_disabled": false
+    },
+    "syntax": {
+      "address": "name@yandex.ru",
+      "domain": "yandex.ru",
+      "is_valid_syntax": true,
+      "username": "name"
+    }
+  },
+  {
+    "input": "admin@huntgear.ru",
+    "is_reachable": "risky",
+    "misc": {
+      "is_disposable": false,
+      "is_role_account": true
+    },
+    "mx": {
+      "accepts_mail": true,
+      "records": [
+        "mail.huntgear.ru.",
+        "mail.huntgear.ru."
+      ]
+    },
+    "smtp": {
+      "can_connect_smtp": true,
+      "has_full_inbox": false,
+      "is_catch_all": false,
+      "is_deliverable": true,
+      "is_disabled": false
+    },
+    "syntax": {
+      "address": "admin@huntgear.ru",
+      "username": "admin",
+      "domain": "huntgear.ru",
+      "is_valid_syntax": true
+    },
+    "error": ""
+  },
+  {
+    "input": "go.email.validator@gmail.com",
+    "is_reachable": "safe",
+    "misc": {
+      "is_disposable": false,
+      "is_role_account": false
+    },
+    "mx": {
+      "accepts_mail": true,
+      "records": [
+        "alt1.gmail-smtp-in.l.google.com.",
+        "alt3.gmail-smtp-in.l.google.com.",
+        "alt4.gmail-smtp-in.l.google.com.",
+        "gmail-smtp-in.l.google.com.",
+        "alt2.gmail-smtp-in.l.google.com."
+      ]
+    },
+    "smtp": {
+      "can_connect_smtp": true,
+      "has_full_inbox": false,
+      "is_catch_all": false,
+      "is_deliverable": true,
+      "is_disabled": false
+    },
+    "syntax": {
+      "address": "go.email.validator@gmail.com",
+      "username": "go.email.validator",
+      "domain": "gmail.com",
+      "is_valid_syntax": true
+    },
+    "error": ""
+  },
+  {
+    "input": "radmal1982@yandex-team.ru",
+    "is_reachable": "safe",
+    "misc": {
+      "is_disposable": false,
+      "is_role_account": false
+    },
+    "mx": {
+      "accepts_mail": true,
+      "records": [
+        "mx.yandex-team.ru."
+      ]
+    },
+    "smtp": {
+      "can_connect_smtp": true,
+      "has_full_inbox": false,
+      "is_catch_all": false,
+      "is_deliverable": true,
+      "is_disabled": false
+    },
+    "syntax": {
+      "address": "radmal1982@yandex-team.ru",
+      "username": "radmal1982",
+      "domain": "yandex-team.ru",
+      "is_valid_syntax": true
+    },
+    "error": ""
+  },
+  {
+    "input": "pr@yandex-team.ru",
+    "is_reachable": "risky",
+    "misc": {
+      "is_disposable": false,
+      "is_role_account": true
+    },
+    "mx": {
+      "accepts_mail": true,
+      "records": [
+        "mx.yandex-team.ru."
+      ]
+    },
+    "smtp": {
+      "can_connect_smtp": true,
+      "has_full_inbox": false,
+      "is_catch_all": false,
+      "is_deliverable": true,
+      "is_disabled": false
+    },
+    "syntax": {
+      "address": "pr@yandex-team.ru",
+      "username": "pr",
+      "domain": "yandex-team.ru",
+      "is_valid_syntax": true
+    },
+    "error": ""
+  },
+  {
+    "input": "y-numata@senko.ed.jp",
+    "is_reachable": "unknown",
+    "misc": {
+      "is_disposable": false,
+      "is_role_account": false
+    },
+    "mx": {
+      "accepts_mail": true,
+      "records": [
+        "mwbgw2.ocn.ad.jp.",
+        "mwbgw1.ocn.ad.jp."
+      ]
+    },
+    "smtp": {
+      "can_connect_smtp": false,
+      "has_full_inbox": false,
+      "is_catch_all": false,
+      "is_deliverable": false,
+      "is_disabled": false
+    },
+    "syntax": {
+      "address": "y-numata@senko.ed.jp",
+      "username": "y-numata",
+      "domain": "senko.ed.jp",
+      "is_valid_syntax": true
+    },
+    "error": ""
+  }
+]

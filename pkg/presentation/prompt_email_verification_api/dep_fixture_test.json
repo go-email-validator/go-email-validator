@@ -1,0 +1,528 @@
+[
+  {
+    "Email": "asdas.da2da",
+    "Dep": {
+      "email": "",
+      "syntax_valid": false,
+      "is_disposable": false,
+      "is_role_account": false,
+      "is_catch_all": false,
+      "is_deliverable": false,
+      "can_connect_smtp": false,
+      "is_inbox_full": false,
+      "is_disabled": false,
+      "mx_records": {
+        "accepts_mail": false,
+        "records": []
+      },
+      "message": "Invalid email syntax."
+    }
+  },
+  {
+    "Email": "asdas.dada",
+    "Dep": {
+      "email": "",
+      "syntax_valid": false,
+      "is_disposable": false,
+      "is_role_account": false,
+      "is_catch_all": false,
+      "is_deliverable": false,
+      "can_connect_smtp": false,
+      "is_inbox_full": false,
+      "is_disabled": false,
+      "mx_records": {
+        "accepts_mail": false,
+        "records": []
+      },
+      "message": "Invalid email syntax."
+    }
+  },
+  {
+    "Email": "asd@asd@asd",
+    "Dep": {
+      "email": "",
+      "syntax_valid": false,
+      "is_disposable": false,
+      "is_role_account": false,
+      "is_catch_all": false,
+      "is_deliverable": false,
+      "can_connect_smtp": false,
+      "is_inbox_full": false,
+      "is_disabled": false,
+      "mx_records": {
+        "accepts_mail": false,
+        "records": []
+      },
+      "message": "Invalid email syntax."
+    }
+  },
+  {
+    "Email": "zxczxczxc@joycasinoru",
+    "Dep": {
+      "email": "zxczxczxc@joycasinoru",
+      "syntax_valid": false,
+      "is_disposable": false,
+      "is_role_account": false,
+      "is_catch_all": false,
+      "is_deliverable": false,
+      "can_connect_smtp": false,
+      "is_inbox_full": false,
+      "is_disabled": false,
+      "mx_records": {
+        "accepts_mail": false,
+        "records": []
+      },
+      "message": ""
+    }
+  },
+  {
+    "Email": "sewag33689@gmail.com",
+    "Dep": {
+      "email": "sewag33689@gmail.com",
+      "syntax_valid": true,
+      "is_disposable": false,
+      "is_role_account": false,
+      "is_catch_all": false,
+      "is_deliverable": false,
+      "can_connect_smtp": true,
+      "is_inbox_full": false,
+      "is_disabled": false,
+      "mx_records": {
+        "accepts_mail": true,
+        "records": [
+          "alt4.gmail-smtp-in.l.google.com.",
+          "alt2.gmail-smtp-in.l.google.com.",
+          "gmail-smtp-in.l.google.com.",
+          "alt1.gmail-smtp-in.l.google.com.",
+          "alt3.gmail-smtp-in.l.google.com."
+        ]
+      },
+      "message": ""
+    }
+  },
+  {
+    "Email": "user99.doesnot.exist@gmail.com",
+    "Dep": {
+      "email": "user99.doesnot.exist@gmail.com",
+      "syntax_valid": true,
+      "is_disposable": false,
+      "is_role_account": false,
+      "is_catch_all": false,
+      "is_deliverable": false,
+      "can_connect_smtp": true,
+      "is_inbox_full": false,
+      "is_disabled": false,
+      "mx_records": {
+        "accepts_mail": true,
+        "records": [
+          "alt1.gmail-smtp-in.l.google.com.",
+          "alt4.gmail-smtp-in.l.google.com.",
+          "alt3.gmail-smtp-in.l.google.com.",
+          "alt2.gmail-smtp-in.l.google.com.",
+          "gmail-smtp-in.l.google.com."
+        ]
+      },
+      "message": ""
+    }
+  },
+  {
+    "Email": "amazedfuckporno@gmail.com",
+    "Dep": {
+      "email": "amazedfuckporno@gmail.com",
+      "syntax_valid": true,
+      "is_disposable": false,
+      "is_role_account": false,
+      "is_catch_all": false,
+      "is_deliverable": false,
+      "can_connect_smtp": true,
+      "is_inbox_full": false,
+      "is_disabled": false,
+      "mx_records": {
+        "accepts_mail": true,
+        "records": [
+          "alt1.gmail-smtp-in.l.google.com.",
+          "alt4.gmail-smtp-in.l.google.com.",
+          "alt3.gmail-smtp-in.l.google.com.",
+          "alt2.gmail-smtp-in.l.google.com.",
+          "gmail-smtp-in.l.google.com."
+        ]
+      },
+      "message": ""
+    }
+  },
+  {
+    "Email": "sewag33689@itymail.com",
+    "Dep": {
+      "email": "sewag33689@itymail.com",
+      "syntax_valid": true,
+      "is_disposable": true,
+      "is_role_account": false,
+      "is_catch_all": false,
+      "is_deliverable": false,
+      "can_connect_smtp": true,
+      "is_inbox_full": false,
+      "is_disabled": false,
+      "mx_records": {
+        "accepts_mail": true,
+        "records": [
+          "mail.mailerhost.net."
+        ]
+      },
+      "message": ""
+    }
+  },
+  {
+    "Email": "derduzikne@nedoz.com",
+    "Dep": {
+      "email": "derduzikne@nedoz.com",
+      "syntax_valid": true,
+      "is_disposable": false,
+      "is_role_account": false,
+      "is_catch_all": true,
+      "is_deliverable": true,
+      "can_connect_smtp": true,
+      "is_inbox_full": false,
+      "is_disabled": false,
+      "mx_records": {
+        "accepts_mail": true,
+        "records": [
+          "mail.nedoz.com."
+        ]
+      },
+      "message": ""
+    }
+  },
+  {
+    "Email": "tvzamhkdc@emlhub.com",
+    "Dep": {
+      "email": "tvzamhkdc@emlhub.com",
+      "syntax_valid": true,
+      "is_disposable": true,
+      "is_role_account": false,
+      "is_catch_all": false,
+      "is_deliverable": false,
+      "can_connect_smtp": false,
+      "is_inbox_full": false,
+      "is_disabled": false,
+      "mx_records": {
+        "accepts_mail": true,
+        "records": [
+          "mx.emlhub.com."
+        ]
+      },
+      "message": ""
+    }
+  },
+  {
+    "Email": "theofanis.giot2is@12pm.gr",
+    "Dep": {
+      "can_connect_smtp": true,
+      "email": "theofanis.giot2is@12pm.gr",
+      "is_catch_all": true,
+      "is_deliverable": true,
+      "is_disabled": false,
+      "is_disposable": false,
+      "is_inbox_full": false,
+      "is_role_account": false,
+      "mx_records": {
+        "accepts_mail": true,
+        "records": [
+          "mailroot2.12pm.biz.",
+          "mailroot3.12pm.biz.",
+          "mailroot1.12pm.biz."
+        ]
+      },
+      "syntax_valid": true,
+      "message": ""
+    }
+  },
+  {
+    "Email": "theofanisgiotis@12pm.gr",
+    "Dep": {
+      "can_connect_smtp": true,
+      "email": "theofanisgiotis@12pm.gr",
+      "is_catch_all": true,
+      "is_deliverable": true,
+      "is_disabled": false,
+      "is_disposable": false,
+      "is_inbox_full": false,
+      "is_role_account": false,
+      "mx_records": {
+        "accepts_mail": true,
+        "records": [
+          "mailroot2.12pm.biz.",
+          "mailroot3.12pm.biz.",
+          "mailroot1.12pm.biz."
+        ]
+      },
+      "syntax_valid": true,
+      "message": ""
+    }
+  },
+  {
+    "Email": "asdasd@tradepro.net",
+    "Dep": {
+      "email": "asdasd@tradepro.net",
+      "syntax_valid": true,
+      "is_disposable": false,
+      "is_role_account": false,
+      "is_catch_all": false,
+      "is_deliverable": false,
+      "can_connect_smtp": true,
+      "is_inbox_full": false,
+      "is_disabled": false,
+      "mx_records": {
+        "accepts_mail": true,
+        "records": [
+          "mail.tradepro.net."
+        ]
+      },
+      "message": ""
+    }
+  },
+  {
+    "Email": "credit@mail.ru",
+    "Dep": {
+      "email": "credit@mail.ru",
+      "syntax_valid": true,
+      "is_disposable": false,
+      "is_role_account": false,
+      "is_catch_all": false,
+      "is_deliverable": false,
+      "can_connect_smtp": true,
+      "is_inbox_full": false,
+      "is_disabled": false,
+      "mx_records": {
+        "accepts_mail": true,
+        "records": [
+          "mxs.mail.ru."
+        ]
+      },
+      "message": ""
+    }
+  },
+  {
+    "Email": "salestrade86@hotmail.com",
+    "Dep": {
+      "email": "salestrade86@hotmail.com",
+      "syntax_valid": true,
+      "is_disposable": false,
+      "is_role_account": false,
+      "is_catch_all": false,
+      "is_deliverable": false,
+      "can_connect_smtp": false,
+      "is_inbox_full": false,
+      "is_disabled": false,
+      "mx_records": {
+        "accepts_mail": true,
+        "records": [
+          "hotmail-com.olc.protection.outlook.com."
+        ]
+      },
+      "message": ""
+    }
+  },
+  {
+    "Email": "some.user.99@gmail.com",
+    "Dep": {
+      "email": "some.user.99@gmail.com",
+      "syntax_valid": true,
+      "is_disposable": false,
+      "is_role_account": false,
+      "is_catch_all": false,
+      "is_deliverable": true,
+      "can_connect_smtp": true,
+      "is_inbox_full": false,
+      "is_disabled": false,
+      "mx_records": {
+        "accepts_mail": true,
+        "records": [
+          "alt2.gmail-smtp-in.l.google.com.",
+          "alt4.gmail-smtp-in.l.google.com.",
+          "gmail-smtp-in.l.google.com.",
+          "alt1.gmail-smtp-in.l.google.com.",
+          "alt3.gmail-smtp-in.l.google.com."
+        ]
+      },
+      "message": ""
+    }
+  },
+  {
+    "Email": "monicaramirezrestrepo@hotmail.com",
+    "Dep": {
+      "email": "monicaramirezrestrepo@hotmail.com",
+      "syntax_valid": true,
+      "is_disposable": false,
+      "is_role_account": false,
+      "is_catch_all": false,
+      "is_deliverable": false,
+      "can_connect_smtp": false,
+      "is_inbox_full": false,
+      "is_disabled": false,
+      "mx_records": {
+        "accepts_mail": true,
+        "records": [
+          "hotmail-com.olc.protection.outlook.com."
+        ]
+      },
+      "message": ""
+    }
+  },
+  {
+    "Email": "admin@gmail.com",
+    "Dep": {
+      "email": "admin@gmail.com",
+      "syntax_valid": true,
+      "is_disposable": false,
+      "is_role_account": true,
+      "is_catch_all": false,
+      "is_deliverable": false,
+      "can_connect_smtp": true,
+      "is_inbox_full": false,
+      "is_disabled": false,
+      "mx_records": {
+        "accepts_mail": true,
+        "records": [
+          "alt1.gmail-smtp-in.l.google.com.",
+          "alt3.gmail-smtp-in.l.google.com.",
+          "gmail-smtp-in.l.google.com.",
+          "alt2.gmail-smtp-in.l.google.com.",
+          "alt4.gmail-smtp-in.l.google.com."
+        ]
+      },
+      "message": ""
+    }
+  },
+  {
+    "Email": "name@yandex.ru",
+    "Dep": {
+      "can_connect_smtp": true,
+      "email": "name@yandex.ru",
+      "is_catch_all": false,
+      "is_deliverable": false,
+      "is_disabled": false,
+      "is_disposable": false,
+      "is_inbox_full": false,
+      "is_role_account": false,
+      "mx_records": {
+        "accepts_mail": true,
+        "records": [
+          "mx.yandex.ru."
+        ]
+      },
+      "syntax_valid": true,
+      "message": ""
+    }
+  },
+  {
+    "Email": "admin@huntgear.ru",
+    "Dep": {
+      "email": "admin@huntgear.ru",
+      "syntax_valid": true,
+      "is_disposable": false,
+      "is_role_account": true,
+      "is_catch_all": false,
+      "is_deliverable": true,
+      "can_connect_smtp": true,
+      "is_inbox_full": false,
+      "is_disabled": false,
+      "mx_records": {
+        "accepts_mail": true,
+        "records": [
+          "mail.huntgear.ru.",
+          "mail.huntgear.ru."
+        ]
+      },
+      "message": ""
+    }
+  },
+  {
+    "Email": "go.email.validator@gmail.com",
+    "Dep": {
+      "email": "go.email.validator@gmail.com",
+      "syntax_valid": true,
+      "is_disposable": false,
+      "is_role_account": false,
+      "is_catch_all": false,
+      "is_deliverable": true,
+      "can_connect_smtp": true,
+      "is_inbox_full": false,
+      "is_disabled": false,
+      "mx_records": {
+        "accepts_mail": true,
+        "records": [
+          "alt2.gmail-smtp-in.l.google.com.",
+          "alt4.gmail-smtp-in.l.google.com.",
+          "gmail-smtp-in.l.google.com.",
+          "alt1.gmail-smtp-in.l.google.com.",
+          "alt3.gmail-smtp-in.l.google.com."
+        ]
+      },
+      "message": ""
+    }
+  },
+  {
+    "Email": "radmal1982@yandex-team.ru",
+    "Dep": {
+      "email": "radmal1982@yandex-team.ru",
+      "syntax_valid": true,
+      "is_disposable": false,
+      "is_role_account": false,
+      "is_catch_all": false,
+      "is_deliverable": true,
+      "can_connect_smtp": true,
+      "is_inbox_full": false,
+      "is_disabled": false,
+      "mx_records": {
+        "accepts_mail": true,
+        "records": [
+          "mx.yandex-team.ru."
+        ]
+      },
+      "message": ""
+    }
+  },
+  {
+    "Email": "pr@yandex-team.ru",
+    "Dep": {
+      "email": "pr@yandex-team.ru",
+      "syntax_valid": true,
+      "is_disposable": false,
+      "is_role_account": true,
+      "is_catch_all": false,
+      "is_deliverable": true,
+      "can_connect_smtp": true,
+      "is_inbox_full": false,
+      "is_disabled": false,
+      "mx_records": {
+        "accepts_mail": true,
+        "records": [
+          "mx.yandex-team.ru."
+        ]
+      },
+      "message": ""
+    }
+  },
+  {
+    "Email": "y-numata@senko.ed.jp",
+    "Dep": {
+      "email": "y-numata@senko.ed.jp",
+      "syntax_valid": true,
+      "is_disposable": false,
+      "is_role_account": false,
+      "is_catch_all": false,
+      "is_deliverable": true,
+      "can_connect_smtp": true,
+      "is_inbox_full": false,
+      "is_disabled": false,
+      "mx_records": {
+        "accepts_mail": true,
+        "records": [
+          "mwbgw2.ocn.ad.jp.",
+          "mwbgw1.ocn.ad.jp."
+        ]
+      },
+      "message": ""
+    }
+  }
+]
