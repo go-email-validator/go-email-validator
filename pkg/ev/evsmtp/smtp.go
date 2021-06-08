@@ -267,7 +267,8 @@ func (c checker) randomRCPT(sm SendMail, email evmail.Address) (errs []error) {
 	randomEmail, err := c.randomEmail(email.Domain())
 	if err != nil {
 		randomEmailErr := NewError(RandomRCPTStage, err)
-		log.Logger().Error(fmt.Sprintf("generate random email: %v", randomEmailErr),
+		log.Logger().Error(
+			fmt.Sprintf("generate random email: %v", randomEmailErr),
 			zap.String("email", email.String()),
 		)
 		return append(errs, randomEmailErr)

@@ -4,7 +4,6 @@ import (
 	"crypto/md5" //nolint:gosec
 	"fmt"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/utils"
-	"hash"
 	"net/http"
 	"time"
 )
@@ -32,6 +31,16 @@ func NewGravatarValidationResult(url string, result *AValidationResult) Gravatar
 	return gravatarValidationResult{url: url, AValidationResult: result}
 }
 
+// GetMD5Hash is function interface, which returns md5 for string
+type GetMD5Hash func(str string) []byte
+
+// DefaultGetMD5Hash is a default implementation of GetMD5Hash
+func DefaultGetMD5Hash(str string) []byte {
+	h := md5.New()
+	h.Write([]byte(str))
+	return h.Sum(nil)
+}
+
 // GravatarError is GravatarValidatorName error
 type GravatarError struct{}
 
@@ -47,14 +56,14 @@ func NewGravatarValidator() Validator {
 // NewGravatarValidatorWithURL instantiates GravatarValidatorName validator
 func NewGravatarValidatorWithURL(gravatarURL string) Validator {
 	return gravatarValidator{
-		h:   md5.New(), //nolint:gosec
+		h:   DefaultGetMD5Hash,
 		url: gravatarURL,
 	}
 }
 
 type gravatarValidator struct {
 	AValidatorWithoutDeps
-	h   hash.Hash
+	h   GetMD5Hash
 	url string
 }
 
@@ -75,10 +84,10 @@ func (g gravatarValidator) Validate(input Input, results ...ValidationResult) Va
 
 	client := &http.Client{Timeout: opts.Timeout()}
 
-	g.h.Reset()
-	g.h.Write([]byte(input.Email().String()))
-
-	gravatarURL := fmt.Sprintf(GravatarURL, g.h.Sum(nil))
+	gravatarURL := fmt.Sprintf(
+		GravatarURL,
+		g.h(input.Email().String()),
+	)
 	resp, err := client.Head(gravatarURL)
 	if err != nil {
 		return gravatarGetError(err)

@@ -2,6 +2,7 @@ package ev
 
 import (
 	"errors"
+	"fmt"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evtests"
 	"net/url"
@@ -97,6 +98,33 @@ func Test_gravatarValidator_Validate(t *testing.T) {
 
 			if !reflect.DeepEqual(got, want) || got.URL() != want.URL() || errStr != wantErrStr {
 				t.Errorf("Validate() = %v, want %v", gotInterface, tt.want)
+			}
+		})
+	}
+}
+
+func Test_gravatarValidator_race_parallel(t *testing.T) {
+	evtests.FunctionalSkip(t)
+
+	w := NewGravatarValidator()
+	wantStr := "context deadline exceeded (Client.Timeout exceeded while awaiting headers)"
+	for i := 0; i < 100; i++ {
+		email := evmail.NewEmailAddress(fmt.Sprintf("someNoneExistUserName%d", i), "someNonExists")
+		t.Run(email.String(), func(t *testing.T) {
+			t.Parallel()
+
+			gotInterface := w.Validate(
+				NewInput(email, NewKVOption(
+					GravatarValidatorName,
+					NewGravatarOptions(GravatarOptionsDTO{Timeout: 1}),
+				)),
+				NewValidResult(SyntaxValidatorName))
+
+			got := gotInterface.(gravatarValidationResult)
+			gotStr := got.errors[0].(*url.Error).Err.Error()
+
+			if gotStr != wantStr {
+				t.Errorf("Validate() = %v, wantStr %v", gotStr, wantStr)
 			}
 		})
 	}
