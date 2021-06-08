@@ -9,12 +9,13 @@ var hasNumberInUserNameRE = regexp.MustCompile(`.*\d.*?`)
 var hasDotInUsername = regexp.MustCompile(`.*\..*?`)
 var minScore = 1
 
+// CalculateScore calculates scores for the MailboxvalidatorScore field
 func CalculateScore(presentation DepPresentation) float64 {
 	score := minScore
 
 	if presentation.IsDomain && presentation.IsSyntax {
 		score += 9
-		if presentation.IsSmtp {
+		if presentation.IsSMTP {
 			score += 10
 		}
 		if presentation.IsVerified {
@@ -53,7 +54,7 @@ func CalculateScore(presentation DepPresentation) float64 {
 		score -= 2
 	}
 	if hasDotInUsername.MatchString(username) {
-		score += 1
+		score++
 	}
 
 	return float64(score) / 100.0

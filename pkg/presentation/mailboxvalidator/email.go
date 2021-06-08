@@ -8,6 +8,7 @@ import (
 
 var emptyString = ""
 
+// EmailFromString creates evmail.Address from string
 func EmailFromString(email string) evmail.Address {
 	pos := strings.LastIndexByte(email, '@')
 

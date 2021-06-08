@@ -10,8 +10,9 @@ import (
 	"sync"
 )
 
-type SmtpPresentation struct {
-	CanConnectSmtp bool `json:"can_connect_smtp"`
+// SMTPPresentation is a presentation of smtp from ev.ValidationResult
+type SMTPPresentation struct {
+	CanConnectSMTP bool `json:"can_connect_smtp"`
 	HasFullInbox   bool `json:"has_full_inbox"`
 	IsCatchAll     bool `json:"is_catch_all"`
 	IsDeliverable  bool `json:"is_deliverable"`
@@ -19,17 +20,18 @@ type SmtpPresentation struct {
 	IsGreyListed   bool `json:"is_grey_listed"`
 }
 
+// Default results
 var (
-	WithoutErrsSMTPPresentation = SmtpPresentation{
-		CanConnectSmtp: true,
+	WithoutErrsSMTPPresentation = SMTPPresentation{
+		CanConnectSMTP: true,
 		HasFullInbox:   false,
 		IsCatchAll:     true,
 		IsDeliverable:  true,
 		IsDisabled:     false,
 		IsGreyListed:   false,
 	}
-	FalseSMTPPresentation = SmtpPresentation{
-		CanConnectSmtp: false,
+	FalseSMTPPresentation = SMTPPresentation{
+		CanConnectSMTP: false,
 		HasFullInbox:   false,
 		IsCatchAll:     false,
 		IsDeliverable:  false,
@@ -42,6 +44,7 @@ var smtpConverter *SMTPConverter
 
 var muNewSMTPConverter sync.Mutex
 
+// NewSMTPConverter creates SMTPConverter
 func NewSMTPConverter() *SMTPConverter {
 	muNewSMTPConverter.Lock()
 	defer muNewSMTPConverter.Unlock()
@@ -53,12 +56,15 @@ func NewSMTPConverter() *SMTPConverter {
 	return smtpConverter
 }
 
+// SMTPConverter converts ev.ValidationResult in SMTPConverter
 type SMTPConverter struct{}
 
+// Can ev.ValidationResult be converted in SMTPConverter
 func (SMTPConverter) Can(_ evmail.Address, result ev.ValidationResult, _ Options) bool {
 	return result.ValidatorName() == ev.SMTPValidatorName
 }
 
+// Convert ev.ValidationResult in SMTPConverter
 func (SMTPConverter) Convert(_ evmail.Address, result ev.ValidationResult, _ Options) interface{} {
 	var presentation = WithoutErrsSMTPPresentation
 	var errString string

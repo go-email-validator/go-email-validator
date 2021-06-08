@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// EmailsForTests returns emails for tests
 func EmailsForTests() []string {
 	return []string{
 		"asdas.da2da",
@@ -34,6 +35,7 @@ func EmailsForTests() []string {
 	}
 }
 
+// NewEmailAddress is a evmail.Address constructor
 func NewEmailAddress(username, domain string, at *string) evmail.Address {
 	return emailAddress{
 		username: strings.ToLower(username),

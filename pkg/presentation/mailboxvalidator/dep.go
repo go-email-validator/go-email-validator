@@ -11,9 +11,11 @@ import (
 
 //go:generate go run cmd/dep_test_generator/gen.go
 
-const (
-	Name converter.Name = "MailBoxValidator"
+// Name of MailBoxValidator converter
+const Name converter.Name = "MailBoxValidator"
 
+// Error constants
+const (
 	MissingParameter        int32 = 100
 	MissingParameterMessage       = "Missing parameter."
 	UnknownErrorMessage           = "Unknown error."
@@ -26,7 +28,7 @@ type DepPresentation struct {
 	IsFree                bool          `json:"is_free"`
 	IsSyntax              bool          `json:"is_syntax"`
 	IsDomain              bool          `json:"is_domain"`
-	IsSmtp                bool          `json:"is_smtp"`
+	IsSMTP                bool          `json:"is_smtp"`
 	IsVerified            bool          `json:"is_verified"`
 	IsServerDown          bool          `json:"is_server_down"`
 	IsGreylisted          bool          `json:"is_greylisted"`
@@ -43,24 +45,30 @@ type DepPresentation struct {
 	ErrorMessage          string        `json:"error_message"`
 }
 
+// FuncCalculateScore is a interface for calculation score function
 type FuncCalculateScore func(presentation DepPresentation) float64
 
+// NewDepConverterDefault is the default constructor
 func NewDepConverterDefault() DepConverter {
 	return NewDepConverter(CalculateScore)
 }
 
+// NewDepConverter is the constructor
 func NewDepConverter(calculateScore FuncCalculateScore) DepConverter {
 	return DepConverter{calculateScore}
 }
 
+// DepConverter is the converter for https://www.mailboxvalidator.com/
 type DepConverter struct {
 	calculateScore FuncCalculateScore
 }
 
+// Can ev.ValidationResult be converted in DepConverter
 func (DepConverter) Can(_ evmail.Address, result ev.ValidationResult, opts converter.Options) bool {
 	return opts.ExecutedTime() != 0 && result.ValidatorName() == ev.DepValidatorName
 }
 
+// Convert ev.ValidationResult in mailboxvalidator presentation
 func (d DepConverter) Convert(email evmail.Address, resultInterface ev.ValidationResult, opts converter.Options) (result interface{}) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -81,7 +89,7 @@ func (d DepConverter) Convert(email evmail.Address, resultInterface ev.Validatio
 	depResult := resultInterface.(ev.DepValidationResult)
 	validationResults := depResult.GetResults()
 
-	smtpPresentation := converter.NewSMTPConverter().Convert(email, validationResults[ev.SMTPValidatorName], nil).(converter.SmtpPresentation)
+	smtpPresentation := converter.NewSMTPConverter().Convert(email, validationResults[ev.SMTPValidatorName], nil).(converter.SMTPPresentation)
 
 	isFree := !validationResults[ev.FreeValidatorName].IsValid()
 	isSyntax := validationResults[ev.SyntaxValidatorName].IsValid()
@@ -91,9 +99,9 @@ func (d DepConverter) Convert(email evmail.Address, resultInterface ev.Validatio
 		IsFree:           isFree,
 		IsSyntax:         isSyntax,
 		IsDomain:         validationResults[ev.MXValidatorName].IsValid(),
-		IsSmtp:           smtpPresentation.CanConnectSmtp,
+		IsSMTP:           smtpPresentation.CanConnectSMTP,
 		IsVerified:       smtpPresentation.IsDeliverable,
-		IsServerDown:     isSyntax && !smtpPresentation.CanConnectSmtp,
+		IsServerDown:     isSyntax && !smtpPresentation.CanConnectSMTP,
 		IsGreylisted:     smtpPresentation.IsGreyListed,
 		IsDisposable:     !validationResults[ev.DisposableValidatorName].IsValid(),
 		IsSuppressed:     !validationResults[ev.BlackListEmailsValidatorName].IsValid(), // TODO find more examples example@example.com
@@ -109,6 +117,7 @@ func (d DepConverter) Convert(email evmail.Address, resultInterface ev.Validatio
 	return depPresentation
 }
 
+// NewDepValidator returns the mailboxvalidator validator
 func NewDepValidator(smtpValidator ev.Validator) ev.Validator {
 	builder := ev.NewDepBuilder(nil)
 	if smtpValidator == nil {

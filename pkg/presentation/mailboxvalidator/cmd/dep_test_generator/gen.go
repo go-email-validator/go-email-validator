@@ -8,7 +8,7 @@ import (
 	"github.com/go-email-validator/go-email-validator/pkg/presentation/converter"
 	"github.com/go-email-validator/go-email-validator/pkg/presentation/mailboxvalidator"
 	"github.com/go-email-validator/go-email-validator/pkg/presentation/mailboxvalidator/addition"
-	"github.com/go-email-validator/go-email-validator/pkg/presentation/presentation_test"
+	"github.com/go-email-validator/go-email-validator/pkg/presentation/test"
 	"github.com/joho/godotenv"
 	"io/ioutil"
 	"log"
@@ -56,7 +56,7 @@ func main() {
 		depFor.IsFree = mailboxvalidator.ToBool(depForView.IsFree)
 		depFor.IsSyntax = mailboxvalidator.ToBool(depForView.IsSyntax)
 		depFor.IsDomain = mailboxvalidator.ToBool(depForView.IsDomain)
-		depFor.IsSmtp = mailboxvalidator.ToBool(depForView.IsSmtp)
+		depFor.IsSMTP = mailboxvalidator.ToBool(depForView.IsSMTP)
 		depFor.IsVerified = mailboxvalidator.ToBool(depForView.IsVerified)
 		depFor.IsServerDown = mailboxvalidator.ToBool(depForView.IsServerDown)
 		depFor.IsGreylisted = mailboxvalidator.ToBool(depForView.IsGreylisted)
@@ -73,7 +73,7 @@ func main() {
 		depsForView[i] = depForView
 	}
 
-	f, err := os.Create(presentation_test.DefaultDepFixtureFile)
+	f, err := os.Create(test.DefaultDepFixtureFile)
 	die(err)
 	defer f.Close()
 
