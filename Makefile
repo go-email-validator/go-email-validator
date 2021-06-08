@@ -60,6 +60,14 @@ act: act.build act.run
 install.lint:
     curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.33.0
 
+mod.update: mod.update.main mod.update.as-email-verifier.adapter
+
+mod.update.main:
+	go mod tidy
+
+mod.update.as-email-verifier.adapter:
+	cd pkg/presentation/as-email-verifier/adapter && \
+	go mod tidy
 
 # Mount own self in go path
 LIBRARY_PATH := $(GOROOT)/src$(GITHUB_VENDOR)

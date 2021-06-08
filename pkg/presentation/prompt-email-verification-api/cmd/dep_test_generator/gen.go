@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/go-email-validator/go-email-validator/pkg/presentation/converter"
-	"github.com/go-email-validator/go-email-validator/pkg/presentation/prompt_email_verification_api/cmd/dep_test_generator/struct"
+	"github.com/go-email-validator/go-email-validator/pkg/presentation/prompt-email-verification-api/cmd/dep_test_generator/genstruct"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -45,14 +45,11 @@ func main() {
 			die(err)
 		}()
 
-		var depTest _struct.DepPresentationTest
-
 		if strings.Contains(dep.Message, "API rate limit") {
 			panic(fmt.Sprint(email, dep.Message))
 		}
-		depTest = _struct.DepPresentationTest{Email: email, Dep: dep}
 
-		deps[i] = depTest
+		deps[i] = genstruct.DepPresentationTest{Email: email, Dep: dep}
 	}
 
 	f, err := os.Create(test.DefaultDepFixtureFile)
