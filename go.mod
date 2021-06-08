@@ -3,7 +3,7 @@ module github.com/go-email-validator/go-email-validator
 go 1.16
 
 require (
-	github.com/FGRibreau/mailchecker/v4 v4.0.7
+	github.com/FGRibreau/mailchecker/v4 v4.0.8
 	github.com/allegro/bigcache v1.2.1
 	github.com/eko/gocache v1.2.0
 	github.com/emirpasic/gods v1.12.0
