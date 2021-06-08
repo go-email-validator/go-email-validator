@@ -2,6 +2,7 @@ package ev
 
 import (
 	"errors"
+	"fmt"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evtests"
 	"net/url"
@@ -10,6 +11,7 @@ import (
 )
 
 const GravatarExistEmail = "beau@dentedreality.com.au"
+const GravatarExistEmailURL = "https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50?d=404"
 
 // TODO mocking Gravatar
 func Test_gravatarValidator_Validate(t *testing.T) {
@@ -32,7 +34,10 @@ func Test_gravatarValidator_Validate(t *testing.T) {
 				email:   evmail.FromString(GravatarExistEmail),
 				results: []ValidationResult{NewValidResult(SyntaxValidatorName)},
 			},
-			want: NewValidResult(GravatarValidatorName),
+			want: NewGravatarValidationResult(
+				GravatarExistEmailURL,
+				NewValidResult(GravatarValidatorName).(*AValidationResult),
+			),
 		},
 		{
 			name: "invalid syntax",
@@ -75,8 +80,8 @@ func Test_gravatarValidator_Validate(t *testing.T) {
 			w := NewGravatarValidator()
 			gotInterface := w.Validate(NewInput(tt.args.email, tt.args.options...), tt.args.results...)
 
-			got := gotInterface.(*validationResult)
-			want := tt.want.(*validationResult)
+			got := gotInterface.(gravatarValidationResult)
+			want := tt.want.(gravatarValidationResult)
 
 			if len(got.errors) > 0 && len(want.errors) > 0 {
 				if errOp, ok := got.errors[0].(*url.Error); ok && errOp.Err != nil {
@@ -91,8 +96,35 @@ func Test_gravatarValidator_Validate(t *testing.T) {
 				}
 			}
 
-			if !reflect.DeepEqual(got, want) && errStr != wantErrStr {
+			if !reflect.DeepEqual(got, want) || got.URL() != want.URL() || errStr != wantErrStr {
 				t.Errorf("Validate() = %v, want %v", gotInterface, tt.want)
+			}
+		})
+	}
+}
+
+func Test_gravatarValidator_race_parallel(t *testing.T) {
+	evtests.FunctionalSkip(t)
+
+	w := NewGravatarValidator()
+	wantStr := "context deadline exceeded (Client.Timeout exceeded while awaiting headers)"
+	for i := 0; i < 100; i++ {
+		email := evmail.NewEmailAddress(fmt.Sprintf("someNoneExistUserName%d", i), "someNonExists")
+		t.Run(email.String(), func(t *testing.T) {
+			t.Parallel()
+
+			gotInterface := w.Validate(
+				NewInput(email, NewKVOption(
+					GravatarValidatorName,
+					NewGravatarOptions(GravatarOptionsDTO{Timeout: 1}),
+				)),
+				NewValidResult(SyntaxValidatorName))
+
+			got := gotInterface.(gravatarValidationResult)
+			gotStr := got.errors[0].(*url.Error).Err.Error()
+
+			if gotStr != wantStr {
+				t.Errorf("Validate() = %v, wantStr %v", gotStr, wantStr)
 			}
 		})
 	}

@@ -136,6 +136,18 @@ Default level is zap.ErrorLevel.
 
 The [StackOverflow thread](https://stackoverflow.com/questions/18139102/how-to-get-around-an-isp-block-on-port-25-for-smtp) could be helpful.
 
+#### To check smtp in telnet
+
+```
+telnet
+
+OPEN gmail-smtp-in.l.google.com 25
+EHLO localhost
+MAIL FROM: <user@example.org>
+rcpt to: <some.email@gmail.com>
+quit
+```
+
 #### Some mail providers could put your ip in spam filter.
 
 For example:
