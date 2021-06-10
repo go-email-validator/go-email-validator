@@ -310,7 +310,7 @@ func TestH12IODial_Direct(t *testing.T) {
 		return
 	}
 
-	if got == nil {
+	if got != nil {
 		t.Errorf("H12IODial() should not be null")
 	}
 }
