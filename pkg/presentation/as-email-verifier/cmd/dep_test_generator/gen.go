@@ -27,6 +27,7 @@ func main() {
 		"asdasd@tradepro.net",
 		"credit@mail.ru",
 		"admin@gmail.com",
+		"asdasd@tradepro.net",
 	)
 
 	for i, email := range emails {

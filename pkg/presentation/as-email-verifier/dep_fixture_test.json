@@ -237,31 +237,6 @@
     "suggestion": ""
   },
   {
-    "email": "asdasd@tradepro.net",
-    "disposable": false,
-    "reachable": "unknown",
-    "role_account": false,
-    "free": false,
-    "syntax": {
-      "username": "asdasd",
-      "domain": "tradepro.net",
-      "valid": true
-    },
-    "has_mx_records": true,
-    "smtp": {
-      "host_exists": true,
-      "full_inbox": false,
-      "catch_all": true,
-      "deliverable": false,
-      "disabled": false
-    },
-    "gravatar": {
-      "HasGravatar": false,
-      "GravatarUrl": ""
-    },
-    "suggestion": ""
-  },
-  {
     "email": "credit@mail.ru",
     "disposable": false,
     "reachable": "unknown",
