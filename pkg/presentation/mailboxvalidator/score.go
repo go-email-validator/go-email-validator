@@ -13,28 +13,28 @@ var minScore = 1
 func CalculateScore(presentation DepPresentation) float64 {
 	score := minScore
 
-	if presentation.IsDomain && presentation.IsSyntax {
+	if presentation.IsDomain.ToBool() && presentation.IsSyntax.ToBool() {
 		score += 9
-		if presentation.IsSMTP {
+		if presentation.IsSMTP.ToBool() {
 			score += 10
 		}
-		if presentation.IsVerified {
+		if presentation.IsVerified.ToBool() {
 			score += 40
 
-			if presentation.IsDisposable {
+			if presentation.IsDisposable.ToBool() {
 				score = 30
-				if presentation.IsCatchall {
+				if presentation.IsCatchall.ToBool() {
 					score -= 5
 				}
 			} else {
-				if !presentation.IsFree {
+				if !presentation.IsFree.ToBool() {
 					score += 39
-					if presentation.IsCatchall {
+					if presentation.IsCatchall.ToBool() {
 						score -= 44
-					} else if presentation.IsRole {
+					} else if presentation.IsRole.ToBool() {
 						score -= 39
 					}
-				} else if presentation.IsCatchall {
+				} else if presentation.IsCatchall.ToBool() {
 					score -= 5
 				}
 			}

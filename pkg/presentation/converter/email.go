@@ -8,6 +8,7 @@ import (
 // EmailsForTests returns emails for tests
 func EmailsForTests() []string {
 	return []string{
+		"",
 		"asdas.da2da",
 		"asdas.dada",
 		"asd@asd@asd",

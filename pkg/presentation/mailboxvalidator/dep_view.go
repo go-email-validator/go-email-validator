@@ -1,18 +1,13 @@
 package mailboxvalidator
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/go-email-validator/go-email-validator/pkg/ev"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/presentation/converter"
+	"strconv"
 	"time"
-)
-
-const (
-	// MBVTrue is "true" in the return
-	MBVTrue = "True"
-	// MBVFalse is "False" in the return
-	MBVFalse = "False"
 )
 
 // DepPresentationForView is the DepPresentation but all fields are string
@@ -39,17 +34,61 @@ type DepPresentationForView struct {
 	ErrorMessage          string `json:"error_message"`
 }
 
+// mailbox return time_taken equals 0 for empty email
+type jsonAlias DepPresentationForView
+type jsonAliasTimeTakenFloat struct {
+	TimeTaken        float64 `json:"time_taken"`
+	CreditsAvailable string  `json:"credits_available"`
+	*jsonAlias
+}
+
+func (d *DepPresentationForView) MarshalJSON() ([]byte, error) {
+	if d.TimeTaken != "0" {
+		return json.Marshal(d)
+	}
+
+	var timeTaken float64
+	if s, err := strconv.ParseFloat(d.TimeTaken, 32); err == nil {
+		timeTaken = s
+	}
+	aux := jsonAliasTimeTakenFloat{
+		TimeTaken: timeTaken,
+		jsonAlias: (*jsonAlias)(d),
+	}
+	return json.Marshal(aux)
+}
+
+func (d *DepPresentationForView) UnmarshalJSON(data []byte) error {
+	var err error
+
+	aux := (*jsonAlias)(d)
+	if err = json.Unmarshal(data, &aux); err == nil {
+		return nil
+	}
+
+	if errType := err.(*json.UnmarshalTypeError); errType.Field != "time_taken" {
+		return err
+	}
+
+	auxChanged := jsonAliasTimeTakenFloat{
+		jsonAlias: (*jsonAlias)(d),
+	}
+
+	if err = json.Unmarshal(data, &auxChanged); err != nil {
+		return err
+	}
+	d.TimeTaken = fmt.Sprint(auxChanged.TimeTaken)
+	d.CreditsAvailable = 0
+
+	return nil
+}
+
 // FromBool converts bool to string
 func FromBool(value bool) string {
 	if value {
 		return MBVTrue
 	}
 	return MBVFalse
-}
-
-// ToBool converts string to bool
-func ToBool(value string) bool {
-	return value == MBVTrue
 }
 
 // NewDepConverterForViewDefault creates default DepConverterForView
@@ -82,21 +121,21 @@ func (d DepConverterForView) Convert(email evmail.Address, resultInterface ev.Va
 	return DepPresentationForView{
 		EmailAddress:          depPresentation.EmailAddress,
 		Domain:                depPresentation.Domain,
-		IsFree:                FromBool(depPresentation.IsFree),
-		IsSyntax:              FromBool(depPresentation.IsSyntax),
-		IsDomain:              FromBool(depPresentation.IsDomain),
-		IsSMTP:                FromBool(depPresentation.IsSMTP),
-		IsVerified:            FromBool(depPresentation.IsVerified),
-		IsServerDown:          FromBool(depPresentation.IsServerDown),
-		IsGreylisted:          FromBool(depPresentation.IsGreylisted),
-		IsDisposable:          FromBool(depPresentation.IsDisposable),
-		IsSuppressed:          FromBool(depPresentation.IsSuppressed),
-		IsRole:                FromBool(depPresentation.IsRole),
-		IsHighRisk:            FromBool(depPresentation.IsHighRisk),
-		IsCatchall:            FromBool(depPresentation.IsCatchall),
+		IsFree:                depPresentation.IsFree.ToString(),
+		IsSyntax:              depPresentation.IsSyntax.ToString(),
+		IsDomain:              depPresentation.IsDomain.ToString(),
+		IsSMTP:                depPresentation.IsSMTP.ToString(),
+		IsVerified:            depPresentation.IsVerified.ToString(),
+		IsServerDown:          depPresentation.IsServerDown.ToString(),
+		IsGreylisted:          depPresentation.IsGreylisted.ToString(),
+		IsDisposable:          depPresentation.IsDisposable.ToString(),
+		IsSuppressed:          depPresentation.IsSuppressed.ToString(),
+		IsRole:                depPresentation.IsRole.ToString(),
+		IsHighRisk:            depPresentation.IsHighRisk.ToString(),
+		IsCatchall:            depPresentation.IsCatchall.ToString(),
 		MailboxvalidatorScore: fmt.Sprint(depPresentation.MailboxvalidatorScore),
 		TimeTaken:             fmt.Sprint(depPresentation.TimeTaken.Round(time.Microsecond).Seconds()),
-		Status:                FromBool(depPresentation.Status),
+		Status:                depPresentation.Status.ToString(),
 		CreditsAvailable:      depPresentation.CreditsAvailable,
 		ErrorCode:             depPresentation.ErrorCode,
 		ErrorMessage:          depPresentation.ErrorMessage,
