@@ -2,12 +2,10 @@ package mockevmail
 
 import "github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 
+// Test constants
 const (
-	// ValidUsername ...
-	ValidUsername = "go.email.validator"
-	// ValidDomain ...
-	ValidDomain = "gmail.com"
-	// ValidEmailString ...
+	ValidUsername    = "go.email.validator"
+	ValidDomain      = "gmail.com"
 	ValidEmailString = ValidUsername + "@" + ValidDomain
 )
 

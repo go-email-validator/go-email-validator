@@ -59,3 +59,27 @@ act: act.build act.run
 
 install.lint:
     curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.33.0
+
+mod.update: mod.update.main mod.update.as-email-verifier.adapter
+
+mod.update.main:
+	go mod tidy
+
+mod.update.as-email-verifier.adapter:
+	cd pkg/presentation/as-email-verifier/adapter && \
+	go mod tidy
+
+# Mount own self in go path
+LIBRARY_PATH := $(GOROOT)/src$(GITHUB_VENDOR)
+
+mount.for_adapter: umount.for_adapter
+	rm -fr $(LIBRARY_PATH)
+	mkdir -p $(LIBRARY_PATH)
+	sudo mount -Br ~/go/src/github.com/go-email-validator/ $(LIBRARY_PATH)
+
+umount.for_adapter:
+	sudo umount $(LIBRARY_PATH) -q | exit 0
+
+
+test.run.proxy:
+	docker run --name proxy -dit --rm -p 1080:1080 -e 'SSS_USERNAME=username' -e 'SSS_PASSWORD=password' dijedodol/simple-socks5-server

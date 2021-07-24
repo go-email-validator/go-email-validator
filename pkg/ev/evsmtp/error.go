@@ -12,12 +12,6 @@ import (
 	"reflect"
 )
 
-// Constants of smtpclient.SMTPClient errors
-const (
-	ErrorHelloAfter = "smtp: Hello called after other methods"
-	ErrorCrLR       = "smtp: A line must not contain CR or LF"
-)
-
 // Used 0 because of https://github.com/msgpack/msgpack/blob/master/spec.md#extension-types
 var registerExtID int8 = 0
 
