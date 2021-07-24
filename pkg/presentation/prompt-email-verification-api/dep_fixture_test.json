@@ -422,7 +422,7 @@
       "is_disposable": false,
       "is_role_account": true,
       "is_catch_all": false,
-      "is_deliverable": true,
+      "is_deliverable": false,
       "can_connect_smtp": true,
       "is_inbox_full": false,
       "is_disabled": false,

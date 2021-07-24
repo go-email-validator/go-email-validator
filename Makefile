@@ -79,3 +79,7 @@ mount.for_adapter: umount.for_adapter
 
 umount.for_adapter:
 	sudo umount $(LIBRARY_PATH) -q | exit 0
+
+
+test.run.proxy:
+	docker run --name proxy -dit --rm -p 1080:1080 -e 'SSS_USERNAME=username' -e 'SSS_PASSWORD=password' dijedodol/simple-socks5-server

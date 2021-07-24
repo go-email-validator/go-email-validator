@@ -44,10 +44,15 @@ func CalculateScore(presentation DepPresentation) float64 {
 		score = minScore
 	}
 
+	emailAddressLength := len(presentation.EmailAddress)
+	if emailAddressLength == 0 {
+		return 0
+	}
 	pos := strings.IndexByte(presentation.EmailAddress, '@')
 	if pos == -1 {
-		pos = len(presentation.EmailAddress) - 1
+		pos = emailAddressLength - 1
 	}
+
 	username := presentation.EmailAddress[:pos]
 
 	if hasNumberInUserNameRE.MatchString(username) {

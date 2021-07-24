@@ -371,7 +371,7 @@
   {
     "email": "admin@huntgear.ru",
     "disposable": false,
-    "reachable": "yes",
+    "reachable": "no",
     "role_account": true,
     "free": false,
     "syntax": {
@@ -384,7 +384,7 @@
       "host_exists": true,
       "full_inbox": false,
       "catch_all": false,
-      "deliverable": true,
+      "deliverable": false,
       "disabled": false
     },
     "gravatar": {
@@ -471,7 +471,7 @@
   {
     "email": "y-numata@senko.ed.jp",
     "disposable": false,
-    "reachable": "unknown",
+    "reachable": "no",
     "role_account": false,
     "free": false,
     "syntax": {
@@ -480,8 +480,17 @@
       "valid": true
     },
     "has_mx_records": true,
-    "smtp": null,
-    "gravatar": null,
+    "smtp": {
+      "host_exists": true,
+      "full_inbox": false,
+      "catch_all": false,
+      "deliverable": false,
+      "disabled": false
+    },
+    "gravatar": {
+      "HasGravatar": false,
+      "GravatarUrl": ""
+    },
     "suggestion": ""
   }
 ]

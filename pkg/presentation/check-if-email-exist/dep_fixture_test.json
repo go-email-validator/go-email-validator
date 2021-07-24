@@ -564,7 +564,7 @@
       "can_connect_smtp": true,
       "has_full_inbox": false,
       "is_catch_all": false,
-      "is_deliverable": true,
+      "is_deliverable": false,
       "is_disabled": false
     },
     "syntax": {
