@@ -8,7 +8,7 @@ require (
 	github.com/allegro/bigcache v1.2.1
 	github.com/eko/gocache v1.2.0
 	github.com/emirpasic/gods v1.12.0
-	github.com/golang/mock v1.5.0
+	github.com/golang/mock v1.6.0
 	github.com/joho/godotenv v1.3.0
 	github.com/kr/text v0.2.0 // indirect
 	github.com/modern-go/reflect2 v1.0.1
@@ -19,7 +19,6 @@ require (
 	github.com/tevino/abool v1.2.0
 	github.com/vmihailenco/msgpack v4.0.4+incompatible
 	go.uber.org/zap v1.18.1
-	golang.org/x/net v0.0.0-20210119194325-5f4716e94777 // indirect
 	google.golang.org/protobuf v1.25.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
