@@ -52,7 +52,7 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         if:  ${{ env.CODECOV_TOKEN != null }} && ${{ matrix.os == env.OS_CODE_COVERAGE }} && ${{ matrix.go-version == env.GO_TARGET_VERSION }}
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./coverage.out
