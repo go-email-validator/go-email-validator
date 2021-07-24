@@ -6,7 +6,6 @@ import (
 	"github.com/go-email-validator/go-email-validator/pkg/ev"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evmail"
 	"github.com/go-email-validator/go-email-validator/pkg/presentation/converter"
-	"strconv"
 	"time"
 )
 
@@ -36,26 +35,8 @@ type DepPresentationForView struct {
 
 // mailbox return time_taken equals 0 for empty email
 type jsonAlias DepPresentationForView
-type jsonAliasTimeTakenFloat struct {
-	TimeTaken        float64 `json:"time_taken"`
-	CreditsAvailable string  `json:"credits_available"`
-	*jsonAlias
-}
-
-func (d *DepPresentationForView) MarshalJSON() ([]byte, error) {
-	if d.TimeTaken != "0" {
-		return json.Marshal(d)
-	}
-
-	var timeTaken float64
-	if s, err := strconv.ParseFloat(d.TimeTaken, 32); err == nil {
-		timeTaken = s
-	}
-	aux := jsonAliasTimeTakenFloat{
-		TimeTaken: timeTaken,
-		jsonAlias: (*jsonAlias)(d),
-	}
-	return json.Marshal(aux)
+type timeTakenFloat struct {
+	TimeTaken float64 `json:"time_taken"`
 }
 
 func (d *DepPresentationForView) UnmarshalJSON(data []byte) error {
@@ -70,25 +51,14 @@ func (d *DepPresentationForView) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	auxChanged := jsonAliasTimeTakenFloat{
-		jsonAlias: (*jsonAlias)(d),
-	}
+	timeTakenStruct := timeTakenFloat{}
 
-	if err = json.Unmarshal(data, &auxChanged); err != nil {
+	if err = json.Unmarshal(data, &timeTakenStruct); err != nil {
 		return err
 	}
-	d.TimeTaken = fmt.Sprint(auxChanged.TimeTaken)
-	d.CreditsAvailable = 0
+	d.TimeTaken = fmt.Sprint(timeTakenStruct.TimeTaken)
 
 	return nil
-}
-
-// FromBool converts bool to string
-func FromBool(value bool) string {
-	if value {
-		return MBVTrue
-	}
-	return MBVFalse
 }
 
 // NewDepConverterForViewDefault creates default DepConverterForView

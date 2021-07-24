@@ -15,7 +15,7 @@
     "is_high_risk": "",
     "is_catchall": "",
     "mailboxvalidator_score": "0",
-    "time_taken": "0",
+    "time_taken": 0,
     "status": "",
     "credits_available": 4294967295,
     "error_code": "100",
