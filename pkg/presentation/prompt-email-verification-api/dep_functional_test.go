@@ -41,6 +41,8 @@ func TestDepConverter_Convert(t *testing.T) {
 		"monicaramirezrestrepo@hotmail.com",
 		// TODO Cannot connect from my hosts pc
 		"y-numata@senko.ed.jp",
+		"theofanisgiotis@12pm.gr",
+		"theofanis.giot2is@12pm.gr",
 	)
 
 	opts := converter.NewOptions(0)

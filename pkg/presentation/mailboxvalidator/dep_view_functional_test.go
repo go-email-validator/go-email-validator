@@ -18,9 +18,9 @@ func TestDepConverter_Functional_Convert(t *testing.T) {
 	evtests.FunctionalSkip(t)
 
 	validator := NewDepValidator(nil)
-	d := NewDepConverterDefault()
+	d := NewDepConverterForViewDefault()
 
-	tests := detPresenters(t)
+	tests := detPresentersFoView(t)
 
 	// Some data or functional cannot be matched, see more nearby DepPresentation of emails
 	skipEmail := hashset.New(
@@ -34,6 +34,8 @@ func TestDepConverter_Functional_Convert(t *testing.T) {
 		"y-numata@senko.ed.jp",
 		"pr@yandex-team.ru",
 		"asdasd@tradepro.net",
+		"theofanisgiotis@12pm.gr",
+		"theofanis.giot2is@12pm.gr",
 	)
 
 	for _, tt := range tests {
@@ -47,7 +49,9 @@ func TestDepConverter_Functional_Convert(t *testing.T) {
 			t.Parallel()
 
 			email := EmailFromString(tt.EmailAddress)
-			opts := converter.NewOptions(tt.TimeTaken)
+
+			opts := converter.NewOptions(0)
+			tt.TimeTaken = "0"
 
 			resultValidator := validator.Validate(ev.NewInput(email))
 			if gotResult := d.Convert(email, resultValidator, opts); !reflect.DeepEqual(gotResult, tt) {
@@ -60,6 +64,13 @@ func TestDepConverter_Functional_Convert(t *testing.T) {
 func detPresenters(t *testing.T) []DepPresentation {
 	tests := make([]DepPresentation, 0)
 	test.DepPresentations(t, &tests, "")
+
+	return tests
+}
+
+func detPresentersFoView(t *testing.T) []DepPresentationForView {
+	tests := make([]DepPresentationForView, 0)
+	test.DepPresentations(t, &tests, "dep_view_fixture_test.json")
 
 	return tests
 }

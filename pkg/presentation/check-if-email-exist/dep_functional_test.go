@@ -40,6 +40,8 @@ func TestDepConverter_Convert(t *testing.T) {
 		"asdasd@tradepro.net",
 		// TODO need check source code
 		"y-numata@senko.ed.jp",
+		"theofanisgiotis@12pm.gr",
+		"theofanis.giot2is@12pm.gr",
 	)
 
 	opts := converter.NewOptions(0)

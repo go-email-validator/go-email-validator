@@ -30,6 +30,8 @@ func TestDepConverter_Convert(t *testing.T) {
 		// TODO change presenter, if there is error before mail stage then smtp is nil
 		"salestrade86@hotmail.com",
 		"monicaramirezrestrepo@hotmail.com",
+		"theofanisgiotis@12pm.gr",
+		"theofanis.giot2is@12pm.gr",
 	)
 
 	opts := converter.NewOptions(0)
