@@ -18,9 +18,17 @@ type EmptyBool struct {
 	*bool
 }
 
+// NewEmptyBool create EmptyBool with bool
 func NewEmptyBool(boolean bool) EmptyBool {
 	return EmptyBool{
 		bool: &boolean,
+	}
+}
+
+// NewEmptyBoolWithNil create EmptyBool with nil
+func NewEmptyBoolWithNil() EmptyBool {
+	return EmptyBool{
+		bool: nil,
 	}
 }
 

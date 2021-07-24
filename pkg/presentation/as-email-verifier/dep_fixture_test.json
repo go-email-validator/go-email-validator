@@ -492,5 +492,30 @@
       "GravatarUrl": ""
     },
     "suggestion": ""
+  },
+  {
+    "email": "alexey@life-in-travels.ru",
+    "reachable": "unknown",
+    "syntax": {
+      "username": "alexey",
+      "domain": "life-in-travels.ru",
+      "valid": true
+    },
+    "smtp": {
+      "host_exists": true,
+      "full_inbox": false,
+      "catch_all": true,
+      "deliverable": false,
+      "disabled": false
+    },
+    "gravatar": {
+      "HasGravatar": true,
+      "GravatarUrl": "https://www.gravatar.com/avatar/fd64b0b4e05696c22516af2e9761865b?d=404"
+    },
+    "suggestion": "",
+    "disposable": false,
+    "role_account": false,
+    "free": false,
+    "has_mx_records": true
   }
 ]

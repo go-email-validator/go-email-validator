@@ -33,6 +33,7 @@ func EmailsForTests() []string {
 		"radmal1982@yandex-team.ru",
 		"pr@yandex-team.ru",
 		"y-numata@senko.ed.jp",
+		"alexey@life-in-travels.ru",
 	}
 }
 
