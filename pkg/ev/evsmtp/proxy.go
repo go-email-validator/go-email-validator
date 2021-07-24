@@ -9,10 +9,8 @@ import (
 	"net/smtp"
 )
 
-// Constants to choose type of connection.
-const (
-	TCPConnection = "tcp"
-)
+// TCPConnection is tcp name
+const TCPConnection = "tcp"
 
 // DialFunc is function type to create smtpclient.SMTPClient
 type DialFunc func(ctx context.Context, addr, proxyURL string) (smtpclient.SMTPClient, error)
