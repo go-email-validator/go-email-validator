@@ -18,7 +18,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/tevino/abool v1.2.0
 	github.com/vmihailenco/msgpack v4.0.4+incompatible
-	go.uber.org/zap v1.18.1
+	go.uber.org/zap v1.19.0
 	google.golang.org/protobuf v1.25.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
