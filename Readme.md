@@ -4,7 +4,7 @@
 
 ## Library under development (Interfaces may be changed slightly)
 
-## Demo on [rapidapi.com](https://rapidapi.com/maranqz/api/Email%20Validator)
+## Demo on [rapidapi.com](https://rapidapi.com/maranqz/api/email-validator15)
 
 ## Install
 
