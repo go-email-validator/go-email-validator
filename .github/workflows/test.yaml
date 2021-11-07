@@ -7,16 +7,16 @@ on:
       - master
 name: Test
 env:
-  GO_TARGET_VERSION: 1.16.x
+  GO_TARGET_VERSION: 1.17.x
   OS_CODE_COVERAGE: ubuntu-latest
 jobs:
   test:
     strategy:
       matrix:
         go-version:
-          - 1.14.x
           - 1.15.x
           - 1.16.x
+          - 1.17.x
         os:
           - ubuntu-latest
           # - macos-latest
