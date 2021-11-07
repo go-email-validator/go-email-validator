@@ -1,6 +1,6 @@
 module github.com/go-email-validator/go-email-validator
 
-go 1.16
+go 1.17
 
 require (
 	github.com/AfterShip/email-verifier v1.3.0
