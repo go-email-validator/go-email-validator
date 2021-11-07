@@ -176,7 +176,7 @@
     "Dep": {
       "email": "derduzikne@nedoz.com",
       "syntax_valid": true,
-      "is_disposable": false,
+      "is_disposable": true,
       "is_role_account": false,
       "is_catch_all": true,
       "is_deliverable": true,
