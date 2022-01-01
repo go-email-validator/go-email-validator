@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/AfterShip/email-verifier v1.3.0
-	github.com/FGRibreau/mailchecker/v4 v4.1.6
+	github.com/FGRibreau/mailchecker/v4 v4.1.7
 	github.com/allegro/bigcache v1.2.1
 	github.com/eko/gocache v1.2.0
 	github.com/emirpasic/gods v1.12.0
