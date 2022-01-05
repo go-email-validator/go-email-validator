@@ -15,7 +15,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/tevino/abool v1.2.0
 	github.com/vmihailenco/msgpack v4.0.4+incompatible
-	go.uber.org/zap v1.19.1
+	go.uber.org/zap v1.20.0
 	h12.io/socks v1.0.3
 )
 
