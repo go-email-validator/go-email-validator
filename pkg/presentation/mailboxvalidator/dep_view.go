@@ -39,6 +39,7 @@ type timeTakenFloat struct {
 	TimeTaken float64 `json:"time_taken"`
 }
 
+// UnmarshalJSON is an implementation of Unmarshaler.UnmarshalJSON
 func (d *DepPresentationForView) UnmarshalJSON(data []byte) error {
 	var err error
 
