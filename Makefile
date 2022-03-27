@@ -38,7 +38,7 @@ go.mocks.nets:
 	mockgen -source=$(GOROOT)/go1.15.6/src/net/net.go -destination=test/mock/net/Conn.go --package=mocknet
 
 go.lint:
-	golint ./...
+	golint ./... | grep -v vendor/
 
 GO_COVER=go tool cover -func=$(COVERAGE_FILE)
 go.cover:

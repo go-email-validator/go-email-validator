@@ -43,6 +43,7 @@ func TestDepConverter_Convert(t *testing.T) {
 		"theofanisgiotis@12pm.gr",
 		"theofanis.giot2is@12pm.gr",
 		"derduzikne@nedoz.com",
+		"admin@huntgear.ru",
 	)
 
 	opts := converter.NewOptions(0)
