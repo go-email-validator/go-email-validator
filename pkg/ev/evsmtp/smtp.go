@@ -13,6 +13,7 @@ import (
 	"go.uber.org/zap"
 	"net"
 	"net/smtp"
+	"sync"
 )
 
 // Configuration constants
@@ -125,8 +126,28 @@ type checker struct {
 	options         Options
 }
 
+type sendMailRWMutex struct {
+	m        sync.RWMutex
+	sendMail SendMail
+}
+
+func (s *sendMailRWMutex) Set(sendMail SendMail) *sendMailRWMutex {
+	s.m.Lock()
+	defer s.m.Unlock()
+
+	s.sendMail = sendMail
+
+	return s
+}
+
+func (s *sendMailRWMutex) Get() SendMail {
+	s.m.RLock()
+	defer s.m.RUnlock()
+	return s.sendMail
+}
+
 func (c checker) Validate(mxs MXs, input Input) (errs []error) {
-	var sm SendMail
+	var smMutex = &sendMailRWMutex{}
 	var err error
 	errs = make([]error, 0)
 	var host string
@@ -141,7 +162,6 @@ func (c checker) Validate(mxs MXs, input Input) (errs []error) {
 		Port:        utils.DefaultInt(input.Port(), c.options.Port()),
 	})
 
-	stopFor := abool.New()
 	for _, mx := range mxs {
 		host = fmt.Sprintf("%v:%v", mx.Host, opts.Port())
 
@@ -162,8 +182,7 @@ func (c checker) Validate(mxs MXs, input Input) (errs []error) {
 
 				sendMail, errSM := c.sendMailFactory(ctx, host, input)
 				if errSM == nil {
-					sm = sendMail
-					stopFor.Set()
+					smMutex.Set(sendMail)
 				}
 			}()
 
@@ -174,12 +193,14 @@ func (c checker) Validate(mxs MXs, input Input) (errs []error) {
 				return
 			}
 		}()
-		if stopFor.IsSet() {
+
+		if reflect2.IsNil(smMutex.Get()) {
 			break
 		}
 	}
 
 	stage := SafeSendMailStage{SendMailStage: ConnectionStage}
+	sm := smMutex.Get()
 	if reflect2.IsNil(sm) {
 		return append(errs, ErrConnection)
 	}

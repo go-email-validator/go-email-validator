@@ -36,6 +36,7 @@ func TestDepConverter_Functional_Convert(t *testing.T) {
 		"asdasd@tradepro.net",
 		"theofanisgiotis@12pm.gr",
 		"theofanis.giot2is@12pm.gr",
+		"admin@huntgear.ru",
 	)
 
 	for _, tt := range tests {
