@@ -9,7 +9,7 @@ require (
 	github.com/eko/gocache v1.2.0
 	github.com/emirpasic/gods v1.18.1
 	github.com/golang/mock v1.6.0
-	github.com/joho/godotenv v1.4.0
+	github.com/joho/godotenv v1.5.1
 	github.com/modern-go/reflect2 v1.0.2
 	github.com/sethvargo/go-password v0.2.0
 	github.com/stretchr/testify v1.8.0
