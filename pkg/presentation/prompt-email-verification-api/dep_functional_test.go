@@ -1,14 +1,16 @@
 package promptemailverificationapi
 
 import (
+	"reflect"
+	"sort"
+	"testing"
+
 	"github.com/emirpasic/gods/sets/hashset"
+
 	"github.com/go-email-validator/go-email-validator/pkg/ev"
 	"github.com/go-email-validator/go-email-validator/pkg/ev/evtests"
 	"github.com/go-email-validator/go-email-validator/pkg/presentation/converter"
 	"github.com/go-email-validator/go-email-validator/pkg/presentation/test"
-	"reflect"
-	"sort"
-	"testing"
 )
 
 func TestMain(m *testing.M) {
@@ -44,6 +46,7 @@ func TestDepConverter_Convert(t *testing.T) {
 		"theofanisgiotis@12pm.gr",
 		"theofanis.giot2is@12pm.gr",
 		"admin@huntgear.ru",
+		"derduzikne@nedoz.com",
 	)
 
 	opts := converter.NewOptions(0)

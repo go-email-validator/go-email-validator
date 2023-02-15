@@ -23,3 +23,5 @@ coverage.out.tmp
 # Environment variables
 .env
 
+# Vendor
+/vendor
