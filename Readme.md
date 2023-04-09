@@ -81,7 +81,7 @@ import (
 )
 
 func main() {
-  var v = ev.NewSyntaxValidator().Validate(NewInput(evmail.FromString("some@evmail.here"))) // ev.ValidationResult
+  var v = ev.NewSyntaxValidator().Validate(ev.NewInput(evmail.FromString("some@evmail.here"))) // ev.ValidationResult
 
   if !v.IsValid() {
     panic("email is invalid")
