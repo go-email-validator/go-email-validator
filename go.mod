@@ -3,7 +3,7 @@ module github.com/go-email-validator/go-email-validator
 go 1.17
 
 require (
-	github.com/AfterShip/email-verifier v1.3.2
+	github.com/AfterShip/email-verifier v1.3.3
 	github.com/FGRibreau/mailchecker/v4 v4.1.19
 	github.com/allegro/bigcache v1.2.1
 	github.com/eko/gocache v1.2.0
@@ -46,9 +46,9 @@ require (
 	go.opentelemetry.io/otel/trace v0.19.0 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
-	golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4 // indirect
-	golang.org/x/sys v0.0.0-20210603081109-ebe580a85c40 // indirect
-	golang.org/x/text v0.3.3 // indirect
+	golang.org/x/net v0.7.0 // indirect
+	golang.org/x/sys v0.5.0 // indirect
+	golang.org/x/text v0.7.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.26.0-rc.1 // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
